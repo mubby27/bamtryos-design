@@ -1,0 +1,170 @@
+{
+  "global": {
+    "color": {
+      "primary": {
+        "blue": { "value": "#00A3FF", "type": "color", "description": "Primary brand color — electric blue. Use for buttons, links, highlights, active states." },
+        "blue-dark": { "value": "#0086D4", "type": "color", "description": "Darker blue — hover/pressed states on primary actions." },
+        "blue-glow": { "value": "rgba(0,163,255,0.15)", "type": "color", "description": "Blue glow for glassmorphism effects and focus rings." }
+      },
+      "background": {
+        "base": { "value": "#0A0A0F", "type": "color", "description": "Main app background — deep black." },
+        "surface": { "value": "#12121C", "type": "color", "description": "Cards, modals, panels, sidebars." },
+        "surface-elevated": { "value": "#1A1A2E", "type": "color", "description": "Elevated components — dropdowns, popovers, raised cards." },
+        "surface-glass": { "value": "rgba(18,18,28,0.7)", "type": "color", "description": "Glassmorphism surface — use with backdrop-blur." }
+      },
+      "border": {
+        "subtle": { "value": "#1E2040", "type": "color", "description": "Default dividers and borders." },
+        "medium": { "value": "#2A2B50", "type": "color", "description": "Stronger borders — focused inputs, active elements." },
+        "focus": { "value": "#00A3FF", "type": "color", "description": "Focus ring color — always primary blue." }
+      },
+      "text": {
+        "primary": { "value": "#FFFFFF", "type": "color", "description": "Main body text and headings." },
+        "secondary": { "value": "#8899BB", "type": "color", "description": "Subtext, captions, metadata." },
+        "tertiary": { "value": "#404870", "type": "color", "description": "Placeholder text, disabled labels." },
+        "inverse": { "value": "#0A0A0F", "type": "color", "description": "Text on light/colored backgrounds." }
+      },
+      "semantic": {
+        "success": { "value": "#00E676", "type": "color", "description": "Success states — confirmed transactions, verified identity." },
+        "success-surface": { "value": "rgba(0,230,118,0.10)", "type": "color", "description": "Success background tint." },
+        "error": { "value": "#FF4444", "type": "color", "description": "Error states — failed transactions, validation errors." },
+        "error-surface": { "value": "rgba(255,68,68,0.10)", "type": "color", "description": "Error background tint." },
+        "warning": { "value": "#FFB300", "type": "color", "description": "Warning states — high gas fees, risk alerts." },
+        "warning-surface": { "value": "rgba(255,179,0,0.10)", "type": "color", "description": "Warning background tint." },
+        "info": { "value": "#38BEFF", "type": "color", "description": "Informational — secondary highlights, Chain indicators." },
+        "info-surface": { "value": "rgba(56,190,255,0.10)", "type": "color", "description": "Info background tint." }
+      },
+      "chain": {
+        "ethereum": { "value": "#627EEA", "type": "color" },
+        "polygon": { "value": "#8247E5", "type": "color" },
+        "solana": { "value": "#9945FF", "type": "color" },
+        "bitcoin": { "value": "#F7931A", "type": "color" },
+        "arbitrum": { "value": "#2D374B", "type": "color" },
+        "optimism": { "value": "#FF0420", "type": "color" },
+        "cosmos": { "value": "#2E3148", "type": "color" },
+        "base": { "value": "#0052FF", "type": "color" }
+      }
+    },
+    "typography": {
+      "fontFamily": {
+        "heading": { "value": "Space Grotesk", "type": "fontFamilies", "description": "Used for all headings H1–H4, display text, balance figures." },
+        "body": { "value": "Inter", "type": "fontFamilies", "description": "Used for all body text, labels, captions, navigation." },
+        "mono": { "value": "JetBrains Mono", "type": "fontFamilies", "description": "Used for wallet addresses, transaction hashes, code." }
+      },
+      "fontWeight": {
+        "regular": { "value": 400, "type": "fontWeights" },
+        "medium": { "value": 500, "type": "fontWeights" },
+        "semibold": { "value": 600, "type": "fontWeights" },
+        "bold": { "value": 700, "type": "fontWeights" },
+        "extrabold": { "value": 800, "type": "fontWeights" }
+      },
+      "fontSize": {
+        "display": { "value": "48px", "type": "fontSizes", "description": "Hero balance, splash screens." },
+        "h1": { "value": "36px", "type": "fontSizes" },
+        "h2": { "value": "28px", "type": "fontSizes" },
+        "h3": { "value": "22px", "type": "fontSizes" },
+        "h4": { "value": "18px", "type": "fontSizes" },
+        "body-l": { "value": "16px", "type": "fontSizes" },
+        "body-m": { "value": "14px", "type": "fontSizes", "description": "Default body text." },
+        "body-s": { "value": "13px", "type": "fontSizes" },
+        "caption": { "value": "12px", "type": "fontSizes" },
+        "label": { "value": "11px", "type": "fontSizes", "description": "Tags, badges, meta labels." },
+        "micro": { "value": "10px", "type": "fontSizes", "description": "Section headers, legal text." }
+      },
+      "lineHeight": {
+        "tight": { "value": "1.2", "type": "lineHeights" },
+        "snug": { "value": "1.4", "type": "lineHeights" },
+        "normal": { "value": "1.6", "type": "lineHeights" },
+        "relaxed": { "value": "1.8", "type": "lineHeights" }
+      },
+      "letterSpacing": {
+        "tight": { "value": "-0.5px", "type": "letterSpacing" },
+        "normal": { "value": "0px", "type": "letterSpacing" },
+        "wide": { "value": "0.5px", "type": "letterSpacing" },
+        "wider": { "value": "1px", "type": "letterSpacing" },
+        "widest": { "value": "1.5px", "type": "letterSpacing" }
+      }
+    },
+    "spacing": {
+      "1": { "value": "4px", "type": "spacing" },
+      "2": { "value": "8px", "type": "spacing" },
+      "3": { "value": "12px", "type": "spacing" },
+      "4": { "value": "16px", "type": "spacing" },
+      "5": { "value": "20px", "type": "spacing" },
+      "6": { "value": "24px", "type": "spacing" },
+      "8": { "value": "32px", "type": "spacing" },
+      "10": { "value": "40px", "type": "spacing" },
+      "12": { "value": "48px", "type": "spacing" },
+      "16": { "value": "64px", "type": "spacing" },
+      "24": { "value": "96px", "type": "spacing" }
+    },
+    "borderRadius": {
+      "sm": { "value": "6px", "type": "borderRadius" },
+      "md": { "value": "10px", "type": "borderRadius" },
+      "lg": { "value": "16px", "type": "borderRadius" },
+      "xl": { "value": "20px", "type": "borderRadius" },
+      "2xl": { "value": "24px", "type": "borderRadius" },
+      "full": { "value": "9999px", "type": "borderRadius" }
+    },
+    "shadow": {
+      "sm": { "value": "0 1px 3px rgba(0,0,0,0.4)", "type": "boxShadow" },
+      "md": { "value": "0 4px 16px rgba(0,0,0,0.5)", "type": "boxShadow" },
+      "lg": { "value": "0 8px 32px rgba(0,0,0,0.6)", "type": "boxShadow" },
+      "glow-blue": { "value": "0 0 24px rgba(0,163,255,0.35)", "type": "boxShadow", "description": "Blue glow — use on primary buttons and balance heroes." },
+      "glow-green": { "value": "0 0 16px rgba(0,230,118,0.25)", "type": "boxShadow", "description": "Green glow — success states." },
+      "glow-red": { "value": "0 0 16px rgba(255,68,68,0.25)", "type": "boxShadow", "description": "Red glow — error states." }
+    },
+    "blur": {
+      "sm": { "value": "8px", "type": "other", "description": "Light glassmorphism." },
+      "md": { "value": "16px", "type": "other", "description": "Standard glassmorphism cards." },
+      "lg": { "value": "32px", "type": "other", "description": "Modal overlays." }
+    },
+    "component": {
+      "button-primary": {
+        "background": { "value": "{color.primary.blue}", "type": "color" },
+        "text": { "value": "#FFFFFF", "type": "color" },
+        "border-radius": { "value": "{borderRadius.md}", "type": "borderRadius" },
+        "padding": { "value": "12px 24px", "type": "spacing" },
+        "font-size": { "value": "{typography.fontSize.body-m}", "type": "fontSizes" },
+        "font-weight": { "value": "{typography.fontWeight.semibold}", "type": "fontWeights" },
+        "shadow": { "value": "{shadow.glow-blue}", "type": "boxShadow" }
+      },
+      "card": {
+        "background": { "value": "{color.background.surface}", "type": "color" },
+        "border": { "value": "{color.border.subtle}", "type": "color" },
+        "border-radius": { "value": "{borderRadius.lg}", "type": "borderRadius" },
+        "padding": { "value": "{spacing.5}", "type": "spacing" }
+      },
+      "bottom-nav": {
+        "background": { "value": "{color.background.surface}", "type": "color" },
+        "height": { "value": "72px", "type": "sizing" },
+        "icon-size": { "value": "24px", "type": "sizing" },
+        "label-size": { "value": "{typography.fontSize.micro}", "type": "fontSizes" },
+        "active-color": { "value": "{color.primary.blue}", "type": "color" },
+        "inactive-color": { "value": "{color.text.tertiary}", "type": "color" }
+      },
+      "wallet-card": {
+        "background": { "value": "linear-gradient(135deg, #1A1640, #0F1A2E)", "type": "color" },
+        "balance-font": { "value": "{typography.fontFamily.heading}", "type": "fontFamilies" },
+        "balance-size": { "value": "{typography.fontSize.display}", "type": "fontSizes" },
+        "border-radius": { "value": "{borderRadius.xl}", "type": "borderRadius" }
+      },
+      "transaction-row": {
+        "height": { "value": "64px", "type": "sizing" },
+        "icon-size": { "value": "36px", "type": "sizing" },
+        "icon-radius": { "value": "{borderRadius.md}", "type": "borderRadius" },
+        "amount-positive": { "value": "{color.semantic.success}", "type": "color" },
+        "amount-negative": { "value": "{color.semantic.error}", "type": "color" }
+      },
+      "dapp-tile": {
+        "icon-size": { "value": "48px", "type": "sizing" },
+        "icon-radius": { "value": "{borderRadius.lg}", "type": "borderRadius" },
+        "background": { "value": "{color.background.surface}", "type": "color" },
+        "border-radius": { "value": "{borderRadius.lg}", "type": "borderRadius" },
+        "padding": { "value": "{spacing.4}", "type": "spacing" }
+      }
+    }
+  },
+  "$metadata": {
+    "tokenSetOrder": ["global"]
+  }
+}

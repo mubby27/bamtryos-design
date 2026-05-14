@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BamtryOS — Design System & Brand Guide</title>
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
   *{margin:0;padding:0;box-sizing:border-box;}
   :root{
-    --bg:#08080F;--surface:#0F0F1A;--card:#161625;--card2:#1C1C2E;
-    --border:#2A2A42;--border2:#363658;
-    --accent:#7C6FFF;--accent2:#5B4FE8;--accent-glow:rgba(124,111,255,0.15);
-    --cyan:#00D4FF;--cyan-glow:rgba(0,212,255,0.1);
-    --green:#00C896;--red:#FF5C7A;--orange:#FF9A3C;--yellow:#FFD93D;
-    --text:#F0F0FF;--text2:#A0A0C0;--text3:#606080;
-    --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+    --bg:#0A0A0F;--surface:#12121C;--card:#1A1A2E;--card2:#1A1A2E;
+    --border:#1E2040;--border2:#2A2B50;
+    --accent:#00A3FF;--accent2:#0086D4;--accent-glow:rgba(0,163,255,0.12);
+    --cyan:#38BEFF;--cyan-glow:rgba(0,212,255,0.1);
+    --green:#00E676;--red:#FF4444;--orange:#FF9A3C;--yellow:#FFD93D;
+    --text:#FFFFFF;--text2:#8899BB;--text3:#404870;
+    --font:'Inter',sans-serif;--font-heading:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
   }
   body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;}
   .page{max-width:1100px;margin:0 auto;padding:60px 40px;}
@@ -107,6 +107,10 @@
 
   footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
   .footer-text{font-size:12px;color:var(--text3);}
+
+  h1, h2, h3, h4, .page-title, .section-title, .flow-title, .card-title, .onboard-title, .wallet-balance, .stat-value {
+    font-family: var(--font-heading);
+  }
 </style>
 </head>
 <body>
@@ -150,7 +154,7 @@
     </div>
     <div class="card" style="text-align:center;padding:40px;background:#fff;">
       <div style="display:flex;justify-content:center;margin-bottom:16px;">
-        <div style="width:64px;height:64px;background:linear-gradient(135deg,#7C6FFF,#00D4FF);border-radius:18px;display:flex;align-items:center;justify-content:center;">
+        <div style="width:64px;height:64px;background:linear-gradient(135deg,#00A3FF,#38BEFF);border-radius:18px;display:flex;align-items:center;justify-content:center;">
           <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
             <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
             <circle cx="14" cy="14" r="4" fill="white"/>
@@ -158,10 +162,10 @@
           </svg>
         </div>
       </div>
-      <div style="font-size:20px;font-weight:800;color:#08080F;">BamtryOS</div>
+      <div style="font-size:20px;font-weight:800;color:#0A0A0F;">BamtryOS</div>
       <div style="font-size:11px;color:#888;margin-top:4px;">Primary — Light Background</div>
     </div>
-    <div class="card" style="text-align:center;padding:40px;background:linear-gradient(135deg,#7C6FFF,#00D4FF);">
+    <div class="card" style="text-align:center;padding:40px;background:linear-gradient(135deg,#00A3FF,#38BEFF);">
       <div style="display:flex;justify-content:center;margin-bottom:16px;">
         <div style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
           <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
@@ -181,24 +185,24 @@
   <h3>Primary Palette</h3>
   <div class="grid-4" style="margin-bottom:32px;">
     <div>
-      <div class="swatch" style="background:#7C6FFF;"></div>
+      <div class="swatch" style="background:#00A3FF;"></div>
       <div class="swatch-label">Accent Purple</div>
-      <div class="swatch-hex">#7C6FFF</div>
+      <div class="swatch-hex">#00A3FF</div>
     </div>
     <div>
-      <div class="swatch" style="background:#00D4FF;"></div>
+      <div class="swatch" style="background:#38BEFF;"></div>
       <div class="swatch-label">Cyan</div>
-      <div class="swatch-hex">#00D4FF</div>
+      <div class="swatch-hex">#38BEFF</div>
     </div>
     <div>
-      <div class="swatch" style="background:#00C896;"></div>
+      <div class="swatch" style="background:#00E676;"></div>
       <div class="swatch-label">Success Green</div>
-      <div class="swatch-hex">#00C896</div>
+      <div class="swatch-hex">#00E676</div>
     </div>
     <div>
-      <div class="swatch" style="background:#FF5C7A;"></div>
+      <div class="swatch" style="background:#FF4444;"></div>
       <div class="swatch-label">Error Red</div>
-      <div class="swatch-hex">#FF5C7A</div>
+      <div class="swatch-hex">#FF4444</div>
     </div>
     <div>
       <div class="swatch" style="background:#FF9A3C;"></div>
@@ -211,58 +215,58 @@
       <div class="swatch-hex">#FFD93D</div>
     </div>
     <div>
-      <div class="swatch" style="background:linear-gradient(135deg,#7C6FFF,#00D4FF);"></div>
+      <div class="swatch" style="background:linear-gradient(135deg,#00A3FF,#38BEFF);"></div>
       <div class="swatch-label">Primary Gradient</div>
-      <div class="swatch-hex">#7C6FFF → #00D4FF</div>
+      <div class="swatch-hex">#00A3FF → #38BEFF</div>
     </div>
     <div>
-      <div class="swatch" style="background:linear-gradient(135deg,#FF5C7A,#FF9A3C);"></div>
+      <div class="swatch" style="background:linear-gradient(135deg,#FF4444,#FF9A3C);"></div>
       <div class="swatch-label">Warning Gradient</div>
-      <div class="swatch-hex">#FF5C7A → #FF9A3C</div>
+      <div class="swatch-hex">#FF4444 → #FF9A3C</div>
     </div>
   </div>
 
   <h3>Background / Surface Scale</h3>
   <div class="grid-4" style="margin-bottom:32px;">
     <div>
-      <div class="swatch" style="background:#08080F;border:1px solid #2A2A42;"></div>
+      <div class="swatch" style="background:#0A0A0F;border:1px solid #1E2040;"></div>
       <div class="swatch-label">Background</div>
-      <div class="swatch-hex">#08080F</div>
+      <div class="swatch-hex">#0A0A0F</div>
     </div>
     <div>
-      <div class="swatch" style="background:#0F0F1A;border:1px solid #2A2A42;"></div>
+      <div class="swatch" style="background:#12121C;border:1px solid #1E2040;"></div>
       <div class="swatch-label">Surface</div>
-      <div class="swatch-hex">#0F0F1A</div>
+      <div class="swatch-hex">#12121C</div>
     </div>
     <div>
-      <div class="swatch" style="background:#161625;border:1px solid #2A2A42;"></div>
+      <div class="swatch" style="background:#1A1A2E;border:1px solid #1E2040;"></div>
       <div class="swatch-label">Card</div>
-      <div class="swatch-hex">#161625</div>
+      <div class="swatch-hex">#1A1A2E</div>
     </div>
     <div>
-      <div class="swatch" style="background:#1C1C2E;border:1px solid #2A2A42;"></div>
+      <div class="swatch" style="background:#1A1A2E;border:1px solid #1E2040;"></div>
       <div class="swatch-label">Card Elevated</div>
-      <div class="swatch-hex">#1C1C2E</div>
+      <div class="swatch-hex">#1A1A2E</div>
     </div>
     <div>
-      <div class="swatch" style="background:#2A2A42;"></div>
+      <div class="swatch" style="background:#1E2040;"></div>
       <div class="swatch-label">Border</div>
-      <div class="swatch-hex">#2A2A42</div>
+      <div class="swatch-hex">#1E2040</div>
     </div>
     <div>
-      <div class="swatch" style="background:#363658;"></div>
+      <div class="swatch" style="background:#2A2B50;"></div>
       <div class="swatch-label">Border Hover</div>
-      <div class="swatch-hex">#363658</div>
+      <div class="swatch-hex">#2A2B50</div>
     </div>
     <div>
-      <div class="swatch" style="background:#F0F0FF;"></div>
+      <div class="swatch" style="background:#FFFFFF;"></div>
       <div class="swatch-label">Text Primary</div>
-      <div class="swatch-hex">#F0F0FF</div>
+      <div class="swatch-hex">#FFFFFF</div>
     </div>
     <div>
-      <div class="swatch" style="background:#A0A0C0;"></div>
+      <div class="swatch" style="background:#8899BB;"></div>
       <div class="swatch-label">Text Secondary</div>
-      <div class="swatch-hex">#A0A0C0</div>
+      <div class="swatch-hex">#8899BB</div>
     </div>
   </div>
 
@@ -518,23 +522,23 @@
   <h2>07 · Gradients</h2>
   <div class="grid-3">
     <div>
-      <div class="gradient-demo" style="background:linear-gradient(135deg,#7C6FFF,#00D4FF);"></div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#00A3FF,#38BEFF);"></div>
       <div class="gradient-label">Primary — Purple to Cyan</div>
     </div>
     <div>
-      <div class="gradient-demo" style="background:linear-gradient(135deg,#7C6FFF,#FF5C7A);"></div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#00A3FF,#FF4444);"></div>
       <div class="gradient-label">Danger — Purple to Red</div>
     </div>
     <div>
-      <div class="gradient-demo" style="background:linear-gradient(135deg,#00C896,#00D4FF);"></div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#00E676,#38BEFF);"></div>
       <div class="gradient-label">Success — Green to Cyan</div>
     </div>
     <div>
-      <div class="gradient-demo" style="background:linear-gradient(180deg,#0F0F1A 0%,#08080F 100%);border:1px solid #2A2A42;"></div>
+      <div class="gradient-demo" style="background:linear-gradient(180deg,#12121C 0%,#0A0A0F 100%);border:1px solid #1E2040;"></div>
       <div class="gradient-label">Surface Fade — Dark</div>
     </div>
     <div>
-      <div class="gradient-demo" style="background:linear-gradient(135deg,rgba(124,111,255,0.2),rgba(0,212,255,0.2));border:1px solid #2A2A42;"></div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,rgba(0,163,255,0.15),rgba(0,212,255,0.2));border:1px solid #1E2040;"></div>
       <div class="gradient-label">Glow — Accent Overlay</div>
     </div>
     <div>
@@ -582,7 +586,7 @@
       <div class="swatch-hex">#E84142</div>
     </div>
     <div class="card" style="text-align:center;padding:16px;">
-      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7C6FFF,#00D4FF);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">BTY</div>
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#00A3FF,#38BEFF);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">BTY</div>
       <div style="font-size:13px;font-weight:600;">BamtryOS</div>
       <div class="swatch-hex">Gradient</div>
     </div>

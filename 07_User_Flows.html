@@ -6,10 +6,10 @@
 <title>BamtryOS — User Flows</title>
 <style>
   :root {
-    --bg:#08080F; --surface:#0F0F1A; --surface2:#161625; --border:#1E1E35;
-    --accent:#7C6FFF; --cyan:#00D4FF; --green:#00C896; --red:#FF5C7A;
-    --yellow:#FFB800; --orange:#FF8A00; --text:#E8E8F0; --text2:#9090A8; --text3:#5A5A7A;
-    --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --bg:#0A0A0F; --surface:#12121C; --surface2:#1A1A2E; --border:#1E2040;
+    --accent:#00A3FF; --cyan:#38BEFF; --green:#00E676; --red:#FF4444;
+    --yellow:#FFB300; --orange:#FF8A00; --text:#FFFFFF; --text2:#8899BB; --text3:#404870;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;--font-heading:'Space Grotesk',-apple-system,sans-serif;
     --mono:'JetBrains Mono','Fira Code',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
@@ -21,13 +21,13 @@
   .sidebar-section-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;padding:0 8px 8px;}
   .sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;transition:all 0.15s;text-decoration:none;}
   .sidebar-item:hover{background:var(--surface2);color:var(--text);}
-  .sidebar-item.active{background:rgba(124,111,255,0.15);color:var(--accent);}
+  .sidebar-item.active{background:rgba(0,163,255,0.12);color:var(--accent);}
   .sidebar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;}
   .sidebar-item.active .dot{background:var(--accent);}
 
   .main{margin-left:240px;min-height:100vh;}
   .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:32px 48px 28px;position:sticky;top:0;z-index:50;}
-  .header-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(124,111,255,0.12);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:12px;}
+  .header-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(0,163,255,0.10);border:1px solid rgba(0,163,255,0.20);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:12px;}
   .page-title{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;}
   .page-title span{color:var(--accent);}
   .page-desc{color:var(--text2);font-size:14px;max-width:640px;}
@@ -43,7 +43,7 @@
   .flow-subtitle{font-size:13px;color:var(--text2);margin-top:2px;}
   .flow-meta{margin-left:auto;display:flex;gap:8px;flex-shrink:0;}
   .flow-tag{padding:4px 12px;border-radius:20px;font-size:11px;font-weight:600;}
-  .ft-primary{background:rgba(124,111,255,0.12);color:var(--accent);border:1px solid rgba(124,111,255,0.2);}
+  .ft-primary{background:rgba(0,163,255,0.10);color:var(--accent);border:1px solid rgba(0,163,255,0.15);}
   .ft-critical{background:rgba(255,184,0,0.1);color:var(--yellow);border:1px solid rgba(255,184,0,0.2);}
   .ft-success{background:rgba(0,200,150,0.1);color:var(--green);border:1px solid rgba(0,200,150,0.15);}
   .divider{border:none;border-top:1px solid var(--border);margin:0 0 48px;}
@@ -64,14 +64,14 @@
   .step-card-top{display:flex;align-items:center;gap:10px;margin-bottom:4px;}
   .step-actor{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:2px 8px;border-radius:4px;}
   .sa-user{background:rgba(0,212,255,0.1);color:var(--cyan);}
-  .sa-system{background:rgba(124,111,255,0.12);color:var(--accent);}
+  .sa-system{background:rgba(0,163,255,0.10);color:var(--accent);}
   .sa-bridge{background:rgba(0,212,255,0.12);color:#38C9FF;border:1px solid rgba(0,212,255,0.25);}
-  .sa-cloudos{background:rgba(124,111,255,0.15);color:#A89BFF;border:1px solid rgba(124,111,255,0.3);}
+  .sa-cloudos{background:rgba(0,163,255,0.12);color:#A89BFF;border:1px solid rgba(0,163,255,0.25);}
   .sa-chain{background:rgba(255,184,0,0.1);color:var(--yellow);}
   .sa-ai{background:rgba(0,200,150,0.1);color:var(--green);}
   .sa-tee{background:rgba(255,92,122,0.1);color:var(--red);}
   .hs-bridge{background:rgba(0,212,255,0.08);color:#38C9FF;border:1px solid rgba(0,212,255,0.2);}
-  .hs-cloudos{background:rgba(124,111,255,0.08);color:#A89BFF;border:1px solid rgba(124,111,255,0.2);}
+  .hs-cloudos{background:rgba(0,163,255,0.06);color:#A89BFF;border:1px solid rgba(0,163,255,0.15);}
   .hs-ipfs{background:rgba(255,138,0,0.08);color:var(--orange);border:1px solid rgba(255,138,0,0.15);}
   .hs-ok{background:rgba(0,200,150,0.08);color:var(--green);border:1px solid rgba(0,200,150,0.15);}
   .step-name{font-size:13px;font-weight:700;color:var(--text);}
@@ -94,7 +94,7 @@
   .harrow-line{flex:1;height:2px;background:linear-gradient(to right,var(--border),var(--accent));}
   .harrow-head{color:var(--accent);font-size:10px;margin-left:-2px;}
   .hs-user{background:rgba(0,212,255,0.08);color:var(--cyan);border:1px solid rgba(0,212,255,0.15);}
-  .hs-sys{background:rgba(124,111,255,0.08);color:var(--accent);border:1px solid rgba(124,111,255,0.15);}
+  .hs-sys{background:rgba(0,163,255,0.06);color:var(--accent);border:1px solid rgba(0,163,255,0.12);}
   .hs-tee{background:rgba(255,92,122,0.08);color:var(--red);border:1px solid rgba(255,92,122,0.15);}
   .hs-chain{background:rgba(255,184,0,0.08);color:var(--yellow);border:1px solid rgba(255,184,0,0.15);}
   .hs-ai{background:rgba(0,200,150,0.08);color:var(--green);border:1px solid rgba(0,200,150,0.15);}
@@ -137,6 +137,10 @@
   .doc-footer{background:var(--surface);border-top:1px solid var(--border);padding:24px 48px;margin-left:240px;display:flex;align-items:center;justify-content:space-between;}
   .footer-brand{font-size:13px;font-weight:600;} .footer-meta{font-size:12px;color:var(--text3);}
   ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+
+  h1, h2, h3, h4, .page-title, .section-title, .flow-title, .card-title, .onboard-title, .wallet-balance, .stat-value {
+    font-family: var(--font-heading);
+  }
 </style>
 </head>
 <body>
@@ -144,11 +148,11 @@
 <nav class="sidebar">
   <div class="sidebar-logo">
     <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
-      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
-      <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
-      <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/><circle cx="28" cy="11" r="1.5" fill="#00D4FF"/>
-      <circle cx="28" cy="21" r="1.5" fill="#00D4FF"/><circle cx="16" cy="28" r="1.5" fill="#00D4FF"/>
-      <circle cx="4" cy="21" r="1.5" fill="#00D4FF"/><circle cx="4" cy="11" r="1.5" fill="#00D4FF"/>
+      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#00A3FF" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="4" fill="#00A3FF"/>
+      <circle cx="16" cy="4" r="1.5" fill="#38BEFF"/><circle cx="28" cy="11" r="1.5" fill="#38BEFF"/>
+      <circle cx="28" cy="21" r="1.5" fill="#38BEFF"/><circle cx="16" cy="28" r="1.5" fill="#38BEFF"/>
+      <circle cx="4" cy="21" r="1.5" fill="#38BEFF"/><circle cx="4" cy="11" r="1.5" fill="#38BEFF"/>
     </svg>
     <div><div class="logo-text">BamtryOS</div><div class="logo-sub">Design Phase</div></div>
   </div>
@@ -669,7 +673,7 @@
             <td style="color:var(--green);">✓ Key derivation</td>
             <td style="color:var(--text3);">—</td>
             <td style="color:var(--text2);">5</td>
-            <td><span class="flow-pill" style="background:rgba(124,111,255,0.12);color:var(--accent);">P1 High</span></td>
+            <td><span class="flow-pill" style="background:rgba(0,163,255,0.10);color:var(--accent);">P1 High</span></td>
           </tr>
           <tr>
             <td style="color:var(--text3);">04</td>
@@ -678,7 +682,7 @@
             <td style="color:var(--green);">✓ PIN confirmation</td>
             <td style="color:var(--green);">✓ Full pipeline</td>
             <td style="color:var(--text2);">7</td>
-            <td><span class="flow-pill" style="background:rgba(124,111,255,0.12);color:var(--accent);">P1 High</span></td>
+            <td><span class="flow-pill" style="background:rgba(0,163,255,0.10);color:var(--accent);">P1 High</span></td>
           </tr>
           <tr>
             <td style="color:var(--text3);">05</td>
@@ -687,7 +691,7 @@
             <td style="color:var(--text3);">—</td>
             <td style="color:var(--text3);">—</td>
             <td style="color:var(--text2);">4</td>
-            <td><span class="flow-pill" style="background:rgba(124,111,255,0.12);color:var(--accent);">P1 High</span></td>
+            <td><span class="flow-pill" style="background:rgba(0,163,255,0.10);color:var(--accent);">P1 High</span></td>
           </tr>
           <tr>
             <td style="color:var(--text3);">06</td>

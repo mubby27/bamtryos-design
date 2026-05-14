@@ -5,16 +5,16 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>BamtryOS — UI/UX Prototype</title>
 <style>
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
 *{margin:0;padding:0;box-sizing:border-box;}
 :root{
-  --bg:#08080F;--surface:#0F0F1A;--card:#161625;--card2:#1C1C2E;
-  --border:#2A2A42;--border2:#363658;
-  --accent:#7C6FFF;--accent2:#5B4FE8;--accent-glow:rgba(124,111,255,0.15);
-  --cyan:#00D4FF;--cyan-glow:rgba(0,212,255,0.1);
-  --green:#00C896;--red:#FF5C7A;--orange:#FF9A3C;--yellow:#FFD93D;
-  --text:#F0F0FF;--text2:#A0A0C0;--text3:#606080;
-  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+  --bg:#0A0A0F;--surface:#12121C;--card:#1A1A2E;--card2:#1A1A2E;
+  --border:#1E2040;--border2:#2A2B50;
+  --accent:#00A3FF;--accent2:#0086D4;--accent-glow:rgba(0,163,255,0.12);
+  --cyan:#38BEFF;--cyan-glow:rgba(0,212,255,0.1);
+  --green:#00E676;--red:#FF4444;--orange:#FF9A3C;--yellow:#FFD93D;
+  --text:#FFFFFF;--text2:#8899BB;--text3:#404870;
+  --font:'Inter',sans-serif;--font-heading:'Space Grotesk',sans-serif;--mono:'JetBrains Mono',monospace;
 }
 body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex;min-height:100vh;overflow:hidden;}
 
@@ -98,7 +98,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 .dapp-footer{display:flex;align-items:center;justify-content:space-between;}
 
 /* ONBOARDING */
-.onboard-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(124,111,255,0.15) 0%,transparent 70%),var(--bg);}
+.onboard-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(0,163,255,0.12) 0%,transparent 70%),var(--bg);}
 .onboard-box{width:460px;text-align:center;}
 .onboard-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--accent),var(--cyan));border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;}
 .onboard-title{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:12px;}
@@ -110,14 +110,14 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 
 /* IDENTITY CARD */
 .id-card{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--border);border-radius:20px;padding:24px;position:relative;overflow:hidden;}
-.id-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(124,111,255,0.2),transparent);border-radius:50%;}
+.id-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(0,163,255,0.15),transparent);border-radius:50%;}
 .id-did{font-family:var(--mono);font-size:11px;color:var(--cyan);margin-bottom:16px;}
 .id-name{font-size:20px;font-weight:700;margin-bottom:4px;}
 .id-chains{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
 
 /* WALLET */
-.wallet-hero{background:linear-gradient(135deg,#1A1640,#0F1A2E);border:1px solid var(--border);border-radius:20px;padding:28px;text-align:center;position:relative;overflow:hidden;margin-bottom:20px;}
-.wallet-hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(124,111,255,0.12),transparent);border-radius:50%;}
+.wallet-hero{background:linear-gradient(135deg,#1A1640,#12121C);border:1px solid var(--border);border-radius:20px;padding:28px;text-align:center;position:relative;overflow:hidden;margin-bottom:20px;}
+.wallet-hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(0,163,255,0.10),transparent);border-radius:50%;}
 .wallet-balance{font-size:42px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
 .wallet-sub{font-size:14px;color:var(--text2);margin-bottom:20px;}
 .wallet-actions{display:flex;gap:12px;justify-content:center;}
@@ -161,6 +161,10 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 .term-info{color:var(--cyan);}
 .code-block{background:#050508;border:1px solid var(--border);border-radius:12px;padding:18px;font-family:var(--mono);font-size:12px;line-height:1.7;overflow-x:auto;}
 .kw{color:#C678DD;}.fn{color:#61AFEF;}.str{color:#98C379;}.num{color:#D19A66;}.comment{color:#5C6370;}.type{color:#E5C07B;}
+
+  h1, h2, h3, h4, .page-title, .section-title, .flow-title, .card-title, .onboard-title, .wallet-balance, .stat-value {
+    font-family: var(--font-heading);
+  }
 </style>
 </head>
 <body>
@@ -277,7 +281,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
       <h2 style="font-size:28px;font-weight:800;margin-bottom:8px;">Your Universal Wallet</h2>
       <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">One wallet, every chain. BamtryOS generates and manages your keys — no seed phrases to copy, no extensions to install.</p>
       <div class="onboard-form">
-        <div style="background:linear-gradient(135deg,rgba(124,111,255,0.15),rgba(0,212,255,0.08));border:1px solid var(--accent);border-radius:14px;padding:18px;margin-bottom:20px;">
+        <div style="background:linear-gradient(135deg,rgba(0,163,255,0.12),rgba(0,212,255,0.08));border:1px solid var(--accent);border-radius:14px;padding:18px;margin-bottom:20px;">
           <div style="font-size:11px;color:var(--accent);font-weight:600;margin-bottom:8px;">WALLET GENERATED</div>
           <div style="font-size:13px;font-weight:600;margin-bottom:6px;">abdulbasit.bamtry.id</div>
           <div class="mono" style="margin-bottom:12px;">0x7a3f9b...c9d2</div>
@@ -290,15 +294,15 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
         </div>
         <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
           <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00C896" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00C896" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00E676" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00E676" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span style="font-size:13px;">Keys encrypted with your PIN — never leave your device</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00C896" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00C896" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00E676" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00E676" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span style="font-size:13px;">Works across Android, iOS, Windows, macOS & Linux</span>
           </div>
           <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00C896" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00C896" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00E676" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00E676" stroke-width="1.5" stroke-linecap="round"/></svg>
             <span style="font-size:13px;">Biometric authentication supported</span>
           </div>
         </div>
@@ -443,7 +447,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
           <div class="tx-amount" style="color:var(--green);">+$500.00</div>
         </div>
         <div class="tx-row">
-          <div class="tx-icon" style="background:rgba(124,111,255,0.15);"><span style="font-size:14px;">📦</span></div>
+          <div class="tx-icon" style="background:rgba(0,163,255,0.12);"><span style="font-size:14px;">📦</span></div>
           <div class="tx-info"><div class="tx-name">dApp Installed</div><div class="tx-meta">Web3Notes v2.1 · 1d ago</div></div>
           <div class="tx-amount" style="color:var(--text3);">Free</div>
         </div>
@@ -594,7 +598,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
           <div><div class="tx-amount" style="color:var(--green);">+500 USDC</div><span class="tag tag-green" style="font-size:10px;">Confirmed</span></div>
         </div>
         <div class="tx-row">
-          <div class="tx-icon" style="background:rgba(124,111,255,0.15);">⇄</div>
+          <div class="tx-icon" style="background:rgba(0,163,255,0.12);">⇄</div>
           <div class="tx-info"><div class="tx-name">Swapped SOL → USDC</div><div class="tx-meta">Jupiter · Solana · 1d ago</div></div>
           <div><div class="tx-amount" style="color:var(--cyan);">5 SOL</div><span class="tag tag-green" style="font-size:10px;">Confirmed</span></div>
         </div>
@@ -819,7 +823,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
       <div class="card">
         <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Recent Files</div>
         <div class="file-row">
-          <div class="file-icon" style="background:rgba(124,111,255,0.15);">📄</div>
+          <div class="file-icon" style="background:rgba(0,163,255,0.12);">📄</div>
           <div style="flex:1;"><div class="file-name">BamtryOS_Pitch_Deck.pdf</div><div class="file-meta">4.2 MB · Modified 2h ago · 3 devices</div></div>
           <span class="tag tag-green">Synced</span>
         </div>
