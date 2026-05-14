@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BamtryOS — Design System & Brand Guide</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+  *{margin:0;padding:0;box-sizing:border-box;}
+  :root{
+    --bg:#08080F;--surface:#0F0F1A;--card:#161625;--card2:#1C1C2E;
+    --border:#2A2A42;--border2:#363658;
+    --accent:#7C6FFF;--accent2:#5B4FE8;--accent-glow:rgba(124,111,255,0.15);
+    --cyan:#00D4FF;--cyan-glow:rgba(0,212,255,0.1);
+    --green:#00C896;--red:#FF5C7A;--orange:#FF9A3C;--yellow:#FFD93D;
+    --text:#F0F0FF;--text2:#A0A0C0;--text3:#606080;
+    --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+  }
+  body{background:var(--bg);color:var(--text);font-family:var(--font);line-height:1.6;}
+  .page{max-width:1100px;margin:0 auto;padding:60px 40px;}
+  h1{font-size:48px;font-weight:800;letter-spacing:-1px;margin-bottom:8px;}
+  h2{font-size:28px;font-weight:700;margin:60px 0 24px;padding-bottom:12px;border-bottom:1px solid var(--border);}
+  h3{font-size:16px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:1px;margin-bottom:16px;}
+  p{color:var(--text2);margin-bottom:16px;}
+  .badge{display:inline-block;background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent);border-radius:20px;padding:4px 14px;font-size:12px;font-weight:600;letter-spacing:0.5px;text-transform:uppercase;margin-bottom:24px;}
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px;}
+  .grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;}
+
+  /* COLORS */
+  .swatch{border-radius:12px;height:80px;margin-bottom:12px;}
+  .swatch-label{font-size:13px;font-weight:600;margin-bottom:2px;}
+  .swatch-hex{font-size:11px;color:var(--text3);font-family:var(--mono);}
+
+  /* TYPOGRAPHY */
+  .type-sample{background:var(--card);border:1px solid var(--border);border-radius:12px;padding:24px;margin-bottom:16px;}
+  .type-meta{font-size:11px;color:var(--text3);font-family:var(--mono);margin-bottom:8px;}
+
+  /* COMPONENTS */
+  .comp-row{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-bottom:24px;}
+  .btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);transition:all 0.2s;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+  .btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+  .btn-danger{background:rgba(255,92,122,0.15);color:var(--red);border:1px solid var(--red);}
+  .btn-sm{padding:6px 14px;font-size:12px;}
+  .btn-lg{padding:14px 28px;font-size:16px;}
+
+  .input-demo{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 16px;color:var(--text);font-size:14px;font-family:var(--font);width:280px;outline:none;}
+  .input-demo:focus{border-color:var(--accent);}
+  .input-label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+
+  .tag{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:600;}
+  .tag-purple{background:var(--accent-glow);color:var(--accent);}
+  .tag-cyan{background:var(--cyan-glow);color:var(--cyan);}
+  .tag-green{background:rgba(0,200,150,0.1);color:var(--green);}
+  .tag-red{background:rgba(255,92,122,0.1);color:var(--red);}
+  .tag-orange{background:rgba(255,154,60,0.1);color:var(--orange);}
+
+  .modal-demo{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;width:360px;}
+  .modal-title{font-size:18px;font-weight:700;margin-bottom:8px;}
+  .modal-body{font-size:14px;color:var(--text2);margin-bottom:20px;}
+
+  .nav-demo{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:8px;display:flex;gap:4px;}
+  .nav-item{padding:8px 16px;border-radius:10px;font-size:13px;font-weight:500;cursor:pointer;color:var(--text2);}
+  .nav-item.active{background:var(--card);color:var(--text);}
+
+  .avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;}
+
+  .divider{height:1px;background:var(--border);margin:40px 0;}
+
+  .icon-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:16px;}
+  .icon-item{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:12px;}
+  .icon-item svg{opacity:0.8;}
+  .icon-item span{font-size:10px;color:var(--text3);text-align:center;}
+
+  .spacing-row{display:flex;gap:16px;align-items:flex-end;}
+  .spacing-box{background:var(--accent-glow);border:1px dashed var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;}
+  .spacing-label{font-size:10px;color:var(--text3);text-align:center;margin-top:6px;font-family:var(--mono);}
+
+  .radius-row{display:flex;gap:16px;align-items:center;}
+  .radius-box{width:60px;height:60px;background:var(--accent);opacity:0.8;}
+
+  .shadow-demo{width:120px;height:80px;background:var(--card);display:flex;align-items:center;justify-content:center;font-size:12px;color:var(--text2);border-radius:12px;}
+
+  .gradient-demo{height:60px;border-radius:12px;margin-bottom:8px;}
+  .gradient-label{font-size:12px;color:var(--text2);}
+
+  .logo-demo{display:flex;align-items:center;gap:12px;}
+  .logo-mark{width:48px;height:48px;background:linear-gradient(135deg,var(--accent),var(--cyan));border-radius:14px;display:flex;align-items:center;justify-content:center;}
+  .logo-text{font-size:24px;font-weight:800;letter-spacing:-0.5px;}
+
+  .section-intro{color:var(--text2);font-size:15px;margin-bottom:32px;max-width:600px;}
+  .version{font-size:12px;color:var(--text3);font-family:var(--mono);}
+
+  .toast{background:var(--card2);border:1px solid var(--border);border-radius:12px;padding:14px 18px;display:flex;align-items:center;gap:12px;width:320px;}
+  .toast-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .toast-msg{font-size:13px;}
+
+  .progress-bar{background:var(--card2);border-radius:100px;height:6px;overflow:hidden;margin-bottom:8px;}
+  .progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent),var(--cyan));}
+
+  .checkbox{width:18px;height:18px;background:var(--accent);border-radius:4px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+  .toggle{width:44px;height:24px;background:var(--accent);border-radius:100px;position:relative;}
+  .toggle-dot{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;right:3px;top:3px;}
+
+  footer{margin-top:80px;padding-top:24px;border-top:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;}
+  .footer-text{font-size:12px;color:var(--text3);}
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div style="margin-bottom:48px;">
+    <div class="logo-demo" style="margin-bottom:24px;">
+      <div class="logo-mark">
+        <svg width="28" height="28" viewBox="0 0 28 28" fill="none">
+          <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="white"/>
+          <path d="M14 4V10M14 18V24M4 9.5L9.5 12.5M18.5 15.5L24 18.5M4 18.5L9.5 15.5M18.5 12.5L24 9.5" stroke="white" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div>
+        <div class="logo-text">BamtryOS</div>
+        <div class="version">Design System v1.0 · April 2026</div>
+      </div>
+    </div>
+    <div class="badge">Design System & Brand Guide</div>
+    <h1>Design<br/>Foundation</h1>
+    <p class="section-intro">The single source of truth for all BamtryOS visual design decisions. Every component, color, type style, and spacing value used across the platform lives here.</p>
+  </div>
+
+  <!-- LOGO -->
+  <h2>01 · Logo & Identity</h2>
+  <div class="grid-3">
+    <div class="card" style="text-align:center;padding:40px;">
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
+        <div class="logo-mark" style="width:64px;height:64px;">
+          <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
+            <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
+            <circle cx="14" cy="14" r="4" fill="white"/>
+            <path d="M14 4V10M14 18V24M4 9.5L9.5 12.5M18.5 15.5L24 18.5M4 18.5L9.5 15.5M18.5 12.5L24 9.5" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div style="font-size:20px;font-weight:800;">BamtryOS</div>
+      <div style="font-size:11px;color:var(--text3);margin-top:4px;">Primary — Dark Background</div>
+    </div>
+    <div class="card" style="text-align:center;padding:40px;background:#fff;">
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
+        <div style="width:64px;height:64px;background:linear-gradient(135deg,#7C6FFF,#00D4FF);border-radius:18px;display:flex;align-items:center;justify-content:center;">
+          <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
+            <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
+            <circle cx="14" cy="14" r="4" fill="white"/>
+            <path d="M14 4V10M14 18V24M4 9.5L9.5 12.5M18.5 15.5L24 18.5M4 18.5L9.5 15.5M18.5 12.5L24 9.5" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:#08080F;">BamtryOS</div>
+      <div style="font-size:11px;color:#888;margin-top:4px;">Primary — Light Background</div>
+    </div>
+    <div class="card" style="text-align:center;padding:40px;background:linear-gradient(135deg,#7C6FFF,#00D4FF);">
+      <div style="display:flex;justify-content:center;margin-bottom:16px;">
+        <div style="width:64px;height:64px;background:rgba(255,255,255,0.2);border-radius:18px;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(8px);">
+          <svg width="36" height="36" viewBox="0 0 28 28" fill="none">
+            <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
+            <circle cx="14" cy="14" r="4" fill="white"/>
+            <path d="M14 4V10M14 18V24M4 9.5L9.5 12.5M18.5 15.5L24 18.5M4 18.5L9.5 15.5M18.5 12.5L24 9.5" stroke="white" stroke-width="1.5"/>
+          </svg>
+        </div>
+      </div>
+      <div style="font-size:20px;font-weight:800;color:#fff;">BamtryOS</div>
+      <div style="font-size:11px;color:rgba(255,255,255,0.7);margin-top:4px;">Gradient Background</div>
+    </div>
+  </div>
+
+  <!-- COLORS -->
+  <h2>02 · Color System</h2>
+  <h3>Primary Palette</h3>
+  <div class="grid-4" style="margin-bottom:32px;">
+    <div>
+      <div class="swatch" style="background:#7C6FFF;"></div>
+      <div class="swatch-label">Accent Purple</div>
+      <div class="swatch-hex">#7C6FFF</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#00D4FF;"></div>
+      <div class="swatch-label">Cyan</div>
+      <div class="swatch-hex">#00D4FF</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#00C896;"></div>
+      <div class="swatch-label">Success Green</div>
+      <div class="swatch-hex">#00C896</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#FF5C7A;"></div>
+      <div class="swatch-label">Error Red</div>
+      <div class="swatch-hex">#FF5C7A</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#FF9A3C;"></div>
+      <div class="swatch-label">Warning Orange</div>
+      <div class="swatch-hex">#FF9A3C</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#FFD93D;"></div>
+      <div class="swatch-label">Highlight Yellow</div>
+      <div class="swatch-hex">#FFD93D</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:linear-gradient(135deg,#7C6FFF,#00D4FF);"></div>
+      <div class="swatch-label">Primary Gradient</div>
+      <div class="swatch-hex">#7C6FFF → #00D4FF</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:linear-gradient(135deg,#FF5C7A,#FF9A3C);"></div>
+      <div class="swatch-label">Warning Gradient</div>
+      <div class="swatch-hex">#FF5C7A → #FF9A3C</div>
+    </div>
+  </div>
+
+  <h3>Background / Surface Scale</h3>
+  <div class="grid-4" style="margin-bottom:32px;">
+    <div>
+      <div class="swatch" style="background:#08080F;border:1px solid #2A2A42;"></div>
+      <div class="swatch-label">Background</div>
+      <div class="swatch-hex">#08080F</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#0F0F1A;border:1px solid #2A2A42;"></div>
+      <div class="swatch-label">Surface</div>
+      <div class="swatch-hex">#0F0F1A</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#161625;border:1px solid #2A2A42;"></div>
+      <div class="swatch-label">Card</div>
+      <div class="swatch-hex">#161625</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#1C1C2E;border:1px solid #2A2A42;"></div>
+      <div class="swatch-label">Card Elevated</div>
+      <div class="swatch-hex">#1C1C2E</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#2A2A42;"></div>
+      <div class="swatch-label">Border</div>
+      <div class="swatch-hex">#2A2A42</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#363658;"></div>
+      <div class="swatch-label">Border Hover</div>
+      <div class="swatch-hex">#363658</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#F0F0FF;"></div>
+      <div class="swatch-label">Text Primary</div>
+      <div class="swatch-hex">#F0F0FF</div>
+    </div>
+    <div>
+      <div class="swatch" style="background:#A0A0C0;"></div>
+      <div class="swatch-label">Text Secondary</div>
+      <div class="swatch-hex">#A0A0C0</div>
+    </div>
+  </div>
+
+  <!-- TYPOGRAPHY -->
+  <h2>03 · Typography</h2>
+  <p class="section-intro">Primary typeface: <strong>Inter</strong>. Monospace: <strong>JetBrains Mono</strong> (for code, addresses, hashes).</p>
+
+  <div class="type-sample">
+    <div class="type-meta">Display / H1 · Inter 800 · 48px · -1px tracking</div>
+    <div style="font-size:48px;font-weight:800;letter-spacing:-1px;">The OS Layer for Web3</div>
+  </div>
+  <div class="type-sample">
+    <div class="type-meta">Heading / H2 · Inter 700 · 32px · -0.5px tracking</div>
+    <div style="font-size:32px;font-weight:700;letter-spacing:-0.5px;">Your Identity, Your Wallet</div>
+  </div>
+  <div class="type-sample">
+    <div class="type-meta">Heading / H3 · Inter 600 · 22px</div>
+    <div style="font-size:22px;font-weight:600;">Universal SDK v1.0</div>
+  </div>
+  <div class="type-sample">
+    <div class="type-meta">Body Large · Inter 400 · 16px · 1.6 line-height</div>
+    <div style="font-size:16px;color:var(--text2);">BamtryOS unifies identity, wallet, storage, and payments into one decentralised operating system. Build once, deploy everywhere.</div>
+  </div>
+  <div class="type-sample">
+    <div class="type-meta">Body · Inter 400 · 14px</div>
+    <div style="font-size:14px;color:var(--text2);">Connect your identity across EVM, Solana, Cosmos, and Bitcoin in a single authentication step.</div>
+  </div>
+  <div class="type-sample">
+    <div class="type-meta">Label · Inter 600 · 12px · 1px tracking · UPPERCASE</div>
+    <div style="font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--text2);">Network Status · Active Sessions · SDK Version</div>
+  </div>
+  <div class="type-sample">
+    <div class="type-meta">Mono · JetBrains Mono 400 · 13px</div>
+    <div style="font-size:13px;font-family:var(--mono);color:var(--cyan);">0x7a3f...c9d2 · did:bamtry:mainnet:1A2B3C · bamtryos init my-dapp</div>
+  </div>
+
+  <!-- COMPONENTS -->
+  <h2>04 · Components</h2>
+
+  <h3>Buttons</h3>
+  <div class="comp-row">
+    <button class="btn btn-primary btn-lg">Connect Identity</button>
+    <button class="btn btn-primary">Create Wallet</button>
+    <button class="btn btn-primary btn-sm">Launch dApp</button>
+  </div>
+  <div class="comp-row">
+    <button class="btn btn-secondary btn-lg">Cancel</button>
+    <button class="btn btn-secondary">View Details</button>
+    <button class="btn btn-secondary btn-sm">Copy</button>
+  </div>
+  <div class="comp-row">
+    <button class="btn btn-ghost btn-lg">Learn More</button>
+    <button class="btn btn-ghost">View SDK Docs</button>
+    <button class="btn btn-ghost btn-sm">Explore</button>
+  </div>
+  <div class="comp-row">
+    <button class="btn btn-danger">Revoke Access</button>
+    <button class="btn btn-danger btn-sm">Remove Device</button>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Tags & Status Badges</h3>
+  <div class="comp-row">
+    <span class="tag tag-green">● Active</span>
+    <span class="tag tag-purple">● Syncing</span>
+    <span class="tag tag-cyan">● Mainnet</span>
+    <span class="tag tag-orange">● Pending</span>
+    <span class="tag tag-red">● Failed</span>
+    <span class="tag tag-green">✓ Verified</span>
+    <span class="tag tag-purple">SDK Partner</span>
+    <span class="tag tag-cyan">Founding Partner</span>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Form Inputs</h3>
+  <div class="comp-row" style="align-items:flex-start;">
+    <div>
+      <label class="input-label">Wallet Address</label>
+      <input class="input-demo" placeholder="0x7a3f...c9d2" value=""/>
+    </div>
+    <div>
+      <label class="input-label">DID Identifier</label>
+      <input class="input-demo" placeholder="did:bamtry:mainnet:..." value=""/>
+    </div>
+    <div>
+      <label class="input-label">Amount (USDC)</label>
+      <input class="input-demo" placeholder="0.00" value=""/>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Navigation</h3>
+  <div class="nav-demo" style="width:fit-content;margin-bottom:24px;">
+    <div class="nav-item active">Dashboard</div>
+    <div class="nav-item">Wallet</div>
+    <div class="nav-item">Identity</div>
+    <div class="nav-item">Store</div>
+    <div class="nav-item">Storage</div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Toasts & Notifications</h3>
+  <div style="display:flex;flex-direction:column;gap:10px;">
+    <div class="toast">
+      <div class="toast-dot" style="background:var(--green);"></div>
+      <div class="toast-msg">Identity verified. Cross-chain sync complete.</div>
+    </div>
+    <div class="toast">
+      <div class="toast-dot" style="background:var(--orange);"></div>
+      <div class="toast-msg">Transaction pending on Ethereum mainnet...</div>
+    </div>
+    <div class="toast">
+      <div class="toast-dot" style="background:var(--red);"></div>
+      <div class="toast-msg">Insufficient gas. Please top up your ETH balance.</div>
+    </div>
+    <div class="toast">
+      <div class="toast-dot" style="background:var(--accent);"></div>
+      <div class="toast-msg">New dApp installed: Web3Notes v2.1</div>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Progress & Loading</h3>
+  <div style="max-width:400px;">
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+      <span style="font-size:13px;">SDK Installation</span>
+      <span style="font-size:13px;color:var(--text2);">73%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:73%;"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;margin-top:16px;">
+      <span style="font-size:13px;">Identity Sync</span>
+      <span style="font-size:13px;color:var(--text2);">100%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%;"></div></div>
+    <div style="display:flex;justify-content:space-between;margin-bottom:6px;margin-top:16px;">
+      <span style="font-size:13px;">Chain Connection</span>
+      <span style="font-size:13px;color:var(--text2);">28%</span>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" style="width:28%;background:linear-gradient(90deg,var(--orange),var(--yellow));"></div></div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Controls</h3>
+  <div class="comp-row">
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="checkbox">
+        <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="2" stroke-linecap="round"/></svg>
+      </div>
+      <span style="font-size:14px;">Enable cross-chain sync</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="toggle"><div class="toggle-dot"></div></div>
+      <span style="font-size:14px;">Biometric auth</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px;">
+      <div class="toggle" style="background:var(--card2)"><div class="toggle-dot" style="right:auto;left:3px;"></div></div>
+      <span style="font-size:14px;">Dark mode</span>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+  <h3>Avatars & Identity</h3>
+  <div class="comp-row">
+    <div class="avatar" style="width:56px;height:56px;font-size:18px;">AB</div>
+    <div class="avatar">MO</div>
+    <div class="avatar" style="width:32px;height:32px;font-size:11px;">DJ</div>
+    <div style="display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:12px 16px;">
+      <div class="avatar">AB</div>
+      <div>
+        <div style="font-size:14px;font-weight:600;">Abdulbasit Alatise</div>
+        <div style="font-size:12px;color:var(--text2);font-family:var(--mono);">did:bamtry:1A2B...9F0E</div>
+      </div>
+      <span class="tag tag-green" style="margin-left:8px;">● Live</span>
+    </div>
+  </div>
+
+  <!-- SPACING -->
+  <h2>05 · Spacing Scale</h2>
+  <p class="section-intro">Base unit: 4px. All spacing values are multiples of 4.</p>
+  <div class="spacing-row">
+    <div>
+      <div class="spacing-box" style="width:4px;height:4px;"></div>
+      <div class="spacing-label">4px<br/>xs</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:8px;height:8px;"></div>
+      <div class="spacing-label">8px<br/>sm</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:12px;height:12px;"></div>
+      <div class="spacing-label">12px<br/>md</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:16px;height:16px;"></div>
+      <div class="spacing-label">16px<br/>base</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:20px;height:20px;"></div>
+      <div class="spacing-label">20px<br/>lg</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:24px;height:24px;"></div>
+      <div class="spacing-label">24px<br/>xl</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:32px;height:32px;"></div>
+      <div class="spacing-label">32px<br/>2xl</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:48px;height:48px;"></div>
+      <div class="spacing-label">48px<br/>3xl</div>
+    </div>
+    <div>
+      <div class="spacing-box" style="width:64px;height:64px;"></div>
+      <div class="spacing-label">64px<br/>4xl</div>
+    </div>
+  </div>
+
+  <!-- BORDER RADIUS -->
+  <h2>06 · Border Radius</h2>
+  <div class="radius-row">
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:4px;"></div>
+      <div class="spacing-label">4px<br/>sm</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:8px;"></div>
+      <div class="spacing-label">8px<br/>md</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:12px;"></div>
+      <div class="spacing-label">12px<br/>lg</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:16px;"></div>
+      <div class="spacing-label">16px<br/>xl</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:20px;"></div>
+      <div class="spacing-label">20px<br/>2xl</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:30px;"></div>
+      <div class="spacing-label">30px<br/>pill</div>
+    </div>
+    <div style="text-align:center;">
+      <div class="radius-box" style="border-radius:50%;"></div>
+      <div class="spacing-label">50%<br/>circle</div>
+    </div>
+  </div>
+
+  <!-- GRADIENTS -->
+  <h2>07 · Gradients</h2>
+  <div class="grid-3">
+    <div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#7C6FFF,#00D4FF);"></div>
+      <div class="gradient-label">Primary — Purple to Cyan</div>
+    </div>
+    <div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#7C6FFF,#FF5C7A);"></div>
+      <div class="gradient-label">Danger — Purple to Red</div>
+    </div>
+    <div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#00C896,#00D4FF);"></div>
+      <div class="gradient-label">Success — Green to Cyan</div>
+    </div>
+    <div>
+      <div class="gradient-demo" style="background:linear-gradient(180deg,#0F0F1A 0%,#08080F 100%);border:1px solid #2A2A42;"></div>
+      <div class="gradient-label">Surface Fade — Dark</div>
+    </div>
+    <div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,rgba(124,111,255,0.2),rgba(0,212,255,0.2));border:1px solid #2A2A42;"></div>
+      <div class="gradient-label">Glow — Accent Overlay</div>
+    </div>
+    <div>
+      <div class="gradient-demo" style="background:linear-gradient(135deg,#FF9A3C,#FFD93D);"></div>
+      <div class="gradient-label">Warm — Orange to Yellow</div>
+    </div>
+  </div>
+
+  <!-- CHAIN COLORS -->
+  <h2>08 · Blockchain Network Colors</h2>
+  <div class="grid-4">
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#627EEA;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">ETH</div>
+      <div style="font-size:13px;font-weight:600;">Ethereum</div>
+      <div class="swatch-hex">#627EEA</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#9945FF;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">SOL</div>
+      <div style="font-size:13px;font-weight:600;">Solana</div>
+      <div class="swatch-hex">#9945FF</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#F0B90B;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">BNB</div>
+      <div style="font-size:13px;font-weight:600;">BNB Chain</div>
+      <div class="swatch-hex">#F0B90B</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#8247E5;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">POL</div>
+      <div style="font-size:13px;font-weight:600;">Polygon</div>
+      <div class="swatch-hex">#8247E5</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#F7931A;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;">BTC</div>
+      <div style="font-size:13px;font-weight:600;">Bitcoin</div>
+      <div class="swatch-hex">#F7931A</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#2E3148;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">COS</div>
+      <div style="font-size:13px;font-weight:600;">Cosmos</div>
+      <div class="swatch-hex">#2E3148</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:#E84142;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">AVX</div>
+      <div style="font-size:13px;font-weight:600;">Avalanche</div>
+      <div class="swatch-hex">#E84142</div>
+    </div>
+    <div class="card" style="text-align:center;padding:16px;">
+      <div style="width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,#7C6FFF,#00D4FF);margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:11px;">BTY</div>
+      <div style="font-size:13px;font-weight:600;">BamtryOS</div>
+      <div class="swatch-hex">Gradient</div>
+    </div>
+  </div>
+
+  <footer>
+    <div class="footer-text">© 2026 Bamtry Technologies Ltd. · CONFIDENTIAL · Design Phase v1.0</div>
+    <div class="footer-text">Document 1 of 6 · Design System & Brand Guide</div>
+  </footer>
+
+</div>
+</body>
+</html>

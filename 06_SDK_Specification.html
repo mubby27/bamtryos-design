@@ -1,0 +1,898 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BamtryOS — SDK Specification</title>
+<style>
+  :root {
+    --bg:#08080F; --surface:#0F0F1A; --surface2:#161625; --border:#1E1E35;
+    --accent:#7C6FFF; --cyan:#00D4FF; --green:#00C896; --red:#FF5C7A;
+    --yellow:#FFB800; --text:#E8E8F0; --text2:#9090A8; --text3:#5A5A7A;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --mono:'JetBrains Mono','Fira Code',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;}
+  .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:0 0 40px;}
+  .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+  .logo-text{font-size:15px;font-weight:700;} .logo-sub{font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;}
+  .sidebar-section{padding:16px 12px 4px;}
+  .sidebar-section-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;padding:0 8px 8px;}
+  .sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;transition:all 0.15s;text-decoration:none;}
+  .sidebar-item:hover{background:var(--surface2);color:var(--text);}
+  .sidebar-item.active{background:rgba(124,111,255,0.15);color:var(--accent);}
+  .sidebar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;}
+  .sidebar-item.active .dot{background:var(--accent);}
+
+  .main{margin-left:240px;min-height:100vh;}
+  .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:32px 48px 28px;position:sticky;top:0;z-index:50;}
+  .header-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(124,111,255,0.12);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:12px;}
+  .page-title{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;}
+  .page-title span{color:var(--accent);}
+  .page-desc{color:var(--text2);font-size:14px;max-width:640px;}
+  .header-meta{display:flex;align-items:center;gap:24px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+  .meta-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);}
+  .meta-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(0,200,150,0.12);color:var(--green);border:1px solid rgba(0,200,150,0.2);}
+  .npm-badge{font-family:var(--mono);font-size:12px;background:var(--surface2);border:1px solid var(--border);border-radius:6px;padding:4px 12px;color:var(--cyan);}
+
+  .content{padding:40px 48px 80px;max-width:1100px;}
+  .section{margin-bottom:56px;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+  .section-number{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .section-title{font-size:20px;font-weight:700;letter-spacing:-0.3px;}
+  .section-subtitle{font-size:13px;color:var(--text2);margin-top:2px;}
+  .divider{border:none;border-top:1px solid var(--border);margin:0 0 40px;}
+
+  /* Code block */
+  .code-wrap{background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;margin-bottom:24px;}
+  .code-header{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .code-filename{font-family:var(--mono);font-size:12px;color:var(--text2);}
+  .code-lang{font-size:10px;font-weight:600;padding:2px 8px;border-radius:4px;background:rgba(124,111,255,0.12);color:var(--accent);}
+  pre.code-block{background:#050510;padding:20px;font-family:var(--mono);font-size:12px;line-height:1.7;overflow-x:auto;margin:0;}
+  .code-block{background:#050510;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.65;overflow-x:auto;}
+  .c-kw{color:#C792EA;} .c-str{color:#C3E88D;} .c-num{color:#F78C6C;} .c-cmt{color:var(--text3);font-style:italic;}
+  .c-type{color:var(--cyan);} .c-fn{color:#82AAFF;} .c-prop{color:#FFCB6B;}
+
+  /* Module card */
+  .module-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+  .module-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;transition:border-color 0.2s;}
+  .module-card:hover{border-color:var(--accent);}
+  .module-icon{font-size:24px;margin-bottom:10px;}
+  .module-name{font-family:var(--mono);font-size:14px;font-weight:700;color:var(--accent);margin-bottom:4px;}
+  .module-desc{font-size:12px;color:var(--text2);margin-bottom:10px;line-height:1.5;}
+  .module-methods{display:flex;flex-wrap:wrap;gap:4px;}
+  .method-chip{font-family:var(--mono);font-size:10px;padding:3px 7px;border-radius:5px;background:var(--surface2);border:1px solid var(--border);color:var(--text3);}
+
+  /* Method reference */
+  .method-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;margin-bottom:16px;overflow:hidden;}
+  .method-header{padding:14px 18px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;}
+  .method-name{font-family:var(--mono);font-size:13px;font-weight:700;color:var(--text);flex:1;}
+  .method-name .fn-name{color:var(--cyan);}
+  .method-name .ret-type{color:var(--accent);}
+  .method-async{font-size:10px;font-weight:700;padding:2px 7px;border-radius:4px;background:rgba(124,111,255,0.12);color:var(--accent);flex-shrink:0;}
+  .method-body{padding:16px 18px;display:none;}
+  .method-body.open{display:block;}
+  .method-toggle{color:var(--text3);font-size:12px;transition:transform 0.2s;}
+  .method-toggle.open{transform:rotate(180deg);}
+
+  .param-table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px;}
+  .param-table th{text-align:left;padding:6px 10px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  .param-table td{padding:8px 10px;border-bottom:1px solid rgba(30,30,53,0.4);vertical-align:top;}
+  .param-table tr:last-child td{border-bottom:none;}
+  .p-name{font-family:var(--mono);color:var(--cyan);font-weight:600;}
+  .p-type{font-family:var(--mono);color:var(--accent);font-size:11px;}
+  .p-req{background:rgba(255,92,122,0.1);color:var(--red);border:1px solid rgba(255,92,122,0.15);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+  .p-opt{background:var(--surface2);color:var(--text3);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;}
+  .p-desc{color:var(--text2);}
+  .param-label{font-size:11px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;margin:12px 0 6px;}
+
+  /* Platform table */
+  .platform-table{width:100%;border-collapse:collapse;}
+  .platform-table th{text-align:left;padding:10px 14px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  .platform-table td{padding:12px 14px;font-size:13px;border-bottom:1px solid rgba(30,30,53,0.4);}
+  .platform-table tr:last-child td{border-bottom:none;}
+  .check{color:var(--green);font-size:14px;font-weight:700;}
+  .cross{color:var(--red);font-size:14px;}
+
+  /* Info cards */
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .info-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+  .info-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+  .info-list li{font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:7px;}
+  .info-list li::before{content:'◆';color:var(--accent);font-size:8px;margin-top:4px;flex-shrink:0;}
+
+  /* Callout */
+  .callout{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;}
+  .callout-info{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.15);}
+  .callout-green{background:rgba(0,200,150,0.07);border:1px solid rgba(0,200,150,0.15);}
+  .callout-icon{font-size:15px;flex-shrink:0;}
+  .callout-text{font-size:13px;color:var(--text2);line-height:1.5;}
+  .callout-text strong{color:var(--text);}
+
+  /* Events table */
+  .events-table{width:100%;border-collapse:collapse;}
+  .events-table th{text-align:left;padding:8px 14px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;border-bottom:1px solid var(--border);}
+  .events-table td{padding:10px 14px;font-size:12px;border-bottom:1px solid rgba(30,30,53,0.4);}
+  .events-table tr:last-child td{border-bottom:none;}
+  .ev-name{font-family:var(--mono);color:var(--cyan);font-weight:600;}
+  .ev-payload{font-family:var(--mono);font-size:11px;color:var(--accent);}
+
+  .doc-footer{background:var(--surface);border-top:1px solid var(--border);padding:24px 48px;margin-left:240px;display:flex;align-items:center;justify-content:space-between;}
+  .footer-brand{font-size:13px;font-weight:600;} .footer-meta{font-size:12px;color:var(--text3);}
+  ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
+      <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/><circle cx="28" cy="11" r="1.5" fill="#00D4FF"/>
+      <circle cx="28" cy="21" r="1.5" fill="#00D4FF"/><circle cx="16" cy="28" r="1.5" fill="#00D4FF"/>
+      <circle cx="4" cy="21" r="1.5" fill="#00D4FF"/><circle cx="4" cy="11" r="1.5" fill="#00D4FF"/>
+    </svg>
+    <div><div class="logo-text">BamtryOS</div><div class="logo-sub">Design Phase</div></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Documents</div>
+    <a class="sidebar-item" href="01_Design_System.html"><span class="dot"></span>Design System</a>
+    <a class="sidebar-item" href="02_UI_Prototype.html"><span class="dot"></span>UI Prototype</a>
+    <a class="sidebar-item" href="03_System_Architecture.html"><span class="dot"></span>System Architecture</a>
+    <a class="sidebar-item" href="04_API_Specification.html"><span class="dot"></span>API Specification</a>
+    <a class="sidebar-item" href="05_Database_Schema.html"><span class="dot"></span>Database Schema</a>
+    <a class="sidebar-item active" href="#"><span class="dot"></span>SDK Specification</a>
+    <a class="sidebar-item" href="07_User_Flows.html"><span class="dot"></span>User Flows</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Sections</div>
+    <a class="sidebar-item" href="#overview"><span class="dot"></span>Overview</a>
+    <a class="sidebar-item" href="#install"><span class="dot"></span>Installation</a>
+    <a class="sidebar-item" href="#init"><span class="dot"></span>Initialisation</a>
+    <a class="sidebar-item" href="#identity"><span class="dot"></span>identity module</a>
+    <a class="sidebar-item" href="#wallet"><span class="dot"></span>wallet module</a>
+    <a class="sidebar-item" href="#storage"><span class="dot"></span>storage module</a>
+    <a class="sidebar-item" href="#agent"><span class="dot"></span>agent module</a>
+    <a class="sidebar-item" href="#apps"><span class="dot"></span>apps module</a>
+    <a class="sidebar-item" href="#events"><span class="dot"></span>Event System</a>
+    <a class="sidebar-item" href="#errors"><span class="dot"></span>Error Handling</a>
+    <a class="sidebar-item" href="#platforms"><span class="dot"></span>Platform Support</a>
+    <a class="sidebar-item" href="#dapp"><span class="dot"></span>dApp Integration</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <div class="header-tag">🛠️ Document 06 of 07</div>
+    <h1 class="page-title">SDK <span>Specification</span></h1>
+    <p class="page-desc">Complete developer reference for the BamtryOS Universal SDK — module APIs, TypeScript types, platform support matrix, event system, and third-party dApp integration guide.</p>
+    <div class="header-meta">
+      <div class="meta-item"><span class="npm-badge">npm install @bamtry/sdk</span></div>
+      <div class="meta-item"><span class="meta-badge">TypeScript</span></div>
+      <div class="meta-item">v1.0.0 · MIT License</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 1. Overview -->
+    <div class="section" id="overview">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div><div class="section-title">SDK Overview</div><div class="section-subtitle">Architecture, design philosophy, and module map</div></div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        The BamtryOS SDK (<code style="color:var(--cyan);font-family:var(--mono);">@bamtry/sdk</code>) is a fully typed TypeScript library that gives developers a single, unified interface for all BamtryOS capabilities — regardless of the target platform. One package, one API, five platforms: Android, iOS, Windows, macOS, and Linux.
+      </p>
+
+      <div class="module-grid">
+        <div class="module-card">
+          <div class="module-icon">🪪</div>
+          <div class="module-name">os.identity</div>
+          <div class="module-desc">DID creation, resolution, credential management, and device linking.</div>
+          <div class="module-methods">
+            <span class="method-chip">create()</span><span class="method-chip">resolve()</span><span class="method-chip">issueCredential()</span><span class="method-chip">listCredentials()</span>
+          </div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon">💳</div>
+          <div class="module-name">os.wallet</div>
+          <div class="module-desc">Multi-chain balance queries, transaction building, signing, and broadcast.</div>
+          <div class="module-methods">
+            <span class="method-chip">getBalance()</span><span class="method-chip">send()</span><span class="method-chip">buildTx()</span><span class="method-chip">getHistory()</span>
+          </div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon">📦</div>
+          <div class="module-name">os.storage</div>
+          <div class="module-desc">Encrypted IPFS file upload, retrieval, sharing, and access control.</div>
+          <div class="module-methods">
+            <span class="method-chip">upload()</span><span class="method-chip">get()</span><span class="method-chip">list()</span><span class="method-chip">share()</span><span class="method-chip">delete()</span>
+          </div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon">🤖</div>
+          <div class="module-name">os.agent</div>
+          <div class="module-desc">AI agent chat interface, transaction analysis, and portfolio insights.</div>
+          <div class="module-methods">
+            <span class="method-chip">chat()</span><span class="method-chip">confirm()</span><span class="method-chip">analyseTransaction()</span><span class="method-chip">getInsights()</span>
+          </div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon">📱</div>
+          <div class="module-name">os.apps</div>
+          <div class="module-desc">dApp Store browsing, installation, permission management, and launch.</div>
+          <div class="module-methods">
+            <span class="method-chip">list()</span><span class="method-chip">get()</span><span class="method-chip">install()</span><span class="method-chip">uninstall()</span><span class="method-chip">getInstalled()</span>
+          </div>
+        </div>
+        <div class="module-card">
+          <div class="module-icon">📡</div>
+          <div class="module-name">os.events</div>
+          <div class="module-desc">Typed event emitter for real-time balance, transaction, and agent events.</div>
+          <div class="module-methods">
+            <span class="method-chip">on()</span><span class="method-chip">off()</span><span class="method-chip">once()</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text"><strong>Type safety:</strong> The entire SDK is written in TypeScript with strict mode enabled. All public method signatures include JSDoc comments. Type definitions are bundled — no <code style="color:var(--cyan);font-family:var(--mono);">@types/</code> package needed.</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 2. Installation -->
+    <div class="section" id="install">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div><div class="section-title">Installation &amp; Setup</div><div class="section-subtitle">Package installation and peer dependencies</div></div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-filename">Terminal</span><span class="code-lang">bash</span></div>
+        <pre class="code-block"><span class="c-cmt"># npm</span>
+npm install @bamtry/sdk
+
+<span class="c-cmt"># yarn</span>
+yarn add @bamtry/sdk
+
+<span class="c-cmt"># pnpm</span>
+pnpm add @bamtry/sdk</pre>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-filename">package.json — peer dependencies</span><span class="code-lang">json</span></div>
+        <pre class="code-block">{
+  <span class="c-prop">"peerDependencies"</span>: {
+    <span class="c-str">"ethers"</span>: <span class="c-str">"^6.0.0"</span>,
+    <span class="c-str">"@solana/web3.js"</span>: <span class="c-str">"^1.87.0"</span>
+  },
+  <span class="c-prop">"optionalDependencies"</span>: {
+    <span class="c-str">"@cosmjs/stargate"</span>: <span class="c-str">"^0.32.0"</span>
+  }
+}</pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3. Initialisation -->
+    <div class="section" id="init">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div><div class="section-title">Initialisation</div><div class="section-subtitle">BamtryOS constructor, configuration, and lifecycle</div></div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-filename">main.ts</span><span class="code-lang">TypeScript</span></div>
+        <pre class="code-block"><span class="c-kw">import</span> { BamtryOS } <span class="c-kw">from</span> <span class="c-str">'@bamtry/sdk'</span>;
+
+<span class="c-kw">const</span> os = <span class="c-kw">new</span> <span class="c-type">BamtryOS</span>({
+  network:      <span class="c-str">'mainnet'</span>,          <span class="c-cmt">// 'mainnet' | 'testnet'</span>
+  apiBase:      <span class="c-str">'https://api.bamtryos.com/v1'</span>,
+  storageGateway: <span class="c-str">'https://ipfs.bamtryos.com'</span>,
+  ai: {
+    enabled:    <span class="c-kw">true</span>,
+    model:      <span class="c-str">'gpt-4o'</span>,           <span class="c-cmt">// passed to Azure OpenAI</span>
+  },
+  chains: [<span class="c-str">'ethereum'</span>, <span class="c-str">'polygon'</span>, <span class="c-str">'solana'</span>, <span class="c-str">'cosmos'</span>],
+  debug:        <span class="c-kw">false</span>,
+});
+
+<span class="c-cmt">// Initialise — resolves once WebSocket is connected and session is established</span>
+<span class="c-kw">await</span> os.<span class="c-fn">init</span>();
+
+<span class="c-cmt">// Access SDK version</span>
+console.<span class="c-fn">log</span>(os.version); <span class="c-cmt">// '1.0.0'</span>
+
+<span class="c-cmt">// Graceful shutdown</span>
+<span class="c-kw">await</span> os.<span class="c-fn">destroy</span>();</pre>
+      </div>
+
+      <div style="margin-top:8px;">
+        <div class="param-label" style="margin-bottom:8px;">BamtryOSConfig — constructor options</div>
+        <table class="param-table">
+          <thead><tr><th>Option</th><th>Type</th><th>Default</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="p-name">network</td><td class="p-type">string</td><td style="font-family:var(--mono);font-size:11px;color:var(--text3);">'mainnet'</td><td class="p-desc">Network environment. Use 'testnet' for development.</td></tr>
+            <tr><td class="p-name">apiBase</td><td class="p-type">string</td><td style="color:var(--text3);font-size:12px;">Bamtry production</td><td class="p-desc">Override API base URL for self-hosted deployments.</td></tr>
+            <tr><td class="p-name">storageGateway</td><td class="p-type">string</td><td style="color:var(--text3);font-size:12px;">Bamtry IPFS</td><td class="p-desc">IPFS gateway URL for upload and retrieval.</td></tr>
+            <tr><td class="p-name">chains</td><td class="p-type">string[]</td><td style="font-family:var(--mono);font-size:11px;color:var(--text3);">all</td><td class="p-desc">Restrict which chain adapters are initialised.</td></tr>
+            <tr><td class="p-name">ai.enabled</td><td class="p-type">boolean</td><td style="font-family:var(--mono);font-size:11px;color:var(--text3);">true</td><td class="p-desc">Disable to skip AI agent initialisation in headless contexts.</td></tr>
+            <tr><td class="p-name">debug</td><td class="p-type">boolean</td><td style="font-family:var(--mono);font-size:11px;color:var(--text3);">false</td><td class="p-desc">Enable verbose logging to console.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 4. identity module -->
+    <div class="section" id="identity">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div><div class="section-title">os.identity</div><div class="section-subtitle">DID and credential management interface</div></div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">identity.create</span>(<span style="color:var(--text2);">options</span>): <span class="ret-type">Promise&lt;DIDResult&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">Generates a new DID, stores the keypair in the platform TEE, creates the DID Document, pins it to IPFS, and registers the DID on-chain. Returns the created DID and its document.</p>
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">options.pin</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">6-digit PIN used to encrypt the keystore entry in TEE</td></tr>
+              <tr><td class="p-name">options.method</td><td class="p-type">string</td><td><span class="p-opt">Optional</span></td><td class="p-desc">'ethr' | 'sol' | 'key' | 'bamtry' (default: 'bamtry')</td></tr>
+              <tr><td class="p-name">options.displayName</td><td class="p-type">string</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Human-readable display name stored in DID Document</td></tr>
+            </tbody>
+          </table>
+          <div class="param-label">Returns — DIDResult</div>
+          <pre class="code-block" style="margin-top:4px;">{
+  did:         <span class="c-type">string</span>;           <span class="c-cmt">// e.g. "did:bamtry:0x7f3A…"</span>
+  document:    <span class="c-type">DIDDocument</span>;     <span class="c-cmt">// W3C DID Document</span>
+  ipfsCid:     <span class="c-type">string</span>;           <span class="c-cmt">// CID of pinned DID Document</span>
+  txHash:      <span class="c-type">string</span> | <span class="c-kw">null</span>;    <span class="c-cmt">// On-chain registration tx (null for off-chain methods)</span>
+}</pre>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">identity.resolve</span>(<span style="color:var(--text2);">did: string</span>): <span class="ret-type">Promise&lt;DIDDocument&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);">Resolves any supported DID to its W3C DID Document. Checks the local cache first (5-min TTL), then queries the BamtryOS resolver (IPFS + on-chain).</p>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">identity.issueCredential</span>(<span style="color:var(--text2);">params</span>): <span class="ret-type">Promise&lt;VerifiableCredential&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">params.holderDid</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">DID of the credential recipient</td></tr>
+              <tr><td class="p-name">params.types</td><td class="p-type">string[]</td><td><span class="p-req">Required</span></td><td class="p-desc">Credential type array — must include "VerifiableCredential"</td></tr>
+              <tr><td class="p-name">params.claims</td><td class="p-type">Record&lt;string, unknown&gt;</td><td><span class="p-req">Required</span></td><td class="p-desc">Arbitrary JSON claims to embed</td></tr>
+              <tr><td class="p-name">params.expiresAt</td><td class="p-type">Date</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Expiry date — omit for non-expiring credential</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">identity.listCredentials</span>(<span style="color:var(--text2);">options?</span>): <span class="ret-type">Promise&lt;VerifiableCredential[]&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">options.type</td><td class="p-type">string</td><td class="p-desc">Filter by credential type string</td></tr>
+              <tr><td class="p-name">options.activeOnly</td><td class="p-type">boolean</td><td class="p-desc">Exclude expired and revoked credentials (default: true)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 5. wallet module -->
+    <div class="section" id="wallet">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div><div class="section-title">os.wallet</div><div class="section-subtitle">Multi-chain wallet interface — chain-agnostic design</div></div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">wallet.getBalance</span>(<span style="color:var(--text2);">options?</span>): <span class="ret-type">Promise&lt;PortfolioBalance&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">options.chain</td><td class="p-type">string</td><td class="p-desc">Specific chain — omit for all connected chains</td></tr>
+              <tr><td class="p-name">options.includeTokens</td><td class="p-type">boolean</td><td class="p-desc">Include ERC-20 / SPL token balances (default: false)</td></tr>
+              <tr><td class="p-name">options.forceRefresh</td><td class="p-type">boolean</td><td class="p-desc">Bypass 30-second cache (default: false)</td></tr>
+            </tbody>
+          </table>
+          <div class="param-label">Returns — PortfolioBalance</div>
+          <pre class="code-block" style="margin-top:4px;">{
+  balances: Array&lt;{
+    chain:     <span class="c-type">string</span>;
+    address:   <span class="c-type">string</span>;
+    symbol:    <span class="c-type">string</span>;
+    balance:   <span class="c-type">string</span>;     <span class="c-cmt">// decimal string</span>
+    usdValue:  <span class="c-type">string</span>;
+    tokens?:   <span class="c-type">TokenBalance[]</span>;
+  }&gt;;
+  totalUsd: <span class="c-type">string</span>;
+}</pre>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">wallet.send</span>(<span style="color:var(--text2);">params</span>): <span class="ret-type">Promise&lt;TransactionResult&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);margin-bottom:12px;">High-level send — builds, simulates, shows fee preview, prompts PIN confirmation, signs in TEE, and broadcasts. Returns immediately after broadcast (use events for confirmation updates).</p>
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">params.chain</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">Target chain identifier</td></tr>
+              <tr><td class="p-name">params.to</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">Recipient address in chain-native format</td></tr>
+              <tr><td class="p-name">params.amount</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">Amount as decimal string — e.g. "0.5"</td></tr>
+              <tr><td class="p-name">params.token</td><td class="p-type">string</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Token contract address — omit for native token</td></tr>
+              <tr><td class="p-name">params.gasSpeed</td><td class="p-type">string</td><td><span class="p-opt">Optional</span></td><td class="p-desc">'slow' | 'standard' | 'fast' (default: 'standard')</td></tr>
+              <tr><td class="p-name">params.pin</td><td class="p-type">string</td><td><span class="p-opt">Optional</span></td><td class="p-desc">6-digit PIN — if omitted, SDK triggers biometric prompt</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">wallet.buildTransaction</span>(<span style="color:var(--text2);">params</span>): <span class="ret-type">Promise&lt;UnsignedTransaction&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);">Low-level transaction builder for advanced use cases (smart contract calls, custom calldata). Returns the raw unsigned transaction and fee estimate without broadcasting.</p>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">wallet.getTransactionHistory</span>(<span style="color:var(--text2);">options?</span>): <span class="ret-type">Promise&lt;PaginatedResult&lt;Transaction&gt;&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">options.chain</td><td class="p-type">string</td><td class="p-desc">Filter by chain (omit for all)</td></tr>
+              <tr><td class="p-name">options.type</td><td class="p-type">string</td><td class="p-desc">'sent' | 'received' | 'contract' | 'all'</td></tr>
+              <tr><td class="p-name">options.limit</td><td class="p-type">number</td><td class="p-desc">Page size (default: 20)</td></tr>
+              <tr><td class="p-name">options.cursor</td><td class="p-type">string</td><td class="p-desc">Pagination cursor from previous result</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-name"><span class="fn-name">wallet.getAddress</span>(<span style="color:var(--text2);">chain: string</span>): <span class="ret-type">string</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);">Synchronous — returns the chain-native address derived from the DID keypair for the given chain. Throws if the chain is not connected.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 6. storage module -->
+    <div class="section" id="storage">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <div><div class="section-title">os.storage</div><div class="section-subtitle">Encrypted IPFS file operations</div></div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">storage.upload</span>(<span style="color:var(--text2);">file, options?</span>): <span class="ret-type">Promise&lt;UploadResult&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">file</td><td class="p-type">File | Blob | Buffer</td><td><span class="p-req">Required</span></td><td class="p-desc">File data to upload (max 100MB)</td></tr>
+              <tr><td class="p-name">options.encrypt</td><td class="p-type">boolean</td><td><span class="p-opt">Optional</span></td><td class="p-desc">AES-256-GCM encrypt before upload (default: true)</td></tr>
+              <tr><td class="p-name">options.name</td><td class="p-type">string</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Human-readable filename stored in metadata</td></tr>
+              <tr><td class="p-name">options.tags</td><td class="p-type">string[]</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Categorisation tags</td></tr>
+              <tr><td class="p-name">options.onProgress</td><td class="p-type">(pct: number) =&gt; void</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Upload progress callback (0–100)</td></tr>
+            </tbody>
+          </table>
+          <div class="param-label">Returns — UploadResult</div>
+          <pre class="code-block" style="margin-top:4px;">{ cid: <span class="c-type">string</span>; size: <span class="c-type">number</span>; encrypted: <span class="c-type">boolean</span>; uploadedAt: <span class="c-type">Date</span> }</pre>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">storage.get</span>(<span style="color:var(--text2);">cid: string</span>): <span class="ret-type">Promise&lt;Blob&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);">Retrieves and decrypts a file by CID. Throws <code style="color:var(--red);font-family:var(--mono);">StorageAccessDeniedError</code> if the caller's DID is not in the file's access list.</p>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">storage.share</span>(<span style="color:var(--text2);">cid, grantee, options?</span>): <span class="ret-type">Promise&lt;void&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">cid</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">CID of the file to share</td></tr>
+              <tr><td class="p-name">grantee</td><td class="p-type">string</td><td><span class="p-req">Required</span></td><td class="p-desc">DID of the entity being granted access</td></tr>
+              <tr><td class="p-name">options.expiresAt</td><td class="p-type">Date</td><td><span class="p-opt">Optional</span></td><td class="p-desc">Access expiry — omit for permanent access</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 7. agent module -->
+    <div class="section" id="agent">
+      <div class="section-header">
+        <div class="section-number">07</div>
+        <div><div class="section-title">os.agent</div><div class="section-subtitle">AI agent chat and transaction analysis interface</div></div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">agent.chat</span>(<span style="color:var(--text2);">message, options?</span>): <span class="ret-type">Promise&lt;AgentResponse&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <div class="param-label">Parameters</div>
+          <table class="param-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="p-name">message</td><td class="p-type">string</td><td class="p-desc">Natural language message from the user (max 2000 chars)</td></tr>
+              <tr><td class="p-name">options.sessionId</td><td class="p-type">string</td><td class="p-desc">Continue an existing conversation thread</td></tr>
+              <tr><td class="p-name">options.stream</td><td class="p-type">boolean</td><td class="p-desc">Enable token streaming via os.events (default: false)</td></tr>
+            </tbody>
+          </table>
+          <div class="param-label">Returns — AgentResponse</div>
+          <pre class="code-block" style="margin-top:4px;">{
+  sessionId:  <span class="c-type">string</span>;
+  reply:      <span class="c-type">string</span>;
+  action?:    <span class="c-type">AgentAction</span>;    <span class="c-cmt">// present when agent proposes an on-chain action</span>
+}</pre>
+          <div class="param-label">AgentAction types</div>
+          <pre class="code-block" style="margin-top:4px;"><span class="c-kw">type</span> <span class="c-type">AgentActionType</span> =
+  | <span class="c-str">'TRANSACTION_PROPOSAL'</span>  <span class="c-cmt">// send / swap / contract call</span>
+  | <span class="c-str">'STORAGE_UPLOAD'</span>         <span class="c-cmt">// upload a file to IPFS</span>
+  | <span class="c-str">'APP_INSTALL'</span>            <span class="c-cmt">// install a dApp</span>
+  | <span class="c-str">'CREDENTIAL_REQUEST'</span>     <span class="c-cmt">// request a verifiable credential</span>
+  | <span class="c-str">'SETTINGS_CHANGE'</span>;       <span class="c-cmt">// change a user setting</span></pre>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">agent.confirm</span>(<span style="color:var(--text2);">sessionId, confirmed, pin?</span>): <span class="ret-type">Promise&lt;ActionResult&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);">Execute or cancel the pending action in a session. If <code style="color:var(--cyan);font-family:var(--mono);">confirmed = true</code>, the action is executed (signing occurs inside TEE). If <code style="color:var(--cyan);font-family:var(--mono);">pin</code> is omitted, the SDK triggers biometric prompt.</p>
+        </div>
+      </div>
+
+      <div class="method-card">
+        <div class="method-header" onclick="toggle(this)">
+          <span class="method-async">async</span>
+          <span class="method-name"><span class="fn-name">agent.analyseTransaction</span>(<span style="color:var(--text2);">chain, rawTx</span>): <span class="ret-type">Promise&lt;RiskAnalysis&gt;</span></span>
+          <span class="method-toggle">▼</span>
+        </div>
+        <div class="method-body">
+          <p style="font-size:13px;color:var(--text2);">Submits an unsigned transaction to the Transaction Agent for risk scoring. Returns a risk score (0–100), risk level string, and human-readable warnings.</p>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 8. Event System -->
+    <div class="section" id="events">
+      <div class="section-header">
+        <div class="section-number">08</div>
+        <div><div class="section-title">Event System</div><div class="section-subtitle">Typed pub/sub for real-time updates</div></div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-filename">events.ts</span><span class="code-lang">TypeScript</span></div>
+        <pre class="code-block"><span class="c-cmt">// Subscribe to transaction updates</span>
+os.events.<span class="c-fn">on</span>(<span class="c-str">'transaction:update'</span>, (event) => {
+  console.<span class="c-fn">log</span>(`${event.txHash} is now ${event.status}`);
+});
+
+<span class="c-cmt">// Subscribe to balance changes</span>
+os.events.<span class="c-fn">on</span>(<span class="c-str">'balance:update'</span>, (event) => {
+  console.<span class="c-fn">log</span>(`${event.chain}: new balance ${event.balance}`);
+});
+
+<span class="c-cmt">// Stream AI agent response tokens</span>
+os.events.<span class="c-fn">on</span>(<span class="c-str">'agent:token'</span>, (event) => {
+  process.stdout.<span class="c-fn">write</span>(event.delta);
+});
+
+<span class="c-cmt">// One-time listener</span>
+os.events.<span class="c-fn">once</span>(<span class="c-str">'device:paired'</span>, (event) => {
+  console.<span class="c-fn">log</span>(<span class="c-str">'New device paired:'</span>, event.device.name);
+});
+
+<span class="c-cmt">// Remove listener</span>
+<span class="c-kw">const</span> handler = (e) => { <span class="c-cmt">/* ... */</span> };
+os.events.<span class="c-fn">on</span>(<span class="c-str">'transaction:update'</span>, handler);
+os.events.<span class="c-fn">off</span>(<span class="c-str">'transaction:update'</span>, handler);</pre>
+      </div>
+
+      <table class="events-table" style="margin-top:8px;">
+        <thead><tr><th>Event</th><th>Payload Type</th><th>Trigger</th></tr></thead>
+        <tbody>
+          <tr><td class="ev-name">transaction:update</td><td class="ev-payload">{ txHash, chain, status, confirmations }</td><td style="color:var(--text2);font-size:12px;">Tx status changes on-chain</td></tr>
+          <tr><td class="ev-name">balance:update</td><td class="ev-payload">{ chain, address, balance, usdValue }</td><td style="color:var(--text2);font-size:12px;">On-chain balance changes detected</td></tr>
+          <tr><td class="ev-name">agent:token</td><td class="ev-payload">{ sessionId, delta }</td><td style="color:var(--text2);font-size:12px;">Each GPT response token when streaming</td></tr>
+          <tr><td class="ev-name">agent:complete</td><td class="ev-payload">AgentResponse</td><td style="color:var(--text2);font-size:12px;">Agent response fully assembled</td></tr>
+          <tr><td class="ev-name">device:paired</td><td class="ev-payload">{ device: DeviceInfo }</td><td style="color:var(--text2);font-size:12px;">New device successfully pairs via QR</td></tr>
+          <tr><td class="ev-name">notification:push</td><td class="ev-payload">{ title, body, data }</td><td style="color:var(--text2);font-size:12px;">Server-sent push notification</td></tr>
+          <tr><td class="ev-name">connection:lost</td><td class="ev-payload">{ reason }</td><td style="color:var(--text2);font-size:12px;">WebSocket disconnects — SDK auto-reconnects</td></tr>
+          <tr><td class="ev-name">connection:restored</td><td class="ev-payload">void</td><td style="color:var(--text2);font-size:12px;">WebSocket reconnected successfully</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 9. Error Handling -->
+    <div class="section" id="errors">
+      <div class="section-header">
+        <div class="section-number">09</div>
+        <div><div class="section-title">Error Handling</div><div class="section-subtitle">Typed error classes and recommended patterns</div></div>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-filename">error-handling.ts</span><span class="code-lang">TypeScript</span></div>
+        <pre class="code-block"><span class="c-kw">import</span> {
+  BamtryError,
+  AuthError,
+  WalletError,
+  StorageError,
+  AgentError,
+  NetworkError,
+} <span class="c-kw">from</span> <span class="c-str">'@bamtry/sdk/errors'</span>;
+
+<span class="c-kw">try</span> {
+  <span class="c-kw">await</span> os.wallet.<span class="c-fn">send</span>({ chain: <span class="c-str">'ethereum'</span>, to: <span class="c-str">'0x…'</span>, amount: <span class="c-str">'10'</span> });
+} <span class="c-kw">catch</span> (err) {
+  <span class="c-kw">if</span> (err <span class="c-kw">instanceof</span> <span class="c-type">WalletError</span> && err.code === <span class="c-str">'INSUFFICIENT_FUNDS'</span>) {
+    <span class="c-cmt">// Show balance warning UI</span>
+  } <span class="c-kw">else if</span> (err <span class="c-kw">instanceof</span> <span class="c-type">NetworkError</span>) {
+    <span class="c-cmt">// Chain temporarily unreachable — retry with backoff</span>
+  } <span class="c-kw">else if</span> (err <span class="c-kw">instanceof</span> <span class="c-type">BamtryError</span>) {
+    <span class="c-cmt">// All SDK errors extend BamtryError</span>
+    console.<span class="c-fn">error</span>(err.code, err.message, err.requestId);
+  }
+}</pre>
+      </div>
+
+      <table class="events-table" style="margin-top:8px;">
+        <thead><tr><th>Error Class</th><th>Error Codes</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td class="ev-name">AuthError</td><td class="ev-payload">CHALLENGE_EXPIRED, SIGNATURE_INVALID, TOKEN_EXPIRED, PIN_INCORRECT</td><td style="color:var(--text2);font-size:12px;">Authentication and authorisation failures</td></tr>
+          <tr><td class="ev-name">WalletError</td><td class="ev-payload">INSUFFICIENT_FUNDS, TX_SIMULATION_FAILED, TX_BROADCAST_FAILED, CHAIN_NOT_CONNECTED</td><td style="color:var(--text2);font-size:12px;">Transaction and balance errors</td></tr>
+          <tr><td class="ev-name">StorageError</td><td class="ev-payload">ACCESS_DENIED, CID_NOT_FOUND, UPLOAD_TOO_LARGE, ENCRYPTION_FAILED</td><td style="color:var(--text2);font-size:12px;">IPFS storage operation errors</td></tr>
+          <tr><td class="ev-name">AgentError</td><td class="ev-payload">AI_UNAVAILABLE, SESSION_NOT_FOUND, CONTEXT_TOO_LONG, ACTION_CANCELLED</td><td style="color:var(--text2);font-size:12px;">AI agent interaction errors</td></tr>
+          <tr><td class="ev-name">NetworkError</td><td class="ev-payload">CHAIN_UNAVAILABLE, API_UNREACHABLE, RATE_LIMITED, TIMEOUT</td><td style="color:var(--text2);font-size:12px;">Transport and infrastructure errors</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 10. Platform Support -->
+    <div class="section" id="platforms">
+      <div class="section-header">
+        <div class="section-number">10</div>
+        <div><div class="section-title">Platform Support Matrix</div><div class="section-subtitle">Feature availability per client target</div></div>
+      </div>
+
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;overflow:hidden;">
+        <table class="platform-table">
+          <thead>
+            <tr>
+              <th>Feature</th>
+              <th>Android</th>
+              <th>iOS</th>
+              <th>Windows</th>
+              <th>macOS</th>
+              <th>Linux</th>
+              <th>Web</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">DID Creation</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">Hardware TEE (keystore)</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓ TPM</td><td class="check">✓ T2</td><td style="color:var(--yellow);">⚠ Optional</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">Biometric auth</td>
+              <td class="check">✓</td><td class="check">✓ FaceID</td><td class="check">✓ Hello</td><td class="check">✓ TouchID</td><td class="cross">✗</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">Multi-chain wallet</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">IPFS Storage</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">AI Agent Chat</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">dApp Store</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">Push Notifications</td>
+              <td class="check">✓ FCM</td><td class="check">✓ APNs</td><td class="check">✓ WNS</td><td class="check">✓ APNS</td><td style="color:var(--yellow);">⚠ Partial</td><td class="cross">✗</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">Developer Console</td>
+              <td class="cross">✗</td><td class="cross">✗</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+            <tr>
+              <td style="color:var(--text);font-weight:600;">QR Device Pairing</td>
+              <td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td><td class="check">✓</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 11. dApp Integration -->
+    <div class="section" id="dapp">
+      <div class="section-header">
+        <div class="section-number">11</div>
+        <div><div class="section-title">dApp Integration Guide</div><div class="section-subtitle">How third-party developers integrate with BamtryOS</div></div>
+      </div>
+
+      <div class="callout callout-green">
+        <span class="callout-icon">✅</span>
+        <div class="callout-text"><strong>WalletConnect compatible:</strong> BamtryOS supports WalletConnect v2, meaning any dApp that already supports WalletConnect works automatically inside the BamtryOS dApp browser without additional SDK integration.</div>
+      </div>
+
+      <div class="code-wrap" style="margin-top:20px;">
+        <div class="code-header"><span class="code-filename">dapp-integration.ts — Native BamtryOS dApp manifest</span><span class="code-lang">JSON</span></div>
+        <pre class="code-block">{
+  <span class="c-prop">"bamtryManifest"</span>: <span class="c-str">"1.0"</span>,
+  <span class="c-prop">"id"</span>:           <span class="c-str">"com.example.mydapp"</span>,
+  <span class="c-prop">"name"</span>:         <span class="c-str">"My dApp"</span>,
+  <span class="c-prop">"version"</span>:      <span class="c-str">"1.0.0"</span>,
+  <span class="c-prop">"entryPoint"</span>:   <span class="c-str">"index.html"</span>,
+  <span class="c-prop">"permissions"</span>: [
+    <span class="c-str">"wallet:read"</span>,         <span class="c-cmt">// Read wallet addresses and balances</span>
+    <span class="c-str">"wallet:sign"</span>,         <span class="c-cmt">// Request transaction signing (requires user confirm)</span>
+    <span class="c-str">"identity:read"</span>,       <span class="c-cmt">// Read DID and public credentials</span>
+    <span class="c-str">"storage:read"</span>         <span class="c-cmt">// Access files user explicitly shares</span>
+  ],
+  <span class="c-prop">"supportedChains"</span>: [<span class="c-str">"ethereum"</span>, <span class="c-str">"polygon"</span>],
+  <span class="c-prop">"category"</span>:     <span class="c-str">"defi"</span>,
+  <span class="c-prop">"auditUrl"</span>:     <span class="c-str">"https://example.com/audit-report.pdf"</span>
+}</pre>
+      </div>
+
+      <div class="code-wrap">
+        <div class="code-header"><span class="code-filename">inside-dapp.ts — Accessing BamtryOS from within a dApp iframe</span><span class="code-lang">TypeScript</span></div>
+        <pre class="code-block"><span class="c-cmt">// BamtryOS injects window.bamtry into the dApp iframe context</span>
+<span class="c-kw">const</span> bamtry = window.bamtry;
+
+<span class="c-cmt">// Request wallet address for the connected chain</span>
+<span class="c-kw">const</span> address = <span class="c-kw">await</span> bamtry.wallet.<span class="c-fn">getAddress</span>(<span class="c-str">'ethereum'</span>);
+
+<span class="c-cmt">// Request transaction signing — user sees BamtryOS confirmation UI</span>
+<span class="c-kw">const</span> txHash = <span class="c-kw">await</span> bamtry.wallet.<span class="c-fn">send</span>({
+  chain:  <span class="c-str">'ethereum'</span>,
+  to:     <span class="c-str">'0xContractAddress…'</span>,
+  data:   encodedCalldata,
+  amount: <span class="c-str">'0'</span>,
+});
+
+<span class="c-cmt">// Read user's DID (with identity:read permission)</span>
+<span class="c-kw">const</span> { did } = <span class="c-kw">await</span> bamtry.identity.<span class="c-fn">getCurrent</span>();</pre>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="doc-footer">
+  <div class="footer-brand">BamtryOS — SDK Specification v1.0</div>
+  <div class="footer-meta">Bamtry Technologies Ltd. · Confidential · Design Phase Package · Document 06 of 07</div>
+</footer>
+
+<script>
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.method-toggle');
+    body.classList.toggle('open');
+    arrow.classList.toggle('open');
+  }
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>BamtryOS — UI/UX Prototype</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#08080F;--surface:#0F0F1A;--card:#161625;--card2:#1C1C2E;
+  --border:#2A2A42;--border2:#363658;
+  --accent:#7C6FFF;--accent2:#5B4FE8;--accent-glow:rgba(124,111,255,0.15);
+  --cyan:#00D4FF;--cyan-glow:rgba(0,212,255,0.1);
+  --green:#00C896;--red:#FF5C7A;--orange:#FF9A3C;--yellow:#FFD93D;
+  --text:#F0F0FF;--text2:#A0A0C0;--text3:#606080;
+  --font:'Inter',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+body{background:var(--bg);color:var(--text);font-family:var(--font);display:flex;min-height:100vh;overflow:hidden;}
+
+/* SCREEN NAV */
+.screen-nav{width:220px;background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;padding:20px 0;flex-shrink:0;overflow-y:auto;}
+.screen-nav .logo{display:flex;align-items:center;gap:10px;padding:0 16px 20px;border-bottom:1px solid var(--border);margin-bottom:12px;}
+.logo-mark{width:36px;height:36px;background:linear-gradient(135deg,var(--accent),var(--cyan));border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.logo-name{font-size:15px;font-weight:800;}
+.nav-section{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.2px;color:var(--text3);padding:16px 16px 6px;}
+.nav-btn{display:block;width:100%;text-align:left;background:none;border:none;color:var(--text2);font-family:var(--font);font-size:13px;font-weight:500;padding:9px 16px;cursor:pointer;border-radius:0;transition:all 0.15s;}
+.nav-btn:hover{color:var(--text);background:rgba(255,255,255,0.04);}
+.nav-btn.active{color:var(--accent);background:var(--accent-glow);border-right:2px solid var(--accent);}
+
+/* SCREEN AREA */
+.screen-area{flex:1;overflow-y:auto;background:var(--bg);}
+.screen{display:none;min-height:100vh;}
+.screen.active{display:block;}
+
+/* SHARED */
+.tag{display:inline-flex;align-items:center;padding:3px 10px;border-radius:20px;font-size:11px;font-weight:600;gap:4px;}
+.tag-green{background:rgba(0,200,150,0.12);color:var(--green);}
+.tag-purple{background:var(--accent-glow);color:var(--accent);}
+.tag-cyan{background:var(--cyan-glow);color:var(--cyan);}
+.tag-red{background:rgba(255,92,122,0.12);color:var(--red);}
+.tag-orange{background:rgba(255,154,60,0.12);color:var(--orange);}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;border:none;font-family:var(--font);}
+.btn-primary{background:var(--accent);color:#fff;}
+.btn-secondary{background:var(--card2);color:var(--text);border:1px solid var(--border);}
+.btn-ghost{background:transparent;color:var(--accent);border:1px solid var(--accent);}
+.btn-lg{padding:14px 28px;font-size:15px;border-radius:12px;}
+.btn-sm{padding:6px 12px;font-size:12px;border-radius:8px;}
+.card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.mono{font-family:var(--mono);font-size:12px;color:var(--cyan);}
+.avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+.divider{height:1px;background:var(--border);margin:20px 0;}
+input[type=text],input[type=password]{background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:12px 14px;color:var(--text);font-size:14px;font-family:var(--font);width:100%;outline:none;}
+input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
+.label{font-size:12px;font-weight:600;color:var(--text2);margin-bottom:6px;display:block;}
+
+/* TOPBAR */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;}
+.topbar-title{font-size:18px;font-weight:700;}
+.topbar-right{display:flex;align-items:center;gap:12px;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;}
+.content{padding:28px;}
+
+/* STAT CARD */
+.stat{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:20px;}
+.stat-label{font-size:12px;font-weight:600;color:var(--text2);text-transform:uppercase;letter-spacing:0.8px;margin-bottom:8px;}
+.stat-value{font-size:26px;font-weight:800;letter-spacing:-0.5px;}
+.stat-sub{font-size:12px;color:var(--text3);margin-top:4px;}
+
+/* CHAIN PILL */
+.chain-pill{display:inline-flex;align-items:center;gap:6px;background:var(--card2);border:1px solid var(--border);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;}
+.chain-dot{width:8px;height:8px;border-radius:50%;}
+
+/* TX ROW */
+.tx-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:1px solid var(--border);}
+.tx-row:last-child{border-bottom:none;}
+.tx-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-right:12px;flex-shrink:0;}
+.tx-info{flex:1;}
+.tx-name{font-size:14px;font-weight:600;margin-bottom:2px;}
+.tx-meta{font-size:12px;color:var(--text3);}
+.tx-amount{font-size:14px;font-weight:700;}
+
+/* DAPP CARD */
+.dapp-card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:border-color 0.2s;}
+.dapp-card:hover{border-color:var(--accent);}
+.dapp-icon{width:48px;height:48px;border-radius:14px;display:flex;align-items:center;justify-content:center;margin-bottom:12px;font-size:22px;}
+.dapp-name{font-size:14px;font-weight:700;margin-bottom:4px;}
+.dapp-desc{font-size:12px;color:var(--text2);line-height:1.4;margin-bottom:12px;}
+.dapp-footer{display:flex;align-items:center;justify-content:space-between;}
+
+/* ONBOARDING */
+.onboard-wrap{min-height:100vh;display:flex;align-items:center;justify-content:center;background:radial-gradient(ellipse at 50% 0%,rgba(124,111,255,0.15) 0%,transparent 70%),var(--bg);}
+.onboard-box{width:460px;text-align:center;}
+.onboard-logo{width:80px;height:80px;background:linear-gradient(135deg,var(--accent),var(--cyan));border-radius:24px;display:flex;align-items:center;justify-content:center;margin:0 auto 28px;}
+.onboard-title{font-size:36px;font-weight:800;letter-spacing:-1px;margin-bottom:12px;}
+.onboard-sub{font-size:15px;color:var(--text2);line-height:1.6;margin-bottom:36px;}
+.onboard-form{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:28px;text-align:left;}
+.step-dots{display:flex;justify-content:center;gap:8px;margin-bottom:28px;}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--border2);}
+.dot.active{background:var(--accent);width:24px;}
+
+/* IDENTITY CARD */
+.id-card{background:linear-gradient(135deg,var(--card2),var(--card));border:1px solid var(--border);border-radius:20px;padding:24px;position:relative;overflow:hidden;}
+.id-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;background:radial-gradient(circle,rgba(124,111,255,0.2),transparent);border-radius:50%;}
+.id-did{font-family:var(--mono);font-size:11px;color:var(--cyan);margin-bottom:16px;}
+.id-name{font-size:20px;font-weight:700;margin-bottom:4px;}
+.id-chains{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+
+/* WALLET */
+.wallet-hero{background:linear-gradient(135deg,#1A1640,#0F1A2E);border:1px solid var(--border);border-radius:20px;padding:28px;text-align:center;position:relative;overflow:hidden;margin-bottom:20px;}
+.wallet-hero::before{content:'';position:absolute;top:-60px;left:50%;transform:translateX(-50%);width:300px;height:300px;background:radial-gradient(circle,rgba(124,111,255,0.12),transparent);border-radius:50%;}
+.wallet-balance{font-size:42px;font-weight:800;letter-spacing:-1px;margin-bottom:4px;}
+.wallet-sub{font-size:14px;color:var(--text2);margin-bottom:20px;}
+.wallet-actions{display:flex;gap:12px;justify-content:center;}
+.wallet-action-btn{display:flex;flex-direction:column;align-items:center;gap:8px;background:var(--card);border:1px solid var(--border);border-radius:14px;padding:14px 20px;cursor:pointer;min-width:80px;}
+.wallet-action-btn span{font-size:12px;font-weight:600;color:var(--text2);}
+
+/* STORAGE */
+.storage-bar{background:var(--card2);border-radius:100px;height:8px;overflow:hidden;margin:12px 0;}
+.storage-fill{height:100%;border-radius:100px;}
+.file-row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);}
+.file-row:last-child{border-bottom:none;}
+.file-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;}
+.file-name{font-size:14px;font-weight:500;margin-bottom:2px;}
+.file-meta{font-size:11px;color:var(--text3);}
+
+/* PROGRESS BAR */
+.progress-bar{background:var(--card2);border-radius:100px;height:5px;overflow:hidden;}
+.progress-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--accent),var(--cyan));}
+
+/* SETTINGS */
+.setting-row{display:flex;align-items:center;justify-content:space-between;padding:16px 0;border-bottom:1px solid var(--border);}
+.setting-row:last-child{border-bottom:none;}
+.setting-info{}
+.setting-label{font-size:14px;font-weight:600;margin-bottom:2px;}
+.setting-desc{font-size:12px;color:var(--text3);}
+.toggle{width:44px;height:24px;border-radius:100px;position:relative;cursor:pointer;flex-shrink:0;}
+.toggle.on{background:var(--accent);}
+.toggle.off{background:var(--card2);border:1px solid var(--border);}
+.toggle-dot{width:18px;height:18px;background:#fff;border-radius:50%;position:absolute;top:3px;transition:left 0.2s;}
+.toggle.on .toggle-dot{left:23px;}
+.toggle.off .toggle-dot{left:3px;}
+
+/* DEV CONSOLE */
+.terminal{background:#050508;border:1px solid var(--border);border-radius:14px;padding:20px;font-family:var(--mono);font-size:13px;line-height:1.8;}
+.term-line{display:flex;gap:8px;}
+.term-prompt{color:var(--accent);}
+.term-cmd{color:var(--text);}
+.term-out{color:var(--text2);}
+.term-success{color:var(--green);}
+.term-error{color:var(--red);}
+.term-info{color:var(--cyan);}
+.code-block{background:#050508;border:1px solid var(--border);border-radius:12px;padding:18px;font-family:var(--mono);font-size:12px;line-height:1.7;overflow-x:auto;}
+.kw{color:#C678DD;}.fn{color:#61AFEF;}.str{color:#98C379;}.num{color:#D19A66;}.comment{color:#5C6370;}.type{color:#E5C07B;}
+</style>
+</head>
+<body>
+
+<!-- SIDEBAR NAV -->
+<nav class="screen-nav">
+  <div class="logo">
+    <div class="logo-mark">
+      <svg width="20" height="20" viewBox="0 0 28 28" fill="none">
+        <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
+        <circle cx="14" cy="14" r="3.5" fill="white"/>
+        <path d="M14 4V10M14 18V24M4 9.5L9.5 12.5M18.5 15.5L24 18.5M4 18.5L9.5 15.5M18.5 12.5L24 9.5" stroke="white" stroke-width="1.5"/>
+      </svg>
+    </div>
+    <div class="logo-name">BamtryOS</div>
+  </div>
+
+  <div class="nav-section">Onboarding</div>
+  <button class="nav-btn active" onclick="show('welcome')">Welcome Screen</button>
+  <button class="nav-btn" onclick="show('create-identity')">Create Identity</button>
+  <button class="nav-btn" onclick="show('setup-wallet')">Setup Wallet</button>
+  <button class="nav-btn" onclick="show('connect-chains')">Connect Chains</button>
+
+  <div class="nav-section">Main App</div>
+  <button class="nav-btn" onclick="show('dashboard')">Dashboard</button>
+  <button class="nav-btn" onclick="show('wallet')">Wallet</button>
+  <button class="nav-btn" onclick="show('identity')">Identity</button>
+  <button class="nav-btn" onclick="show('dapp-store')">dApp Store</button>
+  <button class="nav-btn" onclick="show('storage')">Storage</button>
+  <button class="nav-btn" onclick="show('ai-agent')">AI Agent</button>
+
+  <div class="nav-section">System</div>
+  <button class="nav-btn" onclick="show('settings')">Settings</button>
+  <button class="nav-btn" onclick="show('devices')">Devices</button>
+  <button class="nav-btn" onclick="show('dev-console')">Developer Console</button>
+  <button class="nav-btn" onclick="show('send-tx')">Send Transaction</button>
+</nav>
+
+<!-- SCREENS -->
+<div class="screen-area">
+
+<!-- ===== WELCOME ===== -->
+<div class="screen active" id="s-welcome">
+  <div class="onboard-wrap">
+    <div class="onboard-box">
+      <div class="onboard-logo">
+        <svg width="44" height="44" viewBox="0 0 28 28" fill="none">
+          <path d="M14 4L24 9.5V18.5L14 24L4 18.5V9.5L14 4Z" stroke="white" stroke-width="2" fill="none"/>
+          <circle cx="14" cy="14" r="4" fill="white"/>
+          <path d="M14 4V10M14 18V24M4 9.5L9.5 12.5M18.5 15.5L24 18.5M4 18.5L9.5 15.5M18.5 12.5L24 9.5" stroke="white" stroke-width="1.5"/>
+        </svg>
+      </div>
+      <div class="tag tag-cyan" style="margin-bottom:16px;">The OS Layer for Web3</div>
+      <h1 class="onboard-title">One Identity.<br/>Every Chain.</h1>
+      <p class="onboard-sub">BamtryOS unifies your Web3 world — one identity, one wallet, one platform. No seed phrases. No bridges. No complexity.</p>
+      <div style="display:flex;flex-direction:column;gap:12px;">
+        <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;" onclick="show('create-identity')">Create My Identity →</button>
+        <button class="btn btn-secondary btn-lg" style="width:100%;justify-content:center;">Import Existing Wallet</button>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:20px;">By continuing you agree to BamtryOS Terms of Service & Privacy Policy</p>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CREATE IDENTITY ===== -->
+<div class="screen" id="s-create-identity">
+  <div class="onboard-wrap">
+    <div class="onboard-box" style="width:500px;">
+      <div class="step-dots">
+        <div class="dot active"></div><div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+      </div>
+      <h2 style="font-size:28px;font-weight:800;margin-bottom:8px;">Create Your Identity</h2>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Your BamtryOS DID is a decentralised identifier — cryptographically yours, stored on-chain, works across every app.</p>
+      <div class="onboard-form">
+        <div style="margin-bottom:20px;">
+          <label class="label">Display Name</label>
+          <input type="text" placeholder="e.g. Abdulbasit Alatise" value="Abdulbasit Alatise"/>
+        </div>
+        <div style="margin-bottom:20px;">
+          <label class="label">Username (used in your DID)</label>
+          <div style="position:relative;">
+            <input type="text" placeholder="abdulbasit" value="abdulbasit" style="padding-right:160px;"/>
+            <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:12px;font-family:var(--mono);color:var(--text3);">.bamtry.id</span>
+          </div>
+        </div>
+        <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:20px;">
+          <div style="font-size:11px;color:var(--text3);margin-bottom:4px;">Your DID will be</div>
+          <div class="mono">did:bamtry:mainnet:abdulbasit.bamtry.id</div>
+        </div>
+        <div style="margin-bottom:24px;">
+          <label class="label">Security PIN (6 digits)</label>
+          <div style="display:flex;gap:10px;">
+            <input type="password" style="width:52px;text-align:center;padding:12px 8px;" maxlength="1" placeholder="·"/>
+            <input type="password" style="width:52px;text-align:center;padding:12px 8px;" maxlength="1" placeholder="·"/>
+            <input type="password" style="width:52px;text-align:center;padding:12px 8px;" maxlength="1" placeholder="·"/>
+            <input type="password" style="width:52px;text-align:center;padding:12px 8px;" maxlength="1" placeholder="·"/>
+            <input type="password" style="width:52px;text-align:center;padding:12px 8px;" maxlength="1" placeholder="·"/>
+            <input type="password" style="width:52px;text-align:center;padding:12px 8px;" maxlength="1" placeholder="·"/>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="show('setup-wallet')">Generate My DID →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETUP WALLET ===== -->
+<div class="screen" id="s-setup-wallet">
+  <div class="onboard-wrap">
+    <div class="onboard-box" style="width:500px;">
+      <div class="step-dots">
+        <div class="dot active"></div><div class="dot active"></div><div class="dot active"></div><div class="dot"></div>
+      </div>
+      <h2 style="font-size:28px;font-weight:800;margin-bottom:8px;">Your Universal Wallet</h2>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">One wallet, every chain. BamtryOS generates and manages your keys — no seed phrases to copy, no extensions to install.</p>
+      <div class="onboard-form">
+        <div style="background:linear-gradient(135deg,rgba(124,111,255,0.15),rgba(0,212,255,0.08));border:1px solid var(--accent);border-radius:14px;padding:18px;margin-bottom:20px;">
+          <div style="font-size:11px;color:var(--accent);font-weight:600;margin-bottom:8px;">WALLET GENERATED</div>
+          <div style="font-size:13px;font-weight:600;margin-bottom:6px;">abdulbasit.bamtry.id</div>
+          <div class="mono" style="margin-bottom:12px;">0x7a3f9b...c9d2</div>
+          <div style="display:flex;gap:8px;flex-wrap:wrap;">
+            <span class="chain-pill"><span class="chain-dot" style="background:#627EEA;"></span>Ethereum</span>
+            <span class="chain-pill"><span class="chain-dot" style="background:#9945FF;"></span>Solana</span>
+            <span class="chain-pill"><span class="chain-dot" style="background:#F7931A;"></span>Bitcoin</span>
+            <span class="chain-pill"><span class="chain-dot" style="background:#8247E5;"></span>Polygon</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00C896" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00C896" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span style="font-size:13px;">Keys encrypted with your PIN — never leave your device</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00C896" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00C896" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span style="font-size:13px;">Works across Android, iOS, Windows, macOS & Linux</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:10px;padding:12px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:10px;">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="7" stroke="#00C896" stroke-width="1.5"/><path d="M5 8L7 10L11 6" stroke="#00C896" stroke-width="1.5" stroke-linecap="round"/></svg>
+            <span style="font-size:13px;">Biometric authentication supported</span>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="show('connect-chains')">Continue →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== CONNECT CHAINS ===== -->
+<div class="screen" id="s-connect-chains">
+  <div class="onboard-wrap">
+    <div class="onboard-box" style="width:500px;">
+      <div class="step-dots">
+        <div class="dot active"></div><div class="dot active"></div><div class="dot active"></div><div class="dot active"></div>
+      </div>
+      <h2 style="font-size:28px;font-weight:800;margin-bottom:8px;">Choose Your Networks</h2>
+      <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Select the chains you want to use. You can add or remove networks anytime from Settings.</p>
+      <div class="onboard-form">
+        <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:24px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);border:1px solid var(--accent);border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#627EEA;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">ETH</div>
+              <div><div style="font-size:14px;font-weight:600;">Ethereum</div><div style="font-size:11px;color:var(--text3);">EVM • Mainnet</div></div>
+            </div>
+            <div style="width:20px;height:20px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);border:1px solid var(--accent);border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#9945FF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">SOL</div>
+              <div><div style="font-size:14px;font-weight:600;">Solana</div><div style="font-size:11px;color:var(--text3);">Solana • Mainnet</div></div>
+            </div>
+            <div style="width:20px;height:20px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);border:1px solid var(--border);border-radius:12px;opacity:0.7;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#F7931A;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">BTC</div>
+              <div><div style="font-size:14px;font-weight:600;">Bitcoin</div><div style="font-size:11px;color:var(--text3);">Bitcoin • Mainnet</div></div>
+            </div>
+            <div style="width:20px;height:20px;background:var(--border);border-radius:5px;"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 16px;background:var(--bg);border:1px solid var(--accent);border-radius:12px;">
+            <div style="display:flex;align-items:center;gap:12px;">
+              <div style="width:36px;height:36px;border-radius:50%;background:#8247E5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;">POL</div>
+              <div><div style="font-size:14px;font-weight:600;">Polygon</div><div style="font-size:11px;color:var(--text3);">EVM L2 • Mainnet</div></div>
+            </div>
+            <div style="width:20px;height:20px;background:var(--accent);border-radius:5px;display:flex;align-items:center;justify-content:center;">
+              <svg width="10" height="8" viewBox="0 0 10 8" fill="none"><path d="M1 4L3.5 6.5L9 1" stroke="white" stroke-width="1.8" stroke-linecap="round"/></svg>
+            </div>
+          </div>
+        </div>
+        <button class="btn btn-primary" style="width:100%;justify-content:center;" onclick="show('dashboard')">Enter BamtryOS →</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DASHBOARD ===== -->
+<div class="screen" id="s-dashboard">
+  <div class="topbar">
+    <div class="topbar-title">Dashboard</div>
+    <div class="topbar-right">
+      <span class="tag tag-green">● Mainnet</span>
+      <div class="avatar">AA</div>
+    </div>
+  </div>
+  <div class="content">
+    <!-- Welcome -->
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:24px;">
+      <div>
+        <div style="font-size:22px;font-weight:700;">Good morning, Abdulbasit 👋</div>
+        <div class="mono" style="margin-top:4px;">did:bamtry:mainnet:abdulbasit.bamtry.id</div>
+      </div>
+      <button class="btn btn-primary btn-sm">+ Install dApp</button>
+    </div>
+
+    <!-- Stats -->
+    <div class="g4" style="margin-bottom:20px;">
+      <div class="stat">
+        <div class="stat-label">Portfolio Value</div>
+        <div class="stat-value">$12,840</div>
+        <div class="stat-sub" style="color:var(--green);">↑ +4.2% today</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Active Chains</div>
+        <div class="stat-value">4</div>
+        <div class="stat-sub">ETH · SOL · POL · BTC</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Installed dApps</div>
+        <div class="stat-value">7</div>
+        <div class="stat-sub">2 updates available</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Storage Used</div>
+        <div class="stat-value">2.4 GB</div>
+        <div class="stat-sub">of 10 GB · IPFS encrypted</div>
+      </div>
+    </div>
+
+    <div class="g2" style="margin-bottom:20px;">
+      <!-- Quick Actions -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Quick Actions</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+          <button class="btn btn-secondary" style="flex-direction:column;align-items:center;padding:16px;gap:8px;" onclick="show('send-tx')">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10H17M17 10L12 5M17 10L12 15" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span style="font-size:12px;">Send</span>
+          </button>
+          <button class="btn btn-secondary" style="flex-direction:column;align-items:center;padding:16px;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 10H3M3 10L8 5M3 10L8 15" stroke="var(--cyan)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span style="font-size:12px;">Receive</span>
+          </button>
+          <button class="btn btn-secondary" style="flex-direction:column;align-items:center;padding:16px;gap:8px;">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 3V17M17 10H3" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span style="font-size:12px;">Buy Crypto</span>
+          </button>
+          <button class="btn btn-secondary" style="flex-direction:column;align-items:center;padding:16px;gap:8px;" onclick="show('dapp-store')">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="3" y="3" width="6" height="6" rx="1.5" stroke="var(--orange)" stroke-width="1.8"/><rect x="11" y="3" width="6" height="6" rx="1.5" stroke="var(--orange)" stroke-width="1.8"/><rect x="3" y="11" width="6" height="6" rx="1.5" stroke="var(--orange)" stroke-width="1.8"/><rect x="11" y="11" width="6" height="6" rx="1.5" stroke="var(--orange)" stroke-width="1.8"/></svg>
+            <span style="font-size:12px;">App Store</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Recent Activity -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:4px;">Recent Activity</div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(98,126,234,0.15);"><span style="font-size:14px;">⬆</span></div>
+          <div class="tx-info"><div class="tx-name">Sent ETH</div><div class="tx-meta">To 0x4f2a...1b9c · 2h ago</div></div>
+          <div class="tx-amount" style="color:var(--red);">-0.45 ETH</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(0,200,150,0.12);"><span style="font-size:14px;">⬇</span></div>
+          <div class="tx-info"><div class="tx-name">Received USDC</div><div class="tx-meta">From Axone Protocol · 5h ago</div></div>
+          <div class="tx-amount" style="color:var(--green);">+$500.00</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(124,111,255,0.15);"><span style="font-size:14px;">📦</span></div>
+          <div class="tx-info"><div class="tx-name">dApp Installed</div><div class="tx-meta">Web3Notes v2.1 · 1d ago</div></div>
+          <div class="tx-amount" style="color:var(--text3);">Free</div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(0,212,255,0.1);"><span style="font-size:14px;">🔗</span></div>
+          <div class="tx-info"><div class="tx-name">Polygon Bridge</div><div class="tx-meta">ETH → POL · 2d ago</div></div>
+          <div class="tx-amount" style="color:var(--cyan);">250 POL</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Installed dApps -->
+    <div class="card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+        <div style="font-size:14px;font-weight:700;">Installed dApps</div>
+        <button class="btn btn-ghost btn-sm" onclick="show('dapp-store')">Browse Store →</button>
+      </div>
+      <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">📝</div>
+          <span style="font-size:11px;color:var(--text2);">Web3Notes</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#f093fb,#f5576c);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">💱</div>
+          <span style="font-size:11px;color:var(--text2);">SwapX</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#4facfe,#00f2fe);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">🗳️</div>
+          <span style="font-size:11px;color:var(--text2);">DAO Vote</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#43e97b,#38f9d7);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">📂</div>
+          <span style="font-size:11px;color:var(--text2);">FileVault</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <div style="width:52px;height:52px;background:linear-gradient(135deg,#fa709a,#fee140);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">🎨</div>
+          <span style="font-size:11px;color:var(--text2);">NFT Studio</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;">
+          <div style="width:52px;height:52px;background:var(--card2);border:1px dashed var(--border2);border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:22px;">+</div>
+          <span style="font-size:11px;color:var(--text3);">Add dApp</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Network Status -->
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Network Status</div>
+      <div style="display:flex;flex-direction:column;gap:10px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;"><div class="chain-dot" style="background:#627EEA;"></div><span style="font-size:13px;">Ethereum Mainnet</span></div>
+          <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:12px;color:var(--text3);">22 gwei</span><span class="tag tag-green">● Connected</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;"><div class="chain-dot" style="background:#9945FF;"></div><span style="font-size:13px;">Solana Mainnet</span></div>
+          <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:12px;color:var(--text3);">0.000005 SOL</span><span class="tag tag-green">● Connected</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;"><div class="chain-dot" style="background:#8247E5;"></div><span style="font-size:13px;">Polygon Mainnet</span></div>
+          <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:12px;color:var(--text3);">45 gwei</span><span class="tag tag-green">● Connected</span></div>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div style="display:flex;align-items:center;gap:10px;"><div class="chain-dot" style="background:#F7931A;"></div><span style="font-size:13px;">Bitcoin Mainnet</span></div>
+          <div style="display:flex;align-items:center;gap:12px;"><span style="font-size:12px;color:var(--text3);">34 sat/vB</span><span class="tag tag-orange">● Syncing</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== WALLET ===== -->
+<div class="screen" id="s-wallet">
+  <div class="topbar">
+    <div class="topbar-title">Wallet</div>
+    <div class="topbar-right">
+      <button class="btn btn-secondary btn-sm">⬇ Receive</button>
+      <button class="btn btn-primary btn-sm" onclick="show('send-tx')">⬆ Send</button>
+    </div>
+  </div>
+  <div class="content">
+    <div class="wallet-hero">
+      <div style="position:relative;z-index:1;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">Total Portfolio Value</div>
+        <div class="wallet-balance">$12,840.52</div>
+        <div class="wallet-sub" style="display:flex;align-items:center;justify-content:center;gap:8px;">
+          <span class="tag tag-green">↑ +$518.20 (4.2%)</span>
+          <span style="color:var(--text3);">Today</span>
+        </div>
+        <div class="wallet-actions" style="margin-top:20px;">
+          <div class="wallet-action-btn" onclick="show('send-tx')">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M3 10H17M17 10L12 5M17 10L12 15" stroke="var(--accent)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>Send</span>
+          </div>
+          <div class="wallet-action-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M17 10H3M3 10L8 5M3 10L8 15" stroke="var(--cyan)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>Receive</span>
+          </div>
+          <div class="wallet-action-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10H15M10 5L15 10L10 15" stroke="var(--green)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>Swap</span>
+          </div>
+          <div class="wallet-action-btn">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><circle cx="10" cy="10" r="7" stroke="var(--orange)" stroke-width="1.8"/><path d="M10 7V10L12 12" stroke="var(--orange)" stroke-width="1.8" stroke-linecap="round"/></svg>
+            <span>History</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <!-- Token Balances -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Token Balances</div>
+        <div class="tx-row">
+          <div style="width:36px;height:36px;border-radius:50%;background:#627EEA;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:12px;">ETH</div>
+          <div class="tx-info"><div class="tx-name">Ethereum</div><div class="tx-meta">2.4 ETH</div></div>
+          <div style="text-align:right;"><div class="tx-amount">$8,640</div><div style="font-size:11px;color:var(--green);">↑ +3.2%</div></div>
+        </div>
+        <div class="tx-row">
+          <div style="width:36px;height:36px;border-radius:50%;background:#2775CA;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;margin-right:12px;">USDC</div>
+          <div class="tx-info"><div class="tx-name">USD Coin</div><div class="tx-meta">2,500 USDC</div></div>
+          <div style="text-align:right;"><div class="tx-amount">$2,500</div><div style="font-size:11px;color:var(--text3);">Stable</div></div>
+        </div>
+        <div class="tx-row">
+          <div style="width:36px;height:36px;border-radius:50%;background:#9945FF;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:12px;">SOL</div>
+          <div class="tx-info"><div class="tx-name">Solana</div><div class="tx-meta">10.5 SOL</div></div>
+          <div style="text-align:right;"><div class="tx-amount">$1,260</div><div style="font-size:11px;color:var(--red);">↓ -1.8%</div></div>
+        </div>
+        <div class="tx-row">
+          <div style="width:36px;height:36px;border-radius:50%;background:#8247E5;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;margin-right:12px;">POL</div>
+          <div class="tx-info"><div class="tx-name">Polygon</div><div class="tx-meta">250 POL</div></div>
+          <div style="text-align:right;"><div class="tx-amount">$112</div><div style="font-size:11px;color:var(--green);">↑ +5.6%</div></div>
+        </div>
+      </div>
+
+      <!-- Transactions -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Recent Transactions</div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(255,92,122,0.12);">⬆</div>
+          <div class="tx-info"><div class="tx-name">Sent ETH</div><div class="tx-meta">0x4f2a...1b9c · Ethereum · 2h ago</div></div>
+          <div><div class="tx-amount" style="color:var(--red);">-0.45 ETH</div><span class="tag tag-green" style="font-size:10px;">Confirmed</span></div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(0,200,150,0.12);">⬇</div>
+          <div class="tx-info"><div class="tx-name">Received USDC</div><div class="tx-meta">Axone Protocol · Polygon · 5h ago</div></div>
+          <div><div class="tx-amount" style="color:var(--green);">+500 USDC</div><span class="tag tag-green" style="font-size:10px;">Confirmed</span></div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(124,111,255,0.15);">⇄</div>
+          <div class="tx-info"><div class="tx-name">Swapped SOL → USDC</div><div class="tx-meta">Jupiter · Solana · 1d ago</div></div>
+          <div><div class="tx-amount" style="color:var(--cyan);">5 SOL</div><span class="tag tag-green" style="font-size:10px;">Confirmed</span></div>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(255,154,60,0.12);">⬆</div>
+          <div class="tx-info"><div class="tx-name">Gas Fee</div><div class="tx-meta">Contract interaction · ETH · 2d ago</div></div>
+          <div><div class="tx-amount" style="color:var(--red);">-$3.20</div><span class="tag tag-green" style="font-size:10px;">Confirmed</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== IDENTITY ===== -->
+<div class="screen" id="s-identity">
+  <div class="topbar">
+    <div class="topbar-title">Identity</div>
+    <div class="topbar-right"><button class="btn btn-primary btn-sm">+ Add Device</button></div>
+  </div>
+  <div class="content">
+    <!-- DID Card -->
+    <div class="id-card" style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:16px;position:relative;z-index:1;">
+        <div class="avatar" style="width:60px;height:60px;font-size:20px;">AA</div>
+        <div>
+          <div style="font-size:20px;font-weight:800;margin-bottom:4px;">Abdulbasit Alatise</div>
+          <div class="id-did">did:bamtry:mainnet:abdulbasit.bamtry.id</div>
+          <div style="display:flex;gap:8px;align-items:center;">
+            <span class="tag tag-green">● Verified</span>
+            <span class="tag tag-purple">Founding Partner</span>
+          </div>
+        </div>
+        <button class="btn btn-secondary btn-sm" style="margin-left:auto;">Edit Profile</button>
+      </div>
+      <div class="id-chains" style="position:relative;z-index:1;">
+        <span class="chain-pill"><span class="chain-dot" style="background:#627EEA;"></span>Ethereum 0x7a3f...c9d2</span>
+        <span class="chain-pill"><span class="chain-dot" style="background:#9945FF;"></span>Solana 7Xn4...8Qr2</span>
+        <span class="chain-pill"><span class="chain-dot" style="background:#8247E5;"></span>Polygon 0x7a3f...c9d2</span>
+        <span class="chain-pill"><span class="chain-dot" style="background:#F7931A;"></span>Bitcoin bc1q...v7m2</span>
+      </div>
+    </div>
+
+    <div class="g2">
+      <!-- Credentials -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Verifiable Credentials</div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(0,200,150,0.12);font-size:16px;">✓</div>
+          <div class="tx-info"><div class="tx-name">Email Verified</div><div class="tx-meta">mubbyola@gmail.com · Issued 12 Apr 2026</div></div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(0,200,150,0.12);font-size:16px;">✓</div>
+          <div class="tx-info"><div class="tx-name">KYC Verified</div><div class="tx-meta">Level 2 · Issued 10 Apr 2026</div></div>
+          <span class="tag tag-green">Active</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:var(--accent-glow);font-size:16px;">⭐</div>
+          <div class="tx-info"><div class="tx-name">Founding Partner</div><div class="tx-meta">Axone Blockchain · Issued 16 Apr 2026</div></div>
+          <span class="tag tag-purple">Active</span>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:rgba(255,154,60,0.12);font-size:16px;">⏳</div>
+          <div class="tx-info"><div class="tx-name">Company Director</div><div class="tx-meta">Bamtry Ltd · CAC Reg. 7012051</div></div>
+          <span class="tag tag-orange">Pending</span>
+        </div>
+      </div>
+
+      <!-- Connected Apps -->
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Connected Applications</div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:linear-gradient(135deg,#667eea,#764ba2);font-size:16px;border-radius:10px;">📝</div>
+          <div class="tx-info"><div class="tx-name">Web3Notes</div><div class="tx-meta">Identity · Storage · Connected 14 Apr</div></div>
+          <button class="btn btn-secondary btn-sm">Revoke</button>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe);font-size:16px;border-radius:10px;">🗳️</div>
+          <div class="tx-info"><div class="tx-name">DAO Vote</div><div class="tx-meta">Identity · Wallet · Connected 12 Apr</div></div>
+          <button class="btn btn-secondary btn-sm">Revoke</button>
+        </div>
+        <div class="tx-row">
+          <div class="tx-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c);font-size:16px;border-radius:10px;">💱</div>
+          <div class="tx-info"><div class="tx-name">SwapX</div><div class="tx-meta">Wallet only · Connected 9 Apr</div></div>
+          <button class="btn btn-secondary btn-sm">Revoke</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DAPP STORE ===== -->
+<div class="screen" id="s-dapp-store">
+  <div class="topbar">
+    <div class="topbar-title">dApp Store</div>
+    <div class="topbar-right">
+      <input type="text" placeholder="Search dApps..." style="width:220px;padding:8px 12px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);outline:none;"/>
+    </div>
+  </div>
+  <div class="content">
+    <!-- Categories -->
+    <div style="display:flex;gap:8px;margin-bottom:24px;flex-wrap:wrap;">
+      <button class="btn btn-primary btn-sm">All</button>
+      <button class="btn btn-secondary btn-sm">DeFi</button>
+      <button class="btn btn-secondary btn-sm">NFT</button>
+      <button class="btn btn-secondary btn-sm">GameFi</button>
+      <button class="btn btn-secondary btn-sm">Social</button>
+      <button class="btn btn-secondary btn-sm">Productivity</button>
+      <button class="btn btn-secondary btn-sm">Storage</button>
+      <button class="btn btn-secondary btn-sm">DAO</button>
+    </div>
+
+    <!-- Featured -->
+    <div style="background:linear-gradient(135deg,#1A1640,#0F2040);border:1px solid var(--border);border-radius:20px;padding:28px;margin-bottom:24px;display:flex;align-items:center;gap:24px;">
+      <div style="width:80px;height:80px;background:linear-gradient(135deg,#667eea,#764ba2);border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:36px;flex-shrink:0;">📝</div>
+      <div style="flex:1;">
+        <div class="tag tag-cyan" style="margin-bottom:8px;">Featured · Reference App</div>
+        <div style="font-size:20px;font-weight:800;margin-bottom:6px;">Web3Notes</div>
+        <div style="font-size:13px;color:var(--text2);">The reference BamtryOS dApp. Decentralised note-taking with cross-device sync via IPFS. Proves the full BamtryOS stack end-to-end.</div>
+      </div>
+      <button class="btn btn-primary">Install Free</button>
+    </div>
+
+    <!-- dApp Grid -->
+    <div style="font-size:16px;font-weight:700;margin-bottom:16px;">Popular dApps</div>
+    <div class="g3" style="margin-bottom:24px;">
+      <div class="dapp-card">
+        <div class="dapp-icon" style="background:linear-gradient(135deg,#f093fb,#f5576c);">💱</div>
+        <div class="dapp-name">SwapX</div>
+        <div class="dapp-desc">Cross-chain DEX aggregator. Best rates across Uniswap, Jupiter, and Osmosis in one tap.</div>
+        <div class="dapp-footer">
+          <span class="tag tag-cyan">DeFi</span>
+          <button class="btn btn-primary btn-sm">Install</button>
+        </div>
+      </div>
+      <div class="dapp-card">
+        <div class="dapp-icon" style="background:linear-gradient(135deg,#4facfe,#00f2fe);">🗳️</div>
+        <div class="dapp-name">DAO Vote</div>
+        <div class="dapp-desc">Participate in any DAO governance with your BamtryOS identity. One-click proposals and voting.</div>
+        <div class="dapp-footer">
+          <span class="tag tag-purple">DAO</span>
+          <button class="btn btn-primary btn-sm">Install</button>
+        </div>
+      </div>
+      <div class="dapp-card">
+        <div class="dapp-icon" style="background:linear-gradient(135deg,#43e97b,#38f9d7);">📂</div>
+        <div class="dapp-name">FileVault</div>
+        <div class="dapp-desc">Encrypted decentralised file storage on IPFS. Share with wallet addresses, no email required.</div>
+        <div class="dapp-footer">
+          <span class="tag tag-green">Storage</span>
+          <button class="btn btn-primary btn-sm">Install</button>
+        </div>
+      </div>
+      <div class="dapp-card">
+        <div class="dapp-icon" style="background:linear-gradient(135deg,#fa709a,#fee140);">🎨</div>
+        <div class="dapp-name">NFT Studio</div>
+        <div class="dapp-desc">Mint, manage, and showcase NFTs across Ethereum, Solana, and Polygon from one interface.</div>
+        <div class="dapp-footer">
+          <span class="tag tag-orange">NFT</span>
+          <button class="btn btn-secondary btn-sm">Installed</button>
+        </div>
+      </div>
+      <div class="dapp-card">
+        <div class="dapp-icon" style="background:linear-gradient(135deg,#a18cd1,#fbc2eb);">🌐</div>
+        <div class="dapp-name">Web3Social</div>
+        <div class="dapp-desc">Decentralised social feed powered by Lens Protocol. Your identity, your followers, your data.</div>
+        <div class="dapp-footer">
+          <span class="tag tag-purple">Social</span>
+          <button class="btn btn-primary btn-sm">Install</button>
+        </div>
+      </div>
+      <div class="dapp-card">
+        <div class="dapp-icon" style="background:linear-gradient(135deg,#30cfd0,#330867);">🎮</div>
+        <div class="dapp-name">ChainQuest</div>
+        <div class="dapp-desc">Play-to-earn RPG with true asset ownership. Items live on-chain, transferable between games.</div>
+        <div class="dapp-footer">
+          <span class="tag tag-cyan">GameFi</span>
+          <button class="btn btn-primary btn-sm">Install</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== STORAGE ===== -->
+<div class="screen" id="s-storage">
+  <div class="topbar">
+    <div class="topbar-title">Decentralised Storage</div>
+    <div class="topbar-right"><button class="btn btn-primary btn-sm">⬆ Upload File</button></div>
+  </div>
+  <div class="content">
+    <!-- Storage Overview -->
+    <div class="g3" style="margin-bottom:20px;">
+      <div class="stat" style="grid-column:span 1;">
+        <div class="stat-label">Used Storage</div>
+        <div class="stat-value">2.4 GB</div>
+        <div style="margin-top:8px;">
+          <div class="storage-bar"><div class="storage-fill" style="width:24%;background:linear-gradient(90deg,var(--accent),var(--cyan));"></div></div>
+          <div style="font-size:11px;color:var(--text3);">2.4 GB of 10 GB used</div>
+        </div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Encrypted Files</div>
+        <div class="stat-value">47</div>
+        <div class="stat-sub">Stored on IPFS · User-key owned</div>
+      </div>
+      <div class="stat">
+        <div class="stat-label">Sync Status</div>
+        <div class="stat-value" style="color:var(--green);">Synced</div>
+        <div class="stat-sub">All devices · Last sync 3m ago</div>
+      </div>
+    </div>
+
+    <div class="g2">
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Recent Files</div>
+        <div class="file-row">
+          <div class="file-icon" style="background:rgba(124,111,255,0.15);">📄</div>
+          <div style="flex:1;"><div class="file-name">BamtryOS_Pitch_Deck.pdf</div><div class="file-meta">4.2 MB · Modified 2h ago · 3 devices</div></div>
+          <span class="tag tag-green">Synced</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon" style="background:rgba(0,212,255,0.1);">🖼️</div>
+          <div style="flex:1;"><div class="file-name">Logo_Assets.zip</div><div class="file-meta">12.8 MB · Modified 1d ago · 2 devices</div></div>
+          <span class="tag tag-green">Synced</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon" style="background:rgba(0,200,150,0.1);">📊</div>
+          <div style="flex:1;"><div class="file-name">Financial_Projections.xlsx</div><div class="file-meta">890 KB · Modified 3d ago · 1 device</div></div>
+          <span class="tag tag-purple">Syncing</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon" style="background:rgba(255,154,60,0.1);">📝</div>
+          <div style="flex:1;"><div class="file-name">Web3Notes_Backup.json</div><div class="file-meta">234 KB · Modified 5d ago · All devices</div></div>
+          <span class="tag tag-green">Synced</span>
+        </div>
+        <div class="file-row">
+          <div class="file-icon" style="background:rgba(255,92,122,0.1);">🎥</div>
+          <div style="flex:1;"><div class="file-name">Demo_Recording.mp4</div><div class="file-meta">186 MB · Modified 1w ago · 1 device</div></div>
+          <span class="tag tag-green">Synced</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Storage by Type</div>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:13px;">Documents</span><span style="font-size:13px;color:var(--text2);">890 MB</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:37%;"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:13px;">Media</span><span style="font-size:13px;color:var(--text2);">1.1 GB</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:46%;background:linear-gradient(90deg,var(--cyan),var(--green));"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:13px;">App Data</span><span style="font-size:13px;color:var(--text2);">340 MB</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:14%;background:linear-gradient(90deg,var(--orange),var(--yellow));"></div></div>
+          </div>
+          <div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="font-size:13px;">NFT Assets</span><span style="font-size:13px;color:var(--text2);">70 MB</span></div>
+            <div class="progress-bar"><div class="progress-fill" style="width:3%;background:linear-gradient(90deg,var(--red),var(--orange));"></div></div>
+          </div>
+        </div>
+
+        <div class="divider"></div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">Sharing</div>
+        <div style="display:flex;flex-direction:column;gap:10px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--bg);border:1px solid var(--border);border-radius:10px;">
+            <div style="font-size:13px;">BamtryOS_Pitch_Deck.pdf</div>
+            <div style="display:flex;gap:8px;">
+              <span class="tag tag-green">2 viewers</span>
+              <button class="btn btn-secondary btn-sm">Manage</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== AI AGENT ===== -->
+<div class="screen" id="s-ai-agent">
+  <div class="topbar">
+    <div class="topbar-title">AI Agent</div>
+    <div class="topbar-right"><span class="tag tag-green">● GPT-4o Connected</span></div>
+  </div>
+  <div class="content" style="max-width:720px;margin:0 auto;">
+    <div style="text-align:center;padding:20px 0 28px;">
+      <div style="width:60px;height:60px;background:linear-gradient(135deg,var(--accent),var(--cyan));border-radius:18px;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:26px;">🤖</div>
+      <div style="font-size:18px;font-weight:700;margin-bottom:4px;">BamtryOS AI Agent</div>
+      <div style="font-size:13px;color:var(--text2);">Your natural language interface to Web3. Send, swap, sign — just ask.</div>
+    </div>
+
+    <!-- Chat -->
+    <div style="background:var(--card);border:1px solid var(--border);border-radius:20px;padding:20px;min-height:360px;margin-bottom:16px;display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;gap:10px;">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0;">🤖</div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;border-top-left-radius:4px;padding:12px 14px;max-width:80%;">
+          <div style="font-size:13px;line-height:1.5;">Hello Abdulbasit! I can help you send tokens, check balances, swap assets, or interact with any dApp. What would you like to do?</div>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;justify-content:flex-end;">
+        <div style="background:var(--accent-glow);border:1px solid var(--accent);border-radius:14px;border-top-right-radius:4px;padding:12px 14px;max-width:80%;">
+          <div style="font-size:13px;line-height:1.5;">Send 50 USDC to 0x4f2a...1b9c on Polygon</div>
+        </div>
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0;">AA</div>
+      </div>
+      <div style="display:flex;gap:10px;">
+        <div class="avatar" style="width:32px;height:32px;font-size:11px;flex-shrink:0;">🤖</div>
+        <div style="max-width:80%;">
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:14px;border-top-left-radius:4px;padding:12px 14px;margin-bottom:8px;">
+            <div style="font-size:13px;line-height:1.5;">I'll send <strong>50 USDC</strong> to <span class="mono">0x4f2a...1b9c</span> on Polygon. Here's the transaction summary:</div>
+          </div>
+          <div style="background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:14px;">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span style="color:var(--text2);">Amount</span><span style="font-weight:600;">50 USDC</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span style="color:var(--text2);">Network</span><span>Polygon</span></div>
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px;font-size:13px;"><span style="color:var(--text2);">Gas Fee</span><span>~$0.02</span></div>
+            <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text2);">Total Cost</span><span style="font-weight:700;">$50.02</span></div>
+            <div class="divider" style="margin:12px 0;"></div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn btn-primary btn-sm" style="flex:1;justify-content:center;">Confirm & Send</button>
+              <button class="btn btn-secondary btn-sm">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Prompts -->
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;">
+      <button class="btn btn-secondary btn-sm">Check my ETH balance</button>
+      <button class="btn btn-secondary btn-sm">Swap SOL to USDC</button>
+      <button class="btn btn-secondary btn-sm">Show my NFTs</button>
+      <button class="btn btn-secondary btn-sm">Latest gas prices</button>
+    </div>
+
+    <div style="display:flex;gap:10px;">
+      <input type="text" placeholder="Ask anything — send, swap, sign, check balance..." style="flex:1;"/>
+      <button class="btn btn-primary" style="flex-shrink:0;">Send →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SETTINGS ===== -->
+<div class="screen" id="s-settings">
+  <div class="topbar"><div class="topbar-title">Settings</div></div>
+  <div class="content" style="max-width:680px;">
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px;">Security</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Biometric Authentication</div><div class="setting-desc">Use fingerprint or Face ID to unlock BamtryOS</div></div>
+        <div class="toggle on"><div class="toggle-dot"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Transaction Signing Confirmation</div><div class="setting-desc">Require PIN confirmation for every transaction</div></div>
+        <div class="toggle on"><div class="toggle-dot"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Session Timeout</div><div class="setting-desc">Auto-lock after 15 minutes of inactivity</div></div>
+        <div class="toggle on"><div class="toggle-dot"></div></div>
+      </div>
+      <div class="setting-row" style="border-bottom:none;">
+        <div class="setting-info"><div class="setting-label">Change PIN</div><div class="setting-desc">Update your 6-digit security PIN</div></div>
+        <button class="btn btn-secondary btn-sm">Change</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px;">Networks</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Auto Gas Optimisation</div><div class="setting-desc">BamtryOS selects the cheapest gas option automatically</div></div>
+        <div class="toggle on"><div class="toggle-dot"></div></div>
+      </div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Testnet Mode</div><div class="setting-desc">Show testnet networks in wallet and dApps</div></div>
+        <div class="toggle off"><div class="toggle-dot"></div></div>
+      </div>
+      <div class="setting-row" style="border-bottom:none;">
+        <div class="setting-info"><div class="setting-label">Custom RPC Endpoints</div><div class="setting-desc">3 custom endpoints configured</div></div>
+        <button class="btn btn-secondary btn-sm">Manage</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-bottom:16px;">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px;">Notifications</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">Transaction Alerts</div><div class="setting-desc">Notify on incoming and outgoing transactions</div></div>
+        <div class="toggle on"><div class="toggle-dot"></div></div>
+      </div>
+      <div class="setting-row" style="border-bottom:none;">
+        <div class="setting-info"><div class="setting-label">dApp Updates</div><div class="setting-desc">Notify when installed dApps have updates</div></div>
+        <div class="toggle on"><div class="toggle-dot"></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px;">About</div>
+      <div class="setting-row">
+        <div class="setting-info"><div class="setting-label">BamtryOS Version</div><div class="setting-desc">v1.0.0-beta · Build 2026.04.26</div></div>
+        <span class="tag tag-cyan">Latest</span>
+      </div>
+      <div class="setting-row" style="border-bottom:none;">
+        <div class="setting-info"><div class="setting-label">SDK Version</div><div class="setting-desc">bamtryos-sdk v1.0.0</div></div>
+        <span class="mono">v1.0.0</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DEVICES ===== -->
+<div class="screen" id="s-devices">
+  <div class="topbar">
+    <div class="topbar-title">Devices</div>
+    <div class="topbar-right"><button class="btn btn-primary btn-sm">+ Link New Device</button></div>
+  </div>
+  <div class="content" style="max-width:680px;">
+    <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Your BamtryOS identity and wallet are synced across all linked devices. Revoke access to any device instantly from here.</p>
+    <div class="card">
+      <div class="tx-row">
+        <div class="tx-icon" style="background:var(--accent-glow);font-size:18px;border-radius:12px;">💻</div>
+        <div class="tx-info"><div class="tx-name">MacBook Pro 14"<span class="tag tag-green" style="margin-left:8px;font-size:10px;">This Device</span></div><div class="tx-meta">macOS 14.4 · Last active: Now · Abuja, Nigeria</div></div>
+        <button class="btn btn-secondary btn-sm" style="opacity:0.4;" disabled>Current</button>
+      </div>
+      <div class="tx-row">
+        <div class="tx-icon" style="background:rgba(0,212,255,0.1);font-size:18px;border-radius:12px;">📱</div>
+        <div class="tx-info"><div class="tx-name">Samsung Galaxy S24</div><div class="tx-meta">Android 14 · Last active: 2h ago · Abuja, Nigeria</div></div>
+        <button class="btn btn-secondary btn-sm" style="color:var(--red);border-color:var(--red);">Revoke</button>
+      </div>
+      <div class="tx-row" style="border-bottom:none;">
+        <div class="tx-icon" style="background:rgba(0,200,150,0.1);font-size:18px;border-radius:12px;">🖥️</div>
+        <div class="tx-info"><div class="tx-name">Windows Desktop</div><div class="tx-meta">Windows 11 · Last active: 3d ago · Lagos, Nigeria</div></div>
+        <button class="btn btn-secondary btn-sm" style="color:var(--red);border-color:var(--red);">Revoke</button>
+      </div>
+    </div>
+
+    <div style="margin-top:24px;padding:16px;background:var(--card);border:1px solid var(--border);border-radius:14px;">
+      <div style="font-size:13px;font-weight:600;margin-bottom:8px;">🔗 Link a New Device</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">Open BamtryOS on your new device and scan this QR code, or share the pairing link.</div>
+      <div style="display:flex;gap:10px;">
+        <button class="btn btn-primary btn-sm">Show QR Code</button>
+        <button class="btn btn-secondary btn-sm">Copy Pairing Link</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== DEVELOPER CONSOLE ===== -->
+<div class="screen" id="s-dev-console">
+  <div class="topbar">
+    <div class="topbar-title">Developer Console</div>
+    <div class="topbar-right"><span class="tag tag-purple">SDK v1.0.0</span><span class="tag tag-green">● Connected</span></div>
+  </div>
+  <div class="content">
+    <div class="g2" style="margin-bottom:20px;">
+      <!-- Terminal -->
+      <div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">CLI Terminal</div>
+        <div class="terminal">
+          <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">bamtryos init my-dapp</span></div>
+          <div class="term-line"><span class="term-out">✓ Initialising BamtryOS project...</span></div>
+          <div class="term-line"><span class="term-success">✓ Identity module loaded</span></div>
+          <div class="term-line"><span class="term-success">✓ Storage module loaded</span></div>
+          <div class="term-line"><span class="term-success">✓ Wallet module loaded</span></div>
+          <div class="term-line"><span class="term-info">→ Project ready at ./my-dapp</span></div>
+          <br/>
+          <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">bamtryos dev</span></div>
+          <div class="term-line"><span class="term-out">Starting dev server...</span></div>
+          <div class="term-line"><span class="term-success">✓ Local runtime: http://localhost:3000</span></div>
+          <div class="term-line"><span class="term-info">→ BamtryOS DevTools: http://localhost:3001</span></div>
+          <div class="term-line"><span class="term-success">✓ Hot reload enabled</span></div>
+          <br/>
+          <div class="term-line"><span class="term-prompt">$</span><span class="term-cmd">bamtryos build --android --desktop</span></div>
+          <div class="term-line"><span class="term-out">Building for Android + Desktop...</span></div>
+          <div class="term-line"><span class="term-success">✓ my-dapp.apk (14.2 MB)</span></div>
+          <div class="term-line"><span class="term-success">✓ my-dapp-desktop.exe (28.6 MB)</span></div>
+          <div class="term-line"><span class="term-prompt">▍</span></div>
+        </div>
+      </div>
+
+      <!-- SDK Code Sample -->
+      <div>
+        <div style="font-size:14px;font-weight:700;margin-bottom:12px;">SDK Quick Start</div>
+        <div class="code-block">
+<span class="comment">// Install: npm install @bamtryos/sdk</span>
+<span class="kw">import</span> { BamtryOS } <span class="kw">from</span> <span class="str">'@bamtryos/sdk'</span>;
+
+<span class="comment">// Initialise</span>
+<span class="kw">const</span> os = <span class="kw">await</span> BamtryOS.<span class="fn">init</span>({
+  appId: <span class="str">'my-dapp'</span>,
+  chains: [<span class="str">'ethereum'</span>, <span class="str">'solana'</span>],
+  storage: <span class="kw">true</span>,
+});
+
+<span class="comment">// Authenticate user with their DID</span>
+<span class="kw">const</span> identity = <span class="kw">await</span> os.identity.<span class="fn">connect</span>();
+console.<span class="fn">log</span>(identity.did);
+<span class="comment">// → 'did:bamtry:mainnet:abdulbasit.bamtry.id'</span>
+
+<span class="comment">// Send a transaction (any chain)</span>
+<span class="kw">const</span> tx = <span class="kw">await</span> os.wallet.<span class="fn">send</span>({
+  to: <span class="str">'0x4f2a...1b9c'</span>,
+  amount: <span class="str">'50'</span>,
+  token: <span class="str">'USDC'</span>,
+  chain: <span class="str">'polygon'</span>,
+});
+
+<span class="comment">// Store encrypted file on IPFS</span>
+<span class="kw">const</span> cid = <span class="kw">await</span> os.storage.<span class="fn">upload</span>(file, {
+  encrypt: <span class="kw">true</span>,
+  pin: <span class="kw">true</span>,
+});
+        </div>
+      </div>
+    </div>
+
+    <!-- API Endpoints -->
+    <div class="card">
+      <div style="font-size:14px;font-weight:700;margin-bottom:16px;">Active SDK Session</div>
+      <div class="g4">
+        <div class="stat">
+          <div class="stat-label">API Calls Today</div>
+          <div class="stat-value">1,247</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Identity Auths</div>
+          <div class="stat-value">89</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Transactions Signed</div>
+          <div class="stat-value">34</div>
+        </div>
+        <div class="stat">
+          <div class="stat-label">Storage Operations</div>
+          <div class="stat-value">156</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SEND TRANSACTION ===== -->
+<div class="screen" id="s-send-tx">
+  <div class="topbar">
+    <div class="topbar-title">Send Transaction</div>
+    <div class="topbar-right"><button class="btn btn-secondary btn-sm" onclick="show('wallet')">← Back to Wallet</button></div>
+  </div>
+  <div class="content" style="max-width:560px;margin:0 auto;">
+    <div class="card">
+      <div style="margin-bottom:20px;">
+        <label class="label">Select Network</label>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:6px;padding:8px 14px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:10px;cursor:pointer;">
+            <div class="chain-dot" style="background:#8247E5;"></div><span style="font-size:13px;font-weight:600;">Polygon</span>
+          </div>
+          <div class="chain-pill" style="cursor:pointer;"><span class="chain-dot" style="background:#627EEA;"></span>Ethereum</div>
+          <div class="chain-pill" style="cursor:pointer;"><span class="chain-dot" style="background:#9945FF;"></span>Solana</div>
+          <div class="chain-pill" style="cursor:pointer;"><span class="chain-dot" style="background:#F7931A;"></span>Bitcoin</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label class="label">Token</label>
+        <div style="display:flex;gap:8px;">
+          <div style="padding:8px 14px;background:var(--accent-glow);border:1px solid var(--accent);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">USDC</div>
+          <div style="padding:8px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">ETH</div>
+          <div style="padding:8px 14px;background:var(--card2);border:1px solid var(--border);border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;">POL</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label class="label">Recipient Address</label>
+        <input type="text" placeholder="0x... or .bamtry.id or ENS" value="0x4f2a9b3c1e8d7a6f5b2c9d0e3a7f1b4c9d2e5a1b"/>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;"><label class="label" style="margin-bottom:0;">Amount</label><span style="font-size:12px;color:var(--text3);">Balance: 2,500 USDC</span></div>
+        <div style="position:relative;">
+          <input type="text" value="50" style="padding-right:80px;font-size:18px;font-weight:700;"/>
+          <span style="position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;font-weight:600;color:var(--text2);">USDC</span>
+        </div>
+        <div style="font-size:12px;color:var(--text3);margin-top:6px;">≈ $50.00 USD</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:20px;">
+        <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text2);">Network Fee</span><span>~$0.02 (45 gwei)</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;"><span style="color:var(--text2);">Estimated Time</span><span>~15 seconds</span></div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:700;padding-top:8px;border-top:1px solid var(--border);"><span>Total</span><span>$50.02</span></div>
+      </div>
+
+      <button class="btn btn-primary btn-lg" style="width:100%;justify-content:center;">Confirm & Send →</button>
+      <p style="font-size:11px;color:var(--text3);text-align:center;margin-top:12px;">Transaction will require PIN or biometric confirmation</p>
+    </div>
+  </div>
+</div>
+
+</div><!-- end screen-area -->
+
+<script>
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  const target = document.getElementById('s-' + id);
+  if (target) { target.classList.add('active'); document.querySelector('.screen-area').scrollTop = 0; }
+  document.querySelectorAll('.nav-btn').forEach(b => {
+    if (b.getAttribute('onclick') && b.getAttribute('onclick').includes("'" + id + "'")) b.classList.add('active');
+  });
+}
+</script>
+</body>
+</html>

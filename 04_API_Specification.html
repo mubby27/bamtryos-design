@@ -1,0 +1,1343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BamtryOS — API Specification</title>
+<style>
+  :root {
+    --bg: #08080F;
+    --surface: #0F0F1A;
+    --surface2: #161625;
+    --surface3: #0D0D1C;
+    --border: #1E1E35;
+    --accent: #7C6FFF;
+    --cyan: #00D4FF;
+    --green: #00C896;
+    --red: #FF5C7A;
+    --yellow: #FFB800;
+    --orange: #FF8A00;
+    --text: #E8E8F0;
+    --text2: #9090A8;
+    --text3: #5A5A7A;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 100; padding: 0 0 40px;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+  }
+  .logo-text { font-size: 15px; font-weight: 700; }
+  .logo-sub { font-size: 10px; color: var(--text2); letter-spacing: 1.5px; text-transform: uppercase; }
+  .sidebar-section { padding: 16px 12px 4px; }
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    letter-spacing: 1.2px; text-transform: uppercase; padding: 0 8px 8px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    border-radius: 8px; color: var(--text2); font-size: 13px; cursor: pointer;
+    transition: all 0.15s; text-decoration: none;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: rgba(124,111,255,0.15); color: var(--accent); }
+  .sidebar-item .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0; }
+  .sidebar-item.active .dot { background: var(--accent); }
+  .method-pill {
+    font-size: 9px; font-weight: 700; padding: 2px 5px; border-radius: 4px;
+    letter-spacing: 0.3px; flex-shrink: 0; font-family: var(--mono);
+  }
+  .mp-get { background: rgba(0,200,150,0.15); color: var(--green); }
+  .mp-post { background: rgba(0,212,255,0.12); color: var(--cyan); }
+  .mp-put { background: rgba(255,184,0,0.12); color: var(--yellow); }
+  .mp-delete { background: rgba(255,92,122,0.12); color: var(--red); }
+
+  .main { margin-left: 240px; min-height: 100vh; }
+  .page-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 32px 48px 28px; position: sticky; top: 0; z-index: 50;
+  }
+  .header-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(124,111,255,0.12); border: 1px solid rgba(124,111,255,0.25);
+    border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+    color: var(--accent); letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .page-title span { color: var(--accent); }
+  .page-desc { color: var(--text2); font-size: 14px; max-width: 640px; }
+  .header-meta {
+    display: flex; align-items: center; gap: 24px; margin-top: 16px;
+    padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
+  .meta-badge {
+    padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    background: rgba(0,200,150,0.12); color: var(--green); border: 1px solid rgba(0,200,150,0.2);
+  }
+  .base-url {
+    font-family: var(--mono); font-size: 12px; background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 12px;
+    color: var(--cyan);
+  }
+
+  .content { padding: 40px 48px 80px; max-width: 1100px; }
+  .section { margin-bottom: 56px; }
+  .section-header { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; }
+  .section-number {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .section-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 40px; }
+
+  /* Endpoint card */
+  .endpoint-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    margin-bottom: 20px; overflow: hidden; transition: border-color 0.2s;
+  }
+  .endpoint-card:hover { border-color: rgba(124,111,255,0.4); }
+  .endpoint-header {
+    display: flex; align-items: center; gap: 12px; padding: 16px 20px;
+    cursor: pointer; user-select: none;
+  }
+  .method-badge {
+    font-family: var(--mono); font-size: 11px; font-weight: 700;
+    padding: 4px 10px; border-radius: 6px; flex-shrink: 0; min-width: 60px;
+    text-align: center; letter-spacing: 0.5px;
+  }
+  .mb-get { background: rgba(0,200,150,0.12); color: var(--green); border: 1px solid rgba(0,200,150,0.2); }
+  .mb-post { background: rgba(0,212,255,0.1); color: var(--cyan); border: 1px solid rgba(0,212,255,0.15); }
+  .mb-put { background: rgba(255,184,0,0.1); color: var(--yellow); border: 1px solid rgba(255,184,0,0.15); }
+  .mb-delete { background: rgba(255,92,122,0.1); color: var(--red); border: 1px solid rgba(255,92,122,0.15); }
+  .mb-patch { background: rgba(124,111,255,0.12); color: var(--accent); border: 1px solid rgba(124,111,255,0.2); }
+
+  .endpoint-path {
+    font-family: var(--mono); font-size: 13px; color: var(--text);
+    flex: 1; font-weight: 500;
+  }
+  .endpoint-path .param { color: var(--accent); }
+  .endpoint-summary { font-size: 12px; color: var(--text2); }
+  .endpoint-auth {
+    font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+    background: rgba(255,184,0,0.1); color: var(--yellow); border: 1px solid rgba(255,184,0,0.15);
+    white-space: nowrap;
+  }
+  .endpoint-body {
+    padding: 0 20px 20px; border-top: 1px solid var(--border);
+    display: none;
+  }
+  .endpoint-body.open { display: block; }
+  .endpoint-toggle {
+    font-size: 12px; color: var(--text3); flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+  .endpoint-toggle.open { transform: rotate(180deg); }
+
+  /* Params table */
+  .params-label {
+    font-size: 11px; font-weight: 600; color: var(--text3); letter-spacing: 0.8px;
+    text-transform: uppercase; margin: 16px 0 8px;
+  }
+  .params-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .params-table th {
+    text-align: left; padding: 6px 10px; color: var(--text3);
+    font-weight: 600; font-size: 10px; letter-spacing: 0.8px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .params-table td { padding: 8px 10px; border-bottom: 1px solid rgba(30,30,53,0.5); vertical-align: top; }
+  .params-table tr:last-child td { border-bottom: none; }
+  .param-name { font-family: var(--mono); font-size: 12px; color: var(--cyan); font-weight: 600; }
+  .param-type { font-family: var(--mono); font-size: 11px; color: var(--accent); }
+  .param-req {
+    font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    background: rgba(255,92,122,0.1); color: var(--red);
+  }
+  .param-opt {
+    font-size: 10px; font-weight: 600; padding: 2px 6px; border-radius: 4px;
+    background: var(--surface2); color: var(--text3);
+  }
+  .param-desc { color: var(--text2); }
+
+  /* Code blocks */
+  .code-block {
+    background: #050510; border: 1px solid var(--border); border-radius: 8px;
+    padding: 16px; font-family: var(--mono); font-size: 12px; line-height: 1.65;
+    overflow-x: auto; margin-top: 4px;
+  }
+  .code-tab-row {
+    display: flex; border-bottom: 1px solid var(--border); margin-bottom: 0;
+  }
+  .code-tab {
+    padding: 8px 16px; font-size: 12px; color: var(--text2); cursor: pointer;
+    border-bottom: 2px solid transparent; transition: all 0.15s;
+  }
+  .code-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+  .code-panel { display: none; }
+  .code-panel.active { display: block; }
+
+  .c-key { color: #C792EA; }
+  .c-str { color: #C3E88D; }
+  .c-num { color: #F78C6C; }
+  .c-bool { color: var(--cyan); }
+  .c-null { color: var(--text3); }
+  .c-cmt { color: var(--text3); font-style: italic; }
+  .c-url { color: var(--cyan); }
+  .c-method { color: var(--green); font-weight: 700; }
+  .c-header { color: var(--yellow); }
+  .c-type { color: var(--cyan); }
+  .c-fn { color: #82AAFF; }
+  .c-kw { color: #C792EA; }
+
+  /* Status codes */
+  .status-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 8px; }
+  .status-code {
+    display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--text2);
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 6px;
+    padding: 4px 10px; font-family: var(--mono);
+  }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; }
+  .s2xx { background: var(--green); }
+  .s4xx { background: var(--yellow); }
+  .s5xx { background: var(--red); }
+
+  /* Overview boxes */
+  .overview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .overview-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .overview-card-title { font-size: 13px; font-weight: 600; margin-bottom: 8px; color: var(--text); }
+  .overview-card-value { font-size: 24px; font-weight: 800; color: var(--accent); letter-spacing: -1px; }
+  .overview-card-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  /* Auth flow */
+  .auth-steps { display: flex; flex-direction: column; gap: 12px; }
+  .auth-step {
+    display: flex; gap: 12px; align-items: flex-start;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 16px;
+  }
+  .auth-step-num {
+    width: 24px; height: 24px; border-radius: 50%; background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .auth-step-content { flex: 1; }
+  .auth-step-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .auth-step-desc { font-size: 12px; color: var(--text2); }
+
+  /* Callout */
+  .callout {
+    border-radius: 10px; padding: 14px 18px; margin: 16px 0;
+    display: flex; gap: 10px; align-items: flex-start;
+  }
+  .callout-info { background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.15); }
+  .callout-warn { background: rgba(255,184,0,0.07); border: 1px solid rgba(255,184,0,0.15); }
+  .callout-icon { font-size: 15px; flex-shrink: 0; }
+  .callout-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .callout-text strong { color: var(--text); }
+
+  /* Error codes table */
+  .error-table { width: 100%; border-collapse: collapse; }
+  .error-table th {
+    text-align: left; padding: 10px 14px; font-size: 11px; font-weight: 600;
+    color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .error-table td { padding: 10px 14px; font-size: 12px; border-bottom: 1px solid rgba(30,30,53,0.5); }
+  .error-table tr:last-child td { border-bottom: none; }
+  .error-code { font-family: var(--mono); color: var(--cyan); font-weight: 600; }
+  .error-http { font-family: var(--mono); font-weight: 700; }
+  .e-4xx { color: var(--yellow); }
+  .e-5xx { color: var(--red); }
+
+  /* WebSocket */
+  .ws-event {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 14px 16px; margin-bottom: 10px;
+  }
+  .ws-event-name { font-family: var(--mono); font-size: 13px; font-weight: 600; color: var(--accent); }
+  .ws-event-direction {
+    font-size: 10px; font-weight: 600; padding: 2px 7px; border-radius: 4px;
+    margin-left: 8px;
+  }
+  .ws-server { background: rgba(0,200,150,0.1); color: var(--green); }
+  .ws-client { background: rgba(0,212,255,0.1); color: var(--cyan); }
+  .ws-event-desc { font-size: 12px; color: var(--text2); margin-top: 4px; }
+
+  .doc-footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 24px 48px; margin-left: 240px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-brand { font-size: 13px; font-weight: 600; }
+  .footer-meta { font-size: 12px; color: var(--text3); }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
+      <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/>
+      <circle cx="28" cy="11" r="1.5" fill="#00D4FF"/>
+      <circle cx="28" cy="21" r="1.5" fill="#00D4FF"/>
+      <circle cx="16" cy="28" r="1.5" fill="#00D4FF"/>
+      <circle cx="4" cy="21" r="1.5" fill="#00D4FF"/>
+      <circle cx="4" cy="11" r="1.5" fill="#00D4FF"/>
+    </svg>
+    <div>
+      <div class="logo-text">BamtryOS</div>
+      <div class="logo-sub">Design Phase</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Documents</div>
+    <a class="sidebar-item" href="01_Design_System.html"><span class="dot"></span>Design System</a>
+    <a class="sidebar-item" href="02_UI_Prototype.html"><span class="dot"></span>UI Prototype</a>
+    <a class="sidebar-item" href="03_System_Architecture.html"><span class="dot"></span>System Architecture</a>
+    <a class="sidebar-item active" href="#"><span class="dot"></span>API Specification</a>
+    <a class="sidebar-item" href="05_Database_Schema.html"><span class="dot"></span>Database Schema</a>
+    <a class="sidebar-item" href="06_SDK_Specification.html"><span class="dot"></span>SDK Specification</a>
+    <a class="sidebar-item" href="07_User_Flows.html"><span class="dot"></span>User Flows</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Sections</div>
+    <a class="sidebar-item" href="#overview"><span class="dot"></span>Overview</a>
+    <a class="sidebar-item" href="#auth"><span class="dot"></span>Authentication</a>
+    <a class="sidebar-item" href="#identity"><span class="dot"></span>Identity API</a>
+    <a class="sidebar-item" href="#wallet"><span class="dot"></span>Wallet API</a>
+    <a class="sidebar-item" href="#storage"><span class="dot"></span>Storage API</a>
+    <a class="sidebar-item" href="#agent"><span class="dot"></span>AI Agent API</a>
+    <a class="sidebar-item" href="#apps"><span class="dot"></span>App Registry API</a>
+    <a class="sidebar-item" href="#devices"><span class="dot"></span>Device API</a>
+    <a class="sidebar-item" href="#websocket"><span class="dot"></span>WebSocket Events</a>
+    <a class="sidebar-item" href="#errors"><span class="dot"></span>Error Reference</a>
+    <a class="sidebar-item" href="#ratelimits"><span class="dot"></span>Rate Limits</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <div class="header-tag">📋 Document 04 of 07</div>
+    <h1 class="page-title">API <span>Specification</span></h1>
+    <p class="page-desc">Complete REST + WebSocket API reference for all BamtryOS services — authentication, identity, wallet, storage, AI agent, and app registry endpoints.</p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span class="base-url">https://api.bamtryos.com/v1</span>
+      </div>
+      <div class="meta-item"><span class="meta-badge">v1.0</span></div>
+      <div class="meta-item">OpenAPI 3.1 · REST + WebSocket</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- Overview -->
+    <div class="section" id="overview">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div>
+          <div class="section-title">API Overview</div>
+          <div class="section-subtitle">Global conventions, versioning, and format standards</div>
+        </div>
+      </div>
+
+      <div class="overview-grid">
+        <div class="overview-card">
+          <div class="overview-card-title">Base URL</div>
+          <div style="font-family:var(--mono);font-size:12px;color:var(--cyan);margin-top:4px;">api.bamtryos.com/v1</div>
+          <div class="overview-card-desc">All endpoints are prefixed with the base URL and API version.</div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-card-title">Protocol</div>
+          <div class="overview-card-value" style="font-size:18px;margin-top:4px;">HTTPS + WSS</div>
+          <div class="overview-card-desc">TLS 1.3 enforced. Plain HTTP redirected to HTTPS.</div>
+        </div>
+        <div class="overview-card">
+          <div class="overview-card-title">Auth Method</div>
+          <div class="overview-card-value" style="font-size:18px;margin-top:4px;">DID-JWT</div>
+          <div class="overview-card-desc">Bearer token signed by the user's DID private key.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Response envelope:</strong> All API responses follow a consistent envelope: <code style="color:var(--cyan);font-family:var(--mono)">{ "success": bool, "data": T, "error": ErrorObject | null }</code>. Pagination uses <code style="color:var(--cyan);font-family:var(--mono)">{ "items": T[], "cursor": string, "hasMore": bool }</code>.
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="params-label">Global Request Headers</div>
+        <table class="params-table">
+          <thead><tr><th>Header</th><th>Required</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="param-name">Authorization</td><td><span class="param-req">Required</span></td><td class="param-desc">Bearer {DID-JWT} — signed session token</td></tr>
+            <tr><td class="param-name">Content-Type</td><td><span class="param-req">Required</span></td><td class="param-desc">application/json (or multipart/form-data for uploads)</td></tr>
+            <tr><td class="param-name">X-Bamtry-DID</td><td><span class="param-req">Required</span></td><td class="param-desc">The caller's DID — e.g. did:ethr:0x1234…</td></tr>
+            <tr><td class="param-name">X-Bamtry-Device-ID</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Device fingerprint for multi-device session management</td></tr>
+            <tr><td class="param-name">Accept-Language</td><td><span class="param-opt">Optional</span></td><td class="param-desc">BCP 47 locale for localised error messages (default: en)</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Authentication -->
+    <div class="section" id="auth">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div>
+          <div class="section-title">Authentication</div>
+          <div class="section-subtitle">DID-based challenge-response authentication flow</div>
+        </div>
+      </div>
+
+      <div class="auth-steps" style="margin-bottom:24px;">
+        <div class="auth-step">
+          <div class="auth-step-num">1</div>
+          <div class="auth-step-content">
+            <div class="auth-step-title">Request Challenge</div>
+            <div class="auth-step-desc">Client sends its DID to the Auth Service and receives a one-time nonce challenge string valid for 5 minutes.</div>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="auth-step-num">2</div>
+          <div class="auth-step-content">
+            <div class="auth-step-title">Sign Challenge</div>
+            <div class="auth-step-desc">Client signs the challenge with its DID private key (inside the TEE). The signature proves key ownership without transmitting the key.</div>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="auth-step-num">3</div>
+          <div class="auth-step-content">
+            <div class="auth-step-title">Exchange for JWT</div>
+            <div class="auth-step-desc">Client sends DID + signature to the server. Server verifies via the DID Document public key and returns a signed JWT (1 hour TTL) + refresh token (30 days).</div>
+          </div>
+        </div>
+        <div class="auth-step">
+          <div class="auth-step-num">4</div>
+          <div class="auth-step-content">
+            <div class="auth-step-title">Use Bearer Token</div>
+            <div class="auth-step-desc">All subsequent requests include the JWT as Authorization: Bearer {token}. Refresh using the /auth/refresh endpoint before expiry.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Auth endpoints -->
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/auth/challenge</span>
+          <span class="endpoint-summary">Request a sign-in challenge for a DID</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">did</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Caller's DID — e.g. did:ethr:0xABCD…</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"challenge"</span>: <span class="c-str">"bamtry:auth:nonce:8f3a9c…"</span>,
+  <span class="c-key">"expiresAt"</span>: <span class="c-str">"2026-05-14T10:05:00Z"</span>
+}</div>
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>200 OK</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>400 Invalid DID format</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>429 Rate limited</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/auth/verify</span>
+          <span class="endpoint-summary">Submit signed challenge — receive JWT</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">did</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">The DID that signed the challenge</td></tr>
+              <tr><td class="param-name">challenge</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">The exact challenge string from /auth/challenge</td></tr>
+              <tr><td class="param-name">signature</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Hex-encoded signature of the challenge</td></tr>
+              <tr><td class="param-name">deviceId</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Device identifier for multi-device tracking</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"accessToken"</span>:  <span class="c-str">"eyJhbGciOiJFUzI1NiJ9…"</span>,
+  <span class="c-key">"refreshToken"</span>: <span class="c-str">"rt_8fG3j…"</span>,
+  <span class="c-key">"expiresIn"</span>:    <span class="c-num">3600</span>,
+  <span class="c-key">"did"</span>:          <span class="c-str">"did:ethr:0xABCD…"</span>
+}</div>
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>200 OK</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>401 Invalid signature</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>410 Challenge expired</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/auth/refresh</span>
+          <span class="endpoint-summary">Refresh an access token using a refresh token</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">refreshToken</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">The refresh token from /auth/verify</td></tr>
+            </tbody>
+          </table>
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>200 New access token</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>401 Refresh token invalid or expired</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Identity API -->
+    <div class="section" id="identity">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div>
+          <div class="section-title">Identity API</div>
+          <div class="section-subtitle">DID management, credential issuance, and device linking</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/identity/create</span>
+          <span class="endpoint-summary">Create a new DID and register its DID Document</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">publicKey</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Hex-encoded compressed public key (secp256k1 or Ed25519)</td></tr>
+              <tr><td class="param-name">method</td><td class="param-type">enum</td><td><span class="param-req">Required</span></td><td class="param-desc">DID method: ethr | sol | key | bamtry</td></tr>
+              <tr><td class="param-name">displayName</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Human-readable alias stored in DID Document service endpoints</td></tr>
+              <tr><td class="param-name">avatar</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">IPFS CID of profile image</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (201)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"did"</span>:         <span class="c-str">"did:ethr:0x7f3A…"</span>,
+  <span class="c-key">"didDocument"</span>: { <span class="c-cmt">/* W3C DID Document */</span> },
+  <span class="c-key">"ipfsCid"</span>:     <span class="c-str">"bafyreib…"</span>,
+  <span class="c-key">"txHash"</span>:      <span class="c-str">"0xabc123…"</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/identity/<span class="param">{did}</span></span>
+          <span class="endpoint-summary">Resolve a DID and return its DID Document</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Path Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">did</td><td class="param-type">string</td><td class="param-desc">URL-encoded DID string</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"@context"</span>:          [<span class="c-str">"https://www.w3.org/ns/did/v1"</span>],
+  <span class="c-key">"id"</span>:                 <span class="c-str">"did:ethr:0x7f3A…"</span>,
+  <span class="c-key">"verificationMethod"</span>: [{ <span class="c-key">"id"</span>: <span class="c-str">"#keys-1"</span>, <span class="c-key">"type"</span>: <span class="c-str">"EcdsaSecp256k1VerificationKey2019"</span>, ... }],
+  <span class="c-key">"authentication"</span>:     [<span class="c-str">"#keys-1"</span>],
+  <span class="c-key">"service"</span>:            [{ <span class="c-key">"type"</span>: <span class="c-str">"BamtryProfile"</span>, <span class="c-key">"serviceEndpoint"</span>: <span class="c-str">"ipfs://bafyreib…"</span> }]
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/identity/<span class="param">{did}</span>/credentials</span>
+          <span class="endpoint-summary">Issue a Verifiable Credential to a DID</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">type</td><td class="param-type">string[]</td><td><span class="param-req">Required</span></td><td class="param-desc">Credential types — e.g. ["VerifiableCredential", "KYCCredential"]</td></tr>
+              <tr><td class="param-name">claims</td><td class="param-type">object</td><td><span class="param-req">Required</span></td><td class="param-desc">Arbitrary JSON claims to embed in the credential</td></tr>
+              <tr><td class="param-name">expirationDate</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">ISO 8601 expiry. Omit for non-expiring credentials.</td></tr>
+            </tbody>
+          </table>
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>201 Credential created</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>403 Issuer not authorised</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/identity/<span class="param">{did}</span>/credentials</span>
+          <span class="endpoint-summary">List all credentials held by a DID</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Query Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">type</td><td class="param-type">string</td><td class="param-desc">Filter by credential type</td></tr>
+              <tr><td class="param-name">limit</td><td class="param-type">integer</td><td class="param-desc">Page size (default 20, max 100)</td></tr>
+              <tr><td class="param-name">cursor</td><td class="param-type">string</td><td class="param-desc">Pagination cursor from previous response</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Wallet API -->
+    <div class="section" id="wallet">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div>
+          <div class="section-title">Wallet API</div>
+          <div class="section-subtitle">Multi-chain balance, transaction, and portfolio endpoints</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/wallet/balance</span>
+          <span class="endpoint-summary">Get native token balance across one or all chains</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Query Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">chain</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Chain identifier: ethereum | polygon | solana | cosmos | bitcoin. Omit for all.</td></tr>
+              <tr><td class="param-name">address</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Override address (defaults to DID-derived address for chain)</td></tr>
+              <tr><td class="param-name">includeTokens</td><td class="param-type">boolean</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Include ERC-20 / SPL token balances (default: false)</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"balances"</span>: [
+    { <span class="c-key">"chain"</span>: <span class="c-str">"ethereum"</span>,  <span class="c-key">"symbol"</span>: <span class="c-str">"ETH"</span>,  <span class="c-key">"balance"</span>: <span class="c-str">"1.5234"</span>, <span class="c-key">"usdValue"</span>: <span class="c-str">"4571.02"</span> },
+    { <span class="c-key">"chain"</span>: <span class="c-str">"solana"</span>,    <span class="c-key">"symbol"</span>: <span class="c-str">"SOL"</span>,  <span class="c-key">"balance"</span>: <span class="c-str">"22.100"</span>, <span class="c-key">"usdValue"</span>: <span class="c-str">"3315.00"</span> },
+    { <span class="c-key">"chain"</span>: <span class="c-str">"cosmos"</span>,    <span class="c-key">"symbol"</span>: <span class="c-str">"ATOM"</span>, <span class="c-key">"balance"</span>: <span class="c-str">"100.0"</span>,  <span class="c-key">"usdValue"</span>: <span class="c-str">"900.00"</span>  }
+  ],
+  <span class="c-key">"totalUsd"</span>: <span class="c-str">"8786.02"</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/wallet/transaction/build</span>
+          <span class="endpoint-summary">Build an unsigned transaction for any supported chain</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">chain</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Target chain identifier</td></tr>
+              <tr><td class="param-name">to</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Recipient address (chain-native format)</td></tr>
+              <tr><td class="param-name">amount</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Amount in native denomination as decimal string (e.g. "0.5")</td></tr>
+              <tr><td class="param-name">token</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Token contract address for ERC-20/SPL transfers</td></tr>
+              <tr><td class="param-name">gasSpeed</td><td class="param-type">enum</td><td><span class="param-opt">Optional</span></td><td class="param-desc">slow | standard | fast (default: standard)</td></tr>
+              <tr><td class="param-name">data</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Hex-encoded calldata for contract interactions</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"rawTx"</span>:     <span class="c-str">"0x02f8…"</span>,
+  <span class="c-key">"feeEstimate"</span>: { <span class="c-key">"gas"</span>: <span class="c-str">"21000"</span>, <span class="c-key">"gasPrice"</span>: <span class="c-str">"12.5 gwei"</span>, <span class="c-key">"usd"</span>: <span class="c-str">"0.63"</span> },
+  <span class="c-key">"simulation"</span>:  { <span class="c-key">"success"</span>: <span class="c-bool">true</span>, <span class="c-key">"warnings"</span>: [] }
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/wallet/transaction/broadcast</span>
+          <span class="endpoint-summary">Broadcast a client-signed transaction to the network</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">chain</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Chain the transaction is destined for</td></tr>
+              <tr><td class="param-name">signedTx</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Hex-encoded signed transaction bytes</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"txHash"</span>:   <span class="c-str">"0xabc123…"</span>,
+  <span class="c-key">"chain"</span>:    <span class="c-str">"ethereum"</span>,
+  <span class="c-key">"status"</span>:   <span class="c-str">"pending"</span>,
+  <span class="c-key">"explorerUrl"</span>: <span class="c-str">"https://etherscan.io/tx/0xabc123…"</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/wallet/transactions</span>
+          <span class="endpoint-summary">List transaction history across chains</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Query Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">chain</td><td class="param-type">string</td><td class="param-desc">Filter by chain (omit for all)</td></tr>
+              <tr><td class="param-name">type</td><td class="param-type">enum</td><td class="param-desc">sent | received | contract | all (default: all)</td></tr>
+              <tr><td class="param-name">from</td><td class="param-type">string</td><td class="param-desc">ISO 8601 start date filter</td></tr>
+              <tr><td class="param-name">to</td><td class="param-type">string</td><td class="param-desc">ISO 8601 end date filter</td></tr>
+              <tr><td class="param-name">limit</td><td class="param-type">integer</td><td class="param-desc">Page size (default 20, max 100)</td></tr>
+              <tr><td class="param-name">cursor</td><td class="param-type">string</td><td class="param-desc">Pagination cursor</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Storage API -->
+    <div class="section" id="storage">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div>
+          <div class="section-title">Storage API</div>
+          <div class="section-subtitle">Encrypted IPFS file upload, retrieval, and access control</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/storage/upload</span>
+          <span class="endpoint-summary">Upload and pin a file to IPFS (encrypted)</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request — multipart/form-data</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">file</td><td class="param-type">binary</td><td><span class="param-req">Required</span></td><td class="param-desc">File contents (max 100MB per file)</td></tr>
+              <tr><td class="param-name">encrypt</td><td class="param-type">boolean</td><td><span class="param-opt">Optional</span></td><td class="param-desc">AES-256-GCM encrypt before upload (default: true)</td></tr>
+              <tr><td class="param-name">name</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Human-readable filename stored in metadata</td></tr>
+              <tr><td class="param-name">tags</td><td class="param-type">string[]</td><td><span class="param-opt">Optional</span></td><td class="param-desc">User-defined tags for file categorisation</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (201)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"cid"</span>:       <span class="c-str">"bafyreib3jlkm2…"</span>,
+  <span class="c-key">"size"</span>:      <span class="c-num">204800</span>,
+  <span class="c-key">"mimeType"</span>: <span class="c-str">"image/png"</span>,
+  <span class="c-key">"encrypted"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"uploadedAt"</span>: <span class="c-str">"2026-05-14T09:30:00Z"</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/storage/<span class="param">{cid}</span></span>
+          <span class="endpoint-summary">Retrieve and decrypt a file by CID</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Path Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">cid</td><td class="param-type">string</td><td class="param-desc">IPFS Content Identifier</td></tr>
+            </tbody>
+          </table>
+          <div class="callout callout-info" style="margin-top:12px;">
+            <span class="callout-icon">ℹ️</span>
+            <div class="callout-text">Returns raw binary file stream. Decryption is performed server-side using the caller's DID-derived key (verified via bearer token). Access is rejected if the caller's DID is not in the CID's access list.</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/storage/files</span>
+          <span class="endpoint-summary">List all files owned by the authenticated DID</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Query Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">tag</td><td class="param-type">string</td><td class="param-desc">Filter by tag</td></tr>
+              <tr><td class="param-name">mimeType</td><td class="param-type">string</td><td class="param-desc">Filter by MIME type prefix (e.g. "image/")</td></tr>
+              <tr><td class="param-name">limit</td><td class="param-type">integer</td><td class="param-desc">Page size (default 20)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/storage/<span class="param">{cid}</span>/share</span>
+          <span class="endpoint-summary">Grant a DID access to a file</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">grantee</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">DID of the entity being granted access</td></tr>
+              <tr><td class="param-name">expiresAt</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">ISO 8601 expiry for time-limited access</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-delete">DELETE</span>
+          <span class="endpoint-path">/storage/<span class="param">{cid}</span></span>
+          <span class="endpoint-summary">Unpin a file (removes Bamtry pin; IPFS propagation not guaranteed)</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>204 No Content</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>403 Not file owner</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>404 CID not found</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- AI Agent API -->
+    <div class="section" id="agent">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <div>
+          <div class="section-title">AI Agent API</div>
+          <div class="section-subtitle">Conversational agent, transaction analysis, and portfolio insights</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/agent/chat</span>
+          <span class="endpoint-summary">Send a message to the conversational AI agent</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">message</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">User's natural language message (max 2000 chars)</td></tr>
+              <tr><td class="param-name">sessionId</td><td class="param-type">string</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Conversation thread ID. Omit to start a new session.</td></tr>
+              <tr><td class="param-name">context</td><td class="param-type">object</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Additional context: { "activeChain": "ethereum", "screen": "wallet" }</td></tr>
+              <tr><td class="param-name">stream</td><td class="param-type">boolean</td><td><span class="param-opt">Optional</span></td><td class="param-desc">Enable SSE streaming response (default: false)</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"sessionId"</span>:  <span class="c-str">"sess_7Fgj…"</span>,
+  <span class="c-key">"reply"</span>:      <span class="c-str">"I'll swap 0.1 ETH to USDC for you. Here's the preview:"</span>,
+  <span class="c-key">"action"</span>: {
+    <span class="c-key">"type"</span>:      <span class="c-str">"TRANSACTION_PROPOSAL"</span>,
+    <span class="c-key">"chain"</span>:     <span class="c-str">"ethereum"</span>,
+    <span class="c-key">"protocol"</span>:  <span class="c-str">"uniswap"</span>,
+    <span class="c-key">"fromToken"</span>: <span class="c-str">"ETH"</span>,
+    <span class="c-key">"toToken"</span>:   <span class="c-str">"USDC"</span>,
+    <span class="c-key">"amount"</span>:    <span class="c-str">"0.1"</span>,
+    <span class="c-key">"quote"</span>:     <span class="c-str">"300.24 USDC"</span>,
+    <span class="c-key">"fee"</span>:       <span class="c-str">"$1.20"</span>,
+    <span class="c-key">"requiresApproval"</span>: <span class="c-bool">true</span>
+  }
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/agent/chat/<span class="param">{sessionId}</span>/confirm</span>
+          <span class="endpoint-summary">Confirm and execute an agent-proposed action</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">confirmed</td><td class="param-type">boolean</td><td><span class="param-req">Required</span></td><td class="param-desc">true to execute, false to cancel the proposed action</td></tr>
+              <tr><td class="param-name">pinHash</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">SHA-256 of user PIN for action authorisation</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/agent/analyse/transaction</span>
+          <span class="endpoint-summary">Risk-score an unsigned transaction before signing</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">chain</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Chain the transaction targets</td></tr>
+              <tr><td class="param-name">rawTx</td><td class="param-type">string</td><td><span class="param-req">Required</span></td><td class="param-desc">Hex-encoded unsigned transaction to analyse</td></tr>
+            </tbody>
+          </table>
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"riskScore"</span>:  <span class="c-num">12</span>,           <span class="c-cmt">// 0–100, higher = riskier</span>
+  <span class="c-key">"riskLevel"</span>:  <span class="c-str">"low"</span>,        <span class="c-cmt">// low | medium | high | critical</span>
+  <span class="c-key">"warnings"</span>:   [],
+  <span class="c-key">"contractVerified"</span>: <span class="c-bool">true</span>,
+  <span class="c-key">"summary"</span>:    <span class="c-str">"Standard ERC-20 transfer to a known address."</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/agent/portfolio/insights</span>
+          <span class="endpoint-summary">Get AI-generated portfolio analysis and suggestions</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Query Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">period</td><td class="param-type">string</td><td class="param-desc">1d | 7d | 30d | 90d (default: 7d)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- App Registry -->
+    <div class="section" id="apps">
+      <div class="section-header">
+        <div class="section-number">07</div>
+        <div>
+          <div class="section-title">App Registry API</div>
+          <div class="section-subtitle">dApp Store listing, installation, and permission management</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/apps</span>
+          <span class="endpoint-summary">List available dApps in the store</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Query Parameters</div>
+          <table class="params-table">
+            <thead><tr><th>Parameter</th><th>Type</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">category</td><td class="param-type">string</td><td class="param-desc">defi | nft | gaming | social | tools | productivity</td></tr>
+              <tr><td class="param-name">chain</td><td class="param-type">string</td><td class="param-desc">Filter by supported chain</td></tr>
+              <tr><td class="param-name">q</td><td class="param-type">string</td><td class="param-desc">Full-text search query</td></tr>
+              <tr><td class="param-name">featured</td><td class="param-type">boolean</td><td class="param-desc">Return only featured apps</td></tr>
+              <tr><td class="param-name">limit</td><td class="param-type">integer</td><td class="param-desc">Page size (default 24)</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/apps/<span class="param">{appId}</span></span>
+          <span class="endpoint-summary">Get full metadata for a specific dApp</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"id"</span>:           <span class="c-str">"uniswap-v3"</span>,
+  <span class="c-key">"name"</span>:         <span class="c-str">"Uniswap"</span>,
+  <span class="c-key">"version"</span>:      <span class="c-str">"3.2.1"</span>,
+  <span class="c-key">"category"</span>:     <span class="c-str">"defi"</span>,
+  <span class="c-key">"chains"</span>:       [<span class="c-str">"ethereum"</span>, <span class="c-str">"polygon"</span>, <span class="c-str">"arbitrum"</span>],
+  <span class="c-key">"permissions"</span>:  [<span class="c-str">"wallet:sign"</span>, <span class="c-str">"wallet:read"</span>],
+  <span class="c-key">"auditStatus"</span>:  <span class="c-str">"verified"</span>,
+  <span class="c-key">"installCount"</span>: <span class="c-num">184200</span>,
+  <span class="c-key">"rating"</span>:       <span class="c-num">4.8</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/apps/<span class="param">{appId}</span>/install</span>
+          <span class="endpoint-summary">Install a dApp and grant its permissions</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Request Body</div>
+          <table class="params-table">
+            <thead><tr><th>Field</th><th>Type</th><th>Required</th><th>Description</th></tr></thead>
+            <tbody>
+              <tr><td class="param-name">grantedPermissions</td><td class="param-type">string[]</td><td><span class="param-req">Required</span></td><td class="param-desc">Subset of app-requested permissions the user accepts</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/apps/installed</span>
+          <span class="endpoint-summary">List all dApps installed by the authenticated DID</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>200 Array of installed app objects</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Device API -->
+    <div class="section" id="devices">
+      <div class="section-header">
+        <div class="section-number">08</div>
+        <div>
+          <div class="section-title">Device API</div>
+          <div class="section-subtitle">Multi-device management and QR pairing</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-get">GET</span>
+          <span class="endpoint-path">/devices</span>
+          <span class="endpoint-summary">List all devices linked to the authenticated DID</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"devices"</span>: [
+    { <span class="c-key">"id"</span>: <span class="c-str">"dev_1"</span>, <span class="c-key">"name"</span>: <span class="c-str">"iPhone 16 Pro"</span>, <span class="c-key">"platform"</span>: <span class="c-str">"ios"</span>, <span class="c-key">"lastSeen"</span>: <span class="c-str">"2026-05-14T08:00Z"</span>, <span class="c-key">"current"</span>: <span class="c-bool">true</span>  },
+    { <span class="c-key">"id"</span>: <span class="c-str">"dev_2"</span>, <span class="c-key">"name"</span>: <span class="c-str">"MacBook Pro"</span>,   <span class="c-key">"platform"</span>: <span class="c-str">"macos"</span>, <span class="c-key">"lastSeen"</span>: <span class="c-str">"2026-05-13T22:15Z"</span>, <span class="c-key">"current"</span>: <span class="c-bool">false</span> }
+  ]
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-post">POST</span>
+          <span class="endpoint-path">/devices/pair</span>
+          <span class="endpoint-summary">Generate a QR pairing token for linking a new device</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="params-label">Response (200)</div>
+          <div class="code-block"><span class="c-key">"data"</span>: {
+  <span class="c-key">"pairingToken"</span>: <span class="c-str">"BOS:PAIR:7f3A9c…"</span>,
+  <span class="c-key">"qrCode"</span>:      <span class="c-str">"data:image/png;base64,iVBORw0KGgo…"</span>,
+  <span class="c-key">"expiresAt"</span>:   <span class="c-str">"2026-05-14T10:15:00Z"</span>   <span class="c-cmt">// 15 min window</span>
+}</div>
+        </div>
+      </div>
+
+      <div class="endpoint-card">
+        <div class="endpoint-header" onclick="toggle(this)">
+          <span class="method-badge mb-delete">DELETE</span>
+          <span class="endpoint-path">/devices/<span class="param">{deviceId}</span></span>
+          <span class="endpoint-summary">Revoke a device — invalidates all its sessions</span>
+          <span class="endpoint-auth">🔒 Auth Required</span>
+          <span class="endpoint-toggle">▼</span>
+        </div>
+        <div class="endpoint-body">
+          <div class="status-row">
+            <span class="status-code"><span class="status-dot s2xx"></span>204 Device revoked</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>400 Cannot revoke current device</span>
+            <span class="status-code"><span class="status-dot s4xx"></span>404 Device not found</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- WebSocket Events -->
+    <div class="section" id="websocket">
+      <div class="section-header">
+        <div class="section-number">09</div>
+        <div>
+          <div class="section-title">WebSocket Events</div>
+          <div class="section-subtitle">Real-time event stream — wss://api.bamtryos.com/v1/ws</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Connection:</strong> Connect with <code style="color:var(--cyan);font-family:var(--mono)">Authorization: Bearer {token}</code> and <code style="color:var(--cyan);font-family:var(--mono)">X-Bamtry-DID</code> headers. All messages are JSON. Subscribe to event channels by sending a <code style="color:var(--cyan);font-family:var(--mono)">{ "type": "subscribe", "channel": "..." }</code> frame after connecting.
+        </div>
+      </div>
+
+      <div style="margin-top:20px;">
+        <div class="ws-event">
+          <span class="ws-event-name">transaction:update</span><span class="ws-event-direction ws-server">Server → Client</span>
+          <div class="ws-event-desc">Emitted when a pending transaction's status changes (pending → confirmed / failed). Includes chain, txHash, confirmations, and final status.</div>
+        </div>
+        <div class="ws-event">
+          <span class="ws-event-name">balance:update</span><span class="ws-event-direction ws-server">Server → Client</span>
+          <div class="ws-event-desc">Emitted when on-chain balance changes are detected for any linked address. Includes chain, address, new balance, and USD value.</div>
+        </div>
+        <div class="ws-event">
+          <span class="ws-event-name">agent:stream</span><span class="ws-event-direction ws-server">Server → Client</span>
+          <div class="ws-event-desc">Token-by-token streaming response from the AI agent when stream:true is set in /agent/chat. Each frame contains a delta string.</div>
+        </div>
+        <div class="ws-event">
+          <span class="ws-event-name">device:pair:complete</span><span class="ws-event-direction ws-server">Server → Client</span>
+          <div class="ws-event-desc">Fired to the originating device when a new device successfully pairs using the QR token. Includes new device metadata.</div>
+        </div>
+        <div class="ws-event">
+          <span class="ws-event-name">notification:push</span><span class="ws-event-direction ws-server">Server → Client</span>
+          <div class="ws-event-desc">General-purpose push notification envelope for system alerts, dApp events, and credential offers.</div>
+        </div>
+        <div class="ws-event">
+          <span class="ws-event-name">ping</span><span class="ws-event-direction ws-client">Client → Server</span>
+          <div class="ws-event-desc">Keepalive heartbeat. Server responds with pong. Send every 30 seconds to maintain connection.</div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Error Reference -->
+    <div class="section" id="errors">
+      <div class="section-header">
+        <div class="section-number">10</div>
+        <div>
+          <div class="section-title">Error Reference</div>
+          <div class="section-subtitle">Standardised error codes and HTTP status mapping</div>
+        </div>
+      </div>
+
+      <table class="error-table">
+        <thead>
+          <tr><th>Error Code</th><th>HTTP</th><th>Description</th></tr>
+        </thead>
+        <tbody>
+          <tr><td class="error-code">AUTH_CHALLENGE_EXPIRED</td><td class="error-http e-4xx">401</td><td style="color:var(--text2)">The nonce challenge has expired. Request a new one via /auth/challenge.</td></tr>
+          <tr><td class="error-code">AUTH_SIGNATURE_INVALID</td><td class="error-http e-4xx">401</td><td style="color:var(--text2)">Signature does not match the DID's public key.</td></tr>
+          <tr><td class="error-code">AUTH_TOKEN_EXPIRED</td><td class="error-http e-4xx">401</td><td style="color:var(--text2)">Bearer token has expired. Use /auth/refresh.</td></tr>
+          <tr><td class="error-code">DID_NOT_FOUND</td><td class="error-http e-4xx">404</td><td style="color:var(--text2)">The specified DID could not be resolved from IPFS or on-chain registry.</td></tr>
+          <tr><td class="error-code">DID_FORMAT_INVALID</td><td class="error-http e-4xx">400</td><td style="color:var(--text2)">The provided DID string does not match any supported DID method format.</td></tr>
+          <tr><td class="error-code">WALLET_INSUFFICIENT_FUNDS</td><td class="error-http e-4xx">400</td><td style="color:var(--text2)">Sender balance insufficient to cover amount + fee.</td></tr>
+          <tr><td class="error-code">TX_SIMULATION_FAILED</td><td class="error-http e-4xx">400</td><td style="color:var(--text2)">Transaction simulation reverted. Check calldata or approvals.</td></tr>
+          <tr><td class="error-code">CID_NOT_FOUND</td><td class="error-http e-4xx">404</td><td style="color:var(--text2)">IPFS CID is not pinned by Bamtry nodes.</td></tr>
+          <tr><td class="error-code">STORAGE_ACCESS_DENIED</td><td class="error-http e-4xx">403</td><td style="color:var(--text2)">Caller DID is not in the file's access list.</td></tr>
+          <tr><td class="error-code">APP_NOT_FOUND</td><td class="error-http e-4xx">404</td><td style="color:var(--text2)">No dApp with the given ID exists in the registry.</td></tr>
+          <tr><td class="error-code">PERMISSION_DENIED</td><td class="error-http e-4xx">403</td><td style="color:var(--text2)">The authenticated DID does not have permission for this action.</td></tr>
+          <tr><td class="error-code">RATE_LIMIT_EXCEEDED</td><td class="error-http e-4xx">429</td><td style="color:var(--text2)">Too many requests. See Retry-After header.</td></tr>
+          <tr><td class="error-code">CHAIN_UNAVAILABLE</td><td class="error-http e-5xx">503</td><td style="color:var(--text2)">The requested blockchain network is temporarily unreachable.</td></tr>
+          <tr><td class="error-code">AI_SERVICE_UNAVAILABLE</td><td class="error-http e-5xx">503</td><td style="color:var(--text2)">Azure OpenAI endpoint is temporarily unreachable.</td></tr>
+          <tr><td class="error-code">INTERNAL_ERROR</td><td class="error-http e-5xx">500</td><td style="color:var(--text2)">Unexpected server error. Request ID is in X-Bamtry-Request-ID header for debugging.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Rate Limits -->
+    <div class="section" id="ratelimits">
+      <div class="section-header">
+        <div class="section-number">11</div>
+        <div>
+          <div class="section-title">Rate Limits</div>
+          <div class="section-subtitle">Per-DID throttling and burst allowances</div>
+        </div>
+      </div>
+
+      <table class="error-table">
+        <thead>
+          <tr><th>Endpoint Group</th><th>Rate Limit</th><th>Burst</th><th>Notes</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td style="color:var(--text);font-weight:600;">/auth/*</td>
+            <td style="color:var(--text2);">10 req / min</td>
+            <td style="color:var(--text2);">20</td>
+            <td style="color:var(--text2);">Per IP address, not DID</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600;">/identity/*</td>
+            <td style="color:var(--text2);">60 req / min</td>
+            <td style="color:var(--text2);">120</td>
+            <td style="color:var(--text2);">Per DID</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600;">/wallet/transaction/*</td>
+            <td style="color:var(--text2);">30 req / min</td>
+            <td style="color:var(--text2);">50</td>
+            <td style="color:var(--text2);">Per DID — broadcast endpoints are stricter</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600;">/storage/upload</td>
+            <td style="color:var(--text2);">10 req / min</td>
+            <td style="color:var(--text2);">20</td>
+            <td style="color:var(--text2);">Additionally capped at 1GB / day per DID</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600;">/agent/chat</td>
+            <td style="color:var(--text2);">20 req / min</td>
+            <td style="color:var(--text2);">30</td>
+            <td style="color:var(--text2);">Token usage limits apply per tier</td>
+          </tr>
+          <tr>
+            <td style="color:var(--text);font-weight:600;">All other endpoints</td>
+            <td style="color:var(--text2);">120 req / min</td>
+            <td style="color:var(--text2);">200</td>
+            <td style="color:var(--text2);">Per DID</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-warn" style="margin-top:20px;">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text">
+          <strong>Rate limit headers:</strong> All responses include <code style="color:var(--yellow);font-family:var(--mono)">X-RateLimit-Limit</code>, <code style="color:var(--yellow);font-family:var(--mono)">X-RateLimit-Remaining</code>, and <code style="color:var(--yellow);font-family:var(--mono)">X-RateLimit-Reset</code> (Unix timestamp). When limited, the response is 429 with a <code style="color:var(--yellow);font-family:var(--mono)">Retry-After</code> header.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="doc-footer">
+  <div class="footer-brand">BamtryOS — API Specification v1.0</div>
+  <div class="footer-meta">Bamtry Technologies Ltd. · Confidential · Design Phase Package · Document 04 of 07</div>
+</footer>
+
+<script>
+  function toggle(header) {
+    const body = header.nextElementSibling;
+    const arrow = header.querySelector('.endpoint-toggle');
+    body.classList.toggle('open');
+    arrow.classList.toggle('open');
+  }
+
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

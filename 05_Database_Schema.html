@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BamtryOS — Database Schema</title>
+<style>
+  :root {
+    --bg:#08080F; --surface:#0F0F1A; --surface2:#161625; --border:#1E1E35;
+    --accent:#7C6FFF; --cyan:#00D4FF; --green:#00C896; --red:#FF5C7A;
+    --yellow:#FFB800; --text:#E8E8F0; --text2:#9090A8; --text3:#5A5A7A;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,sans-serif;
+    --mono:'JetBrains Mono','Fira Code',monospace;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;}
+
+  .sidebar{position:fixed;top:0;left:0;width:240px;height:100vh;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;z-index:100;padding:0 0 40px;}
+  .sidebar-logo{display:flex;align-items:center;gap:10px;padding:20px 20px 16px;border-bottom:1px solid var(--border);}
+  .logo-text{font-size:15px;font-weight:700;} .logo-sub{font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;}
+  .sidebar-section{padding:16px 12px 4px;}
+  .sidebar-section-label{font-size:10px;font-weight:600;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;padding:0 8px 8px;}
+  .sidebar-item{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:8px;color:var(--text2);font-size:13px;cursor:pointer;transition:all 0.15s;text-decoration:none;}
+  .sidebar-item:hover{background:var(--surface2);color:var(--text);}
+  .sidebar-item.active{background:rgba(124,111,255,0.15);color:var(--accent);}
+  .sidebar-item .dot{width:6px;height:6px;border-radius:50%;background:var(--border);flex-shrink:0;}
+  .sidebar-item.active .dot{background:var(--accent);}
+
+  .main{margin-left:240px;min-height:100vh;}
+  .page-header{background:var(--surface);border-bottom:1px solid var(--border);padding:32px 48px 28px;position:sticky;top:0;z-index:50;}
+  .header-tag{display:inline-flex;align-items:center;gap:6px;background:rgba(124,111,255,0.12);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:4px 12px;font-size:11px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:12px;}
+  .page-title{font-size:28px;font-weight:700;letter-spacing:-0.5px;margin-bottom:6px;}
+  .page-title span{color:var(--accent);}
+  .page-desc{color:var(--text2);font-size:14px;max-width:640px;}
+  .header-meta{display:flex;align-items:center;gap:24px;margin-top:16px;padding-top:16px;border-top:1px solid var(--border);}
+  .meta-item{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--text2);}
+  .meta-badge{padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;background:rgba(0,200,150,0.12);color:var(--green);border:1px solid rgba(0,200,150,0.2);}
+
+  .content{padding:40px 48px 80px;max-width:1160px;}
+  .section{margin-bottom:56px;}
+  .section-header{display:flex;align-items:center;gap:12px;margin-bottom:24px;}
+  .section-number{width:32px;height:32px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0;}
+  .section-title{font-size:20px;font-weight:700;letter-spacing:-0.3px;}
+  .section-subtitle{font-size:13px;color:var(--text2);margin-top:2px;}
+  .divider{border:none;border-top:1px solid var(--border);margin:0 0 40px;}
+
+  /* Table card */
+  .table-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;margin-bottom:28px;}
+  .table-card-header{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+  .table-icon{width:32px;height:32px;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;}
+  .table-name{font-size:15px;font-weight:700;font-family:var(--mono);}
+  .table-desc{font-size:12px;color:var(--text2);margin-top:1px;}
+  .table-engine{font-size:11px;font-weight:600;padding:3px 9px;border-radius:10px;margin-left:auto;flex-shrink:0;}
+  .te-pg{background:rgba(0,212,255,0.1);color:var(--cyan);border:1px solid rgba(0,212,255,0.15);}
+  .te-redis{background:rgba(255,92,122,0.1);color:var(--red);border:1px solid rgba(255,92,122,0.15);}
+  .te-ch{background:rgba(255,184,0,0.1);color:var(--yellow);border:1px solid rgba(255,184,0,0.15);}
+  .te-ipfs{background:rgba(0,200,150,0.1);color:var(--green);border:1px solid rgba(0,200,150,0.15);}
+  .te-onchain{background:rgba(124,111,255,0.12);color:var(--accent);border:1px solid rgba(124,111,255,0.2);}
+
+  .schema-table{width:100%;border-collapse:collapse;}
+  .schema-table th{text-align:left;padding:8px 16px;font-size:10px;font-weight:600;color:var(--text3);letter-spacing:0.8px;text-transform:uppercase;border-bottom:1px solid var(--border);background:rgba(22,22,37,0.5);}
+  .schema-table td{padding:10px 16px;font-size:12px;border-bottom:1px solid rgba(30,30,53,0.4);vertical-align:middle;}
+  .schema-table tr:last-child td{border-bottom:none;}
+  .schema-table tr:hover td{background:rgba(124,111,255,0.04);}
+  .col-name{font-family:var(--mono);color:var(--cyan);font-weight:600;white-space:nowrap;}
+  .col-type{font-family:var(--mono);color:var(--accent);font-size:11px;white-space:nowrap;}
+  .col-desc{color:var(--text2);}
+  .badge-pk{background:rgba(255,184,0,0.12);color:var(--yellow);border:1px solid rgba(255,184,0,0.2);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+  .badge-fk{background:rgba(0,212,255,0.1);color:var(--cyan);border:1px solid rgba(0,212,255,0.15);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+  .badge-idx{background:rgba(0,200,150,0.1);color:var(--green);border:1px solid rgba(0,200,150,0.15);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+  .badge-unique{background:rgba(124,111,255,0.12);color:var(--accent);border:1px solid rgba(124,111,255,0.2);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+  .badge-nn{background:rgba(255,92,122,0.1);color:var(--red);border:1px solid rgba(255,92,122,0.15);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:700;}
+  .badge-null{background:var(--surface2);color:var(--text3);border:1px solid var(--border);padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;}
+  .badge-default{background:var(--surface2);color:var(--text3);border:1px solid var(--border);padding:2px 7px;border-radius:4px;font-size:10px;font-family:var(--mono);}
+
+  /* ERD diagram */
+  .erd-box{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;margin-bottom:28px;overflow:auto;}
+  .erd-title{font-size:12px;font-weight:600;color:var(--text2);letter-spacing:1px;text-transform:uppercase;margin-bottom:24px;display:flex;align-items:center;gap:8px;}
+  .erd-title::before{content:'';display:block;width:3px;height:14px;background:linear-gradient(to bottom,var(--accent),var(--cyan));border-radius:2px;}
+  .erd-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+  .erd-entity{background:var(--surface2);border:1px solid var(--border);border-radius:8px;overflow:hidden;min-width:160px;}
+  .erd-entity-header{padding:8px 12px;font-size:12px;font-weight:700;font-family:var(--mono);border-bottom:1px solid var(--border);}
+  .erd-entity-field{padding:5px 12px;font-size:11px;font-family:var(--mono);color:var(--text2);display:flex;justify-content:space-between;gap:8px;border-bottom:1px solid rgba(30,30,53,0.3);}
+  .erd-entity-field:last-child{border-bottom:none;}
+  .erd-field-type{color:var(--accent);font-size:10px;}
+  .erd-pk{color:var(--yellow) !important;}
+  .erd-fk{color:var(--cyan) !important;}
+
+  /* Code block */
+  .code-block{background:#050510;border:1px solid var(--border);border-radius:8px;padding:16px;font-family:var(--mono);font-size:12px;line-height:1.65;overflow-x:auto;margin-top:8px;}
+  .c-kw{color:#C792EA;} .c-str{color:#C3E88D;} .c-num{color:#F78C6C;} .c-cmt{color:var(--text3);font-style:italic;} .c-type{color:var(--cyan);}
+
+  /* Info card row */
+  .info-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:24px;}
+  .info-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:18px;}
+  .info-card-title{font-size:13px;font-weight:600;margin-bottom:8px;}
+  .info-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+  .info-list li{font-size:12px;color:var(--text2);display:flex;align-items:flex-start;gap:7px;}
+  .info-list li::before{content:'◆';color:var(--accent);font-size:8px;margin-top:4px;flex-shrink:0;}
+
+  /* Callout */
+  .callout{border-radius:10px;padding:14px 18px;margin:16px 0;display:flex;gap:10px;align-items:flex-start;}
+  .callout-info{background:rgba(0,212,255,0.07);border:1px solid rgba(0,212,255,0.15);}
+  .callout-warn{background:rgba(255,184,0,0.07);border:1px solid rgba(255,184,0,0.15);}
+  .callout-icon{font-size:15px;flex-shrink:0;}
+  .callout-text{font-size:13px;color:var(--text2);line-height:1.5;}
+  .callout-text strong{color:var(--text);}
+
+  .doc-footer{background:var(--surface);border-top:1px solid var(--border);padding:24px 48px;margin-left:240px;display:flex;align-items:center;justify-content:space-between;}
+  .footer-brand{font-size:13px;font-weight:600;} .footer-meta{font-size:12px;color:var(--text3);}
+  ::-webkit-scrollbar{width:6px;height:6px;} ::-webkit-scrollbar-track{background:var(--bg);} ::-webkit-scrollbar-thumb{background:var(--border);border-radius:3px;}
+</style>
+</head>
+<body>
+
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
+      <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/><circle cx="28" cy="11" r="1.5" fill="#00D4FF"/>
+      <circle cx="28" cy="21" r="1.5" fill="#00D4FF"/><circle cx="16" cy="28" r="1.5" fill="#00D4FF"/>
+      <circle cx="4" cy="21" r="1.5" fill="#00D4FF"/><circle cx="4" cy="11" r="1.5" fill="#00D4FF"/>
+    </svg>
+    <div><div class="logo-text">BamtryOS</div><div class="logo-sub">Design Phase</div></div>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Documents</div>
+    <a class="sidebar-item" href="01_Design_System.html"><span class="dot"></span>Design System</a>
+    <a class="sidebar-item" href="02_UI_Prototype.html"><span class="dot"></span>UI Prototype</a>
+    <a class="sidebar-item" href="03_System_Architecture.html"><span class="dot"></span>System Architecture</a>
+    <a class="sidebar-item" href="04_API_Specification.html"><span class="dot"></span>API Specification</a>
+    <a class="sidebar-item active" href="#"><span class="dot"></span>Database Schema</a>
+    <a class="sidebar-item" href="06_SDK_Specification.html"><span class="dot"></span>SDK Specification</a>
+    <a class="sidebar-item" href="07_User_Flows.html"><span class="dot"></span>User Flows</a>
+  </div>
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Sections</div>
+    <a class="sidebar-item" href="#overview"><span class="dot"></span>Overview & ERD</a>
+    <a class="sidebar-item" href="#postgres"><span class="dot"></span>PostgreSQL Tables</a>
+    <a class="sidebar-item" href="#redis"><span class="dot"></span>Redis Structures</a>
+    <a class="sidebar-item" href="#clickhouse"><span class="dot"></span>ClickHouse Tables</a>
+    <a class="sidebar-item" href="#ipfs"><span class="dot"></span>IPFS Data Models</a>
+    <a class="sidebar-item" href="#onchain"><span class="dot"></span>On-Chain Storage</a>
+    <a class="sidebar-item" href="#migrations"><span class="dot"></span>Migration Strategy</a>
+  </div>
+</nav>
+
+<main class="main">
+  <div class="page-header">
+    <div class="header-tag">🗃️ Document 05 of 07</div>
+    <h1 class="page-title">Database <span>Schema</span></h1>
+    <p class="page-desc">Complete data model specification for BamtryOS — PostgreSQL relational tables, Redis caching structures, ClickHouse analytics, IPFS document schemas, and on-chain storage layouts.</p>
+    <div class="header-meta">
+      <div class="meta-item"><span class="meta-badge">v1.0</span></div>
+      <div class="meta-item">PostgreSQL 16 · Redis 7 · ClickHouse 24</div>
+      <div class="meta-item">For: Jam-Forte Technologies</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 1. Overview & ERD -->
+    <div class="section" id="overview">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div><div class="section-title">Overview &amp; Entity Relationships</div><div class="section-subtitle">Storage layer architecture and entity relationship summary</div></div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-title" style="color:var(--cyan);">PostgreSQL (Primary)</div>
+          <ul class="info-list">
+            <li>Relational data: users, wallets, transactions, apps</li>
+            <li>ACID compliance for financial records</li>
+            <li>UUID primary keys, row-level security</li>
+            <li>Encrypted PII columns via pgcrypto</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title" style="color:var(--red);">Redis (Cache + Queue)</div>
+          <ul class="info-list">
+            <li>Auth challenge nonces (5min TTL)</li>
+            <li>Session tokens and rate limit counters</li>
+            <li>Real-time event queue (pub/sub)</li>
+            <li>Balance cache (30s TTL per chain)</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title" style="color:var(--yellow);">ClickHouse (Analytics)</div>
+          <ul class="info-list">
+            <li>Append-only event and telemetry tables</li>
+            <li>No PII — DIDs are pseudonymous</li>
+            <li>Columnar storage for fast aggregations</li>
+            <li>Retention: 90 days raw, 2 years aggregated</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="erd-box">
+        <div class="erd-title">Entity Relationship Overview — Core PostgreSQL Entities</div>
+        <div class="erd-grid" style="grid-template-columns:repeat(4,1fr);">
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--accent);border-color:rgba(124,111,255,0.3);">dids</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>did_string</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>method</span><span class="erd-field-type">varchar</span></div>
+            <div class="erd-entity-field"><span>public_key</span><span class="erd-field-type">bytea</span></div>
+            <div class="erd-entity-field"><span>ipfs_cid</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>created_at</span><span class="erd-field-type">timestamptz</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--cyan);border-color:rgba(0,212,255,0.25);">wallets</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">did_id (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>chain</span><span class="erd-field-type">varchar</span></div>
+            <div class="erd-entity-field"><span>address</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>derivation_path</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>created_at</span><span class="erd-field-type">timestamptz</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--green);border-color:rgba(0,200,150,0.25);">transactions</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">wallet_id (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>tx_hash</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>chain</span><span class="erd-field-type">varchar</span></div>
+            <div class="erd-entity-field"><span>status</span><span class="erd-field-type">enum</span></div>
+            <div class="erd-entity-field"><span>amount_raw</span><span class="erd-field-type">numeric</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--yellow);border-color:rgba(255,184,0,0.25);">devices</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">did_id (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>name</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>platform</span><span class="erd-field-type">varchar</span></div>
+            <div class="erd-entity-field"><span>fingerprint</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>revoked_at</span><span class="erd-field-type">timestamptz?</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--red);border-color:rgba(255,92,122,0.25);">storage_files</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">owner_did (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>cid</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>size_bytes</span><span class="erd-field-type">bigint</span></div>
+            <div class="erd-entity-field"><span>encrypted</span><span class="erd-field-type">boolean</span></div>
+            <div class="erd-entity-field"><span>mime_type</span><span class="erd-field-type">text</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--accent);border-color:rgba(124,111,255,0.3);">apps</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>slug</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>name</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>category</span><span class="erd-field-type">varchar</span></div>
+            <div class="erd-entity-field"><span>audit_status</span><span class="erd-field-type">enum</span></div>
+            <div class="erd-entity-field"><span>install_count</span><span class="erd-field-type">integer</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--cyan);border-color:rgba(0,212,255,0.25);">app_installs</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">did_id (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">app_id (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>permissions</span><span class="erd-field-type">text[]</span></div>
+            <div class="erd-entity-field"><span>installed_at</span><span class="erd-field-type">timestamptz</span></div>
+          </div>
+
+          <div class="erd-entity">
+            <div class="erd-entity-header" style="color:var(--green);border-color:rgba(0,200,150,0.25);">credentials</div>
+            <div class="erd-entity-field"><span class="erd-pk">id (PK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span class="erd-fk">holder_did (FK)</span><span class="erd-field-type">uuid</span></div>
+            <div class="erd-entity-field"><span>type</span><span class="erd-field-type">text[]</span></div>
+            <div class="erd-entity-field"><span>issuer_did</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>vc_jwt</span><span class="erd-field-type">text</span></div>
+            <div class="erd-entity-field"><span>expires_at</span><span class="erd-field-type">timestamptz?</span></div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 2. PostgreSQL Tables -->
+    <div class="section" id="postgres">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div><div class="section-title">PostgreSQL Tables</div><div class="section-subtitle">Primary relational data store — identity, wallet, storage, and app registry</div></div>
+      </div>
+
+      <!-- dids -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(124,111,255,0.12);">🪪</div>
+          <div><div class="table-name">dids</div><div class="table-desc">Core identity records — one row per DID, regardless of method</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span> <span class="badge-nn">NOT NULL</span></td><td class="col-desc">gen_random_uuid() — internal surrogate key</td></tr>
+            <tr><td class="col-name">did_string</td><td class="col-type">TEXT</td><td><span class="badge-unique">UNIQUE</span> <span class="badge-nn">NOT NULL</span> <span class="badge-idx">IDX</span></td><td class="col-desc">Full DID — e.g. did:ethr:0xABCD…</td></tr>
+            <tr><td class="col-name">method</td><td class="col-type">VARCHAR(20)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">ethr | sol | key | bamtry</td></tr>
+            <tr><td class="col-name">public_key_hex</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Compressed hex public key (secp256k1 or Ed25519)</td></tr>
+            <tr><td class="col-name">algorithm</td><td class="col-type">VARCHAR(20)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">secp256k1 | ed25519</td></tr>
+            <tr><td class="col-name">did_document_cid</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">IPFS CID of the latest DID Document</td></tr>
+            <tr><td class="col-name">display_name</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">User-chosen display alias (not unique)</td></tr>
+            <tr><td class="col-name">avatar_cid</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">IPFS CID of profile image</td></tr>
+            <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span> <span class="badge-default">NOW()</span></td><td class="col-desc">UTC creation timestamp</td></tr>
+            <tr><td class="col-name">updated_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Auto-updated on any row change</td></tr>
+            <tr><td class="col-name">deactivated_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Soft-delete timestamp for DID deactivation</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- wallets -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(0,212,255,0.1);">💳</div>
+          <div><div class="table-name">wallets</div><div class="table-desc">Chain-specific wallet addresses derived from a DID's master keypair</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc">Surrogate key</td></tr>
+            <tr><td class="col-name">did_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → dids</span> <span class="badge-nn">NOT NULL</span> <span class="badge-idx">IDX</span></td><td class="col-desc">Owning identity</td></tr>
+            <tr><td class="col-name">chain</td><td class="col-type">VARCHAR(30)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">ethereum | polygon | solana | cosmos | bitcoin | arbitrum…</td></tr>
+            <tr><td class="col-name">address</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span> <span class="badge-idx">IDX</span></td><td class="col-desc">Chain-native address string</td></tr>
+            <tr><td class="col-name">derivation_path</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">BIP-44 path — e.g. m/44'/60'/0'/0/0</td></tr>
+            <tr><td class="col-name">label</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">User-defined wallet label</td></tr>
+            <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);">
+          UNIQUE(did_id, chain, address) &nbsp;·&nbsp; INDEX(chain, address) for cross-chain address lookups
+        </div>
+      </div>
+
+      <!-- transactions -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(0,200,150,0.1);">⟳</div>
+          <div><div class="table-name">transactions</div><div class="table-desc">Transaction history cache — source of truth is always the blockchain</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">wallet_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → wallets</span> <span class="badge-idx">IDX</span></td><td class="col-desc">Sending or receiving wallet</td></tr>
+            <tr><td class="col-name">chain</td><td class="col-type">VARCHAR(30)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Chain this transaction lives on</td></tr>
+            <tr><td class="col-name">tx_hash</td><td class="col-type">TEXT</td><td><span class="badge-unique">UNIQUE</span> <span class="badge-idx">IDX</span></td><td class="col-desc">Chain-native transaction hash</td></tr>
+            <tr><td class="col-name">direction</td><td class="col-type">VARCHAR(10)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">sent | received | contract</td></tr>
+            <tr><td class="col-name">status</td><td class="col-type">VARCHAR(20)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">pending | confirmed | failed</td></tr>
+            <tr><td class="col-name">from_address</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">to_address</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">amount_raw</td><td class="col-type">NUMERIC(78,0)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Amount in smallest denomination (wei, lamports, uatom…)</td></tr>
+            <tr><td class="col-name">token_address</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">ERC-20 / SPL token contract; NULL for native transfers</td></tr>
+            <tr><td class="col-name">fee_raw</td><td class="col-type">NUMERIC(78,0)</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Network fee in native denomination</td></tr>
+            <tr><td class="col-name">block_number</td><td class="col-type">BIGINT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Block height at confirmation</td></tr>
+            <tr><td class="col-name">confirmed_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">On-chain confirmation timestamp</td></tr>
+            <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">When the tx was submitted via BamtryOS</td></tr>
+            <tr><td class="col-name">metadata</td><td class="col-type">JSONB</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Chain-specific extra data (e.g. EIP-1559 fields, priority fee)</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- storage_files -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(255,92,122,0.1);">📦</div>
+          <div><div class="table-name">storage_files</div><div class="table-desc">IPFS file metadata — actual content lives on IPFS, not in this table</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">owner_did_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → dids</span> <span class="badge-idx">IDX</span></td><td class="col-desc">DID that owns this file</td></tr>
+            <tr><td class="col-name">cid</td><td class="col-type">TEXT</td><td><span class="badge-unique">UNIQUE</span> <span class="badge-nn">NOT NULL</span></td><td class="col-desc">IPFS Content Identifier (v1 CIDv1 preferred)</td></tr>
+            <tr><td class="col-name">name</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">User-defined filename</td></tr>
+            <tr><td class="col-name">mime_type</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Detected MIME type</td></tr>
+            <tr><td class="col-name">size_bytes</td><td class="col-type">BIGINT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">File size after encryption</td></tr>
+            <tr><td class="col-name">encrypted</td><td class="col-type">BOOLEAN</td><td><span class="badge-nn">NOT NULL</span> <span class="badge-default">TRUE</span></td><td class="col-desc">Whether content is AES-256-GCM encrypted on IPFS</td></tr>
+            <tr><td class="col-name">tags</td><td class="col-type">TEXT[]</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">User-defined tag array — indexed with GIN</td></tr>
+            <tr><td class="col-name">pinned_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">When Bamtry IPFS node pinned the content</td></tr>
+            <tr><td class="col-name">deleted_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Soft-delete / unpin timestamp</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- storage_access -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(255,92,122,0.1);">🔒</div>
+          <div><div class="table-name">storage_access</div><div class="table-desc">Per-file access control list — which DIDs can read each file</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">file_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → storage_files</span> <span class="badge-idx">IDX</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">grantee_did_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → dids</span> <span class="badge-idx">IDX</span></td><td class="col-desc">DID being granted access</td></tr>
+            <tr><td class="col-name">granted_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">expires_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">NULL = permanent access</td></tr>
+            <tr><td class="col-name">revoked_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">NULL = still active</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- apps -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(124,111,255,0.12);">📱</div>
+          <div><div class="table-name">apps</div><div class="table-desc">dApp Store registry — metadata for all listed applications</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">slug</td><td class="col-type">TEXT</td><td><span class="badge-unique">UNIQUE</span> <span class="badge-nn">NOT NULL</span></td><td class="col-desc">URL-safe identifier — e.g. uniswap-v3</td></tr>
+            <tr><td class="col-name">name</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Display name</td></tr>
+            <tr><td class="col-name">description</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Short description (max 280 chars)</td></tr>
+            <tr><td class="col-name">category</td><td class="col-type">VARCHAR(30)</td><td><span class="badge-nn">NOT NULL</span> <span class="badge-idx">IDX</span></td><td class="col-desc">defi | nft | gaming | social | tools | productivity</td></tr>
+            <tr><td class="col-name">supported_chains</td><td class="col-type">TEXT[]</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Array of supported chain identifiers</td></tr>
+            <tr><td class="col-name">required_permissions</td><td class="col-type">TEXT[]</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Permissions app requests at install time</td></tr>
+            <tr><td class="col-name">audit_status</td><td class="col-type">VARCHAR(20)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">pending | verified | rejected</td></tr>
+            <tr><td class="col-name">icon_cid</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">IPFS CID for app icon</td></tr>
+            <tr><td class="col-name">bundle_cid</td><td class="col-type">TEXT</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">IPFS CID for latest app bundle (optional)</td></tr>
+            <tr><td class="col-name">install_count</td><td class="col-type">INTEGER</td><td><span class="badge-nn">NOT NULL</span> <span class="badge-default">0</span></td><td class="col-desc">Denormalised counter — incremented on install</td></tr>
+            <tr><td class="col-name">featured</td><td class="col-type">BOOLEAN</td><td><span class="badge-nn">NOT NULL</span> <span class="badge-default">FALSE</span></td><td class="col-desc">Curated featured app flag</td></tr>
+            <tr><td class="col-name">listed_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">When app became publicly visible in the store</td></tr>
+            <tr><td class="col-name">created_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- devices -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(255,184,0,0.1);">📲</div>
+          <div><div class="table-name">devices</div><div class="table-desc">Physical devices linked to a DID — used for session management and revocation</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">did_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → dids</span> <span class="badge-idx">IDX</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">name</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">User-given name or OS-reported device name</td></tr>
+            <tr><td class="col-name">platform</td><td class="col-type">VARCHAR(20)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">android | ios | windows | macos | linux | web</td></tr>
+            <tr><td class="col-name">fingerprint</td><td class="col-type">TEXT</td><td><span class="badge-unique">UNIQUE</span> <span class="badge-nn">NOT NULL</span></td><td class="col-desc">HMAC device fingerprint (hashed — no raw device ID stored)</td></tr>
+            <tr><td class="col-name">public_key_hex</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Device-specific signing key (for device attestation)</td></tr>
+            <tr><td class="col-name">last_seen_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Last authenticated request timestamp</td></tr>
+            <tr><td class="col-name">paired_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">revoked_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">NULL = device is active</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- credentials -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(0,200,150,0.1);">🎖️</div>
+          <div><div class="table-name">credentials</div><div class="table-desc">Verifiable Credentials held by DIDs — W3C VC Data Model 2.0</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">holder_did_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → dids</span> <span class="badge-idx">IDX</span></td><td class="col-desc">The DID that holds this credential</td></tr>
+            <tr><td class="col-name">issuer_did</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Issuing DID (may be external, so stored as raw string)</td></tr>
+            <tr><td class="col-name">credential_types</td><td class="col-type">TEXT[]</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">e.g. ["VerifiableCredential","KYCCredential"]</td></tr>
+            <tr><td class="col-name">vc_jwt</td><td class="col-type">TEXT</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Signed JWT representation of the full VC</td></tr>
+            <tr><td class="col-name">issuance_date</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">expiration_date</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">NULL = non-expiring</td></tr>
+            <tr><td class="col-name">revoked_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Set when issuer revokes the credential</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- agent_sessions -->
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(0,212,255,0.1);">🤖</div>
+          <div><div class="table-name">agent_sessions</div><div class="table-desc">AI agent conversation threads and action history</div></div>
+          <span class="table-engine te-pg">PostgreSQL</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Constraints</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">id</td><td class="col-type">UUID</td><td><span class="badge-pk">PK</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">did_id</td><td class="col-type">UUID</td><td><span class="badge-fk">FK → dids</span> <span class="badge-idx">IDX</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">messages</td><td class="col-type">JSONB</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">Array of {role, content, timestamp} objects</td></tr>
+            <tr><td class="col-name">last_action</td><td class="col-type">JSONB</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc">Last proposed action object (for pending confirmations)</td></tr>
+            <tr><td class="col-name">status</td><td class="col-type">VARCHAR(20)</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc">active | awaiting_confirm | closed</td></tr>
+            <tr><td class="col-name">started_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-nn">NOT NULL</span></td><td class="col-desc"></td></tr>
+            <tr><td class="col-name">last_message_at</td><td class="col-type">TIMESTAMPTZ</td><td><span class="badge-null">NULLABLE</span></td><td class="col-desc"></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3. Redis -->
+    <div class="section" id="redis">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div><div class="section-title">Redis Structures</div><div class="section-subtitle">Ephemeral cache, session store, and real-time event queue</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(255,92,122,0.1);">⚡</div>
+          <div><div class="table-name">Redis Key Space</div><div class="table-desc">All keys are namespaced — prefix:qualifier:identifier</div></div>
+          <span class="table-engine te-redis">Redis 7</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Key Pattern</th><th>Type</th><th>TTL</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">auth:challenge:{did}</td><td class="col-type">STRING</td><td style="color:var(--yellow);">5 min</td><td class="col-desc">Nonce challenge string — one per DID, overwritten on new challenge request</td></tr>
+            <tr><td class="col-name">auth:session:{token_hash}</td><td class="col-type">HASH</td><td style="color:var(--yellow);">1 hour</td><td class="col-desc">Session fields: did, device_id, issued_at, scopes[]</td></tr>
+            <tr><td class="col-name">auth:refresh:{token_hash}</td><td class="col-type">STRING</td><td style="color:var(--yellow);">30 days</td><td class="col-desc">Maps refresh token hash → did for token renewal</td></tr>
+            <tr><td class="col-name">ratelimit:{endpoint}:{did}</td><td class="col-type">INCR</td><td style="color:var(--yellow);">60 sec</td><td class="col-desc">Sliding window counter for per-DID rate limiting</td></tr>
+            <tr><td class="col-name">ratelimit:ip:{ip}:{endpoint}</td><td class="col-type">INCR</td><td style="color:var(--yellow);">60 sec</td><td class="col-desc">Per-IP rate limit counter for unauthenticated endpoints</td></tr>
+            <tr><td class="col-name">balance:{chain}:{address}</td><td class="col-type">HASH</td><td style="color:var(--yellow);">30 sec</td><td class="col-desc">Cached native balance: {native, tokens[], usdTotal, fetchedAt}</td></tr>
+            <tr><td class="col-name">pair:token:{token}</td><td class="col-type">HASH</td><td style="color:var(--yellow);">15 min</td><td class="col-desc">QR pairing token: {did_id, created_at, status: pending|claimed}</td></tr>
+            <tr><td class="col-name">ws:subs:{did}</td><td class="col-type">SET</td><td style="color:var(--yellow);">Session</td><td class="col-desc">Set of WebSocket channel names the DID is subscribed to</td></tr>
+            <tr><td class="col-name">events:{did}</td><td class="col-type">LIST</td><td style="color:var(--yellow);">24 hours</td><td class="col-desc">Queued events for offline clients — consumed on reconnect</td></tr>
+            <tr><td class="col-name">agent:stream:{session_id}</td><td class="col-type">STREAM</td><td style="color:var(--yellow);">1 hour</td><td class="col-desc">Redis Stream for GPT token streaming — consumed by WebSocket relay</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 4. ClickHouse -->
+    <div class="section" id="clickhouse">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div><div class="section-title">ClickHouse Analytics Tables</div><div class="section-subtitle">Append-only columnar store for usage telemetry — no PII</div></div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text"><strong>Privacy by design:</strong> ClickHouse tables store DIDs (pseudonymous) but never IP addresses, device fingerprints, or any data that could be personally linked outside BamtryOS. Raw events are purged after 90 days; aggregated summaries are retained for 2 years.</div>
+      </div>
+
+      <div class="table-card" style="margin-top:20px;">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(255,184,0,0.1);">📊</div>
+          <div><div class="table-name">events</div><div class="table-desc">All user-action events — screen views, feature usage, errors</div></div>
+          <span class="table-engine te-ch">ClickHouse</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">event_date</td><td class="col-type">Date</td><td class="col-desc">Partition key — used for TTL and range queries</td></tr>
+            <tr><td class="col-name">event_time</td><td class="col-type">DateTime64(3,'UTC')</td><td class="col-desc">Millisecond-precision event timestamp</td></tr>
+            <tr><td class="col-name">did_hash</td><td class="col-type">FixedString(64)</td><td class="col-desc">SHA-256 of DID string — pseudonymous user identifier</td></tr>
+            <tr><td class="col-name">event_name</td><td class="col-type">LowCardinality(String)</td><td class="col-desc">e.g. wallet.send, dapp.install, agent.chat</td></tr>
+            <tr><td class="col-name">platform</td><td class="col-type">LowCardinality(String)</td><td class="col-desc">android | ios | windows | macos | linux | web</td></tr>
+            <tr><td class="col-name">chain</td><td class="col-type">LowCardinality(String)</td><td class="col-desc">Active chain context at time of event (nullable)</td></tr>
+            <tr><td class="col-name">properties</td><td class="col-type">Map(String, String)</td><td class="col-desc">Arbitrary key-value event properties (no PII)</td></tr>
+            <tr><td class="col-name">session_id</td><td class="col-type">UUID</td><td class="col-desc">App session ID for funnel analysis</td></tr>
+          </tbody>
+        </table>
+        <div style="padding:12px 16px;border-top:1px solid var(--border);font-size:11px;color:var(--text3);">
+          ENGINE = MergeTree() PARTITION BY toYYYYMM(event_date) ORDER BY (event_name, did_hash, event_time) TTL event_date + INTERVAL 90 DAY
+        </div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(255,184,0,0.1);">⟳</div>
+          <div><div class="table-name">tx_analytics</div><div class="table-desc">Aggregated transaction telemetry for chain performance monitoring</div></div>
+          <span class="table-engine te-ch">ClickHouse</span>
+        </div>
+        <table class="schema-table">
+          <thead><tr><th>Column</th><th>Type</th><th>Description</th></tr></thead>
+          <tbody>
+            <tr><td class="col-name">tx_date</td><td class="col-type">Date</td><td class="col-desc">Partition key</td></tr>
+            <tr><td class="col-name">chain</td><td class="col-type">LowCardinality(String)</td><td class="col-desc">Chain identifier</td></tr>
+            <tr><td class="col-name">status</td><td class="col-type">LowCardinality(String)</td><td class="col-desc">confirmed | failed | pending</td></tr>
+            <tr><td class="col-name">tx_count</td><td class="col-type">UInt64</td><td class="col-desc">Number of transactions in this bucket</td></tr>
+            <tr><td class="col-name">avg_fee_usd</td><td class="col-type">Float64</td><td class="col-desc">Average fee in USD</td></tr>
+            <tr><td class="col-name">avg_confirm_ms</td><td class="col-type">UInt64</td><td class="col-desc">Average confirmation time in milliseconds</td></tr>
+            <tr><td class="col-name">hour</td><td class="col-type">UInt8</td><td class="col-desc">Hour of day (UTC) for intra-day aggregation</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 5. IPFS Data Models -->
+    <div class="section" id="ipfs">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div><div class="section-title">IPFS Document Schemas</div><div class="section-subtitle">JSON-LD documents stored as IPFS content — addressed by CID</div></div>
+      </div>
+
+      <div class="table-card">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(0,200,150,0.1);">🌐</div>
+          <div><div class="table-name">DID Document</div><div class="table-desc">W3C DID Core 1.0 compliant document — stored at did_document_cid in dids table</div></div>
+          <span class="table-engine te-ipfs">IPFS / JSON-LD</span>
+        </div>
+        <div style="padding:4px 0 16px;">
+          <pre class="code-block" style="margin:0;border-radius:0;border-left:none;border-right:none;">
+{
+  <span class="c-str">"@context"</span>: [<span class="c-str">"https://www.w3.org/ns/did/v1"</span>, <span class="c-str">"https://w3id.org/security/suites/secp256k1-2019/v1"</span>],
+  <span class="c-str">"id"</span>: <span class="c-str">"did:ethr:0x7f3A…"</span>,
+  <span class="c-str">"verificationMethod"</span>: [{
+    <span class="c-str">"id"</span>: <span class="c-str">"did:ethr:0x7f3A…#keys-1"</span>,
+    <span class="c-str">"type"</span>: <span class="c-str">"EcdsaSecp256k1VerificationKey2019"</span>,
+    <span class="c-str">"controller"</span>: <span class="c-str">"did:ethr:0x7f3A…"</span>,
+    <span class="c-str">"publicKeyHex"</span>: <span class="c-str">"02a1b2c3…"</span>
+  }],
+  <span class="c-str">"authentication"</span>: [<span class="c-str">"did:ethr:0x7f3A…#keys-1"</span>],
+  <span class="c-str">"assertionMethod"</span>: [<span class="c-str">"did:ethr:0x7f3A…#keys-1"</span>],
+  <span class="c-str">"service"</span>: [{
+    <span class="c-str">"id"</span>: <span class="c-str">"did:ethr:0x7f3A…#profile"</span>,
+    <span class="c-str">"type"</span>: <span class="c-str">"BamtryProfile"</span>,
+    <span class="c-str">"serviceEndpoint"</span>: <span class="c-str">"ipfs://bafyreib3jlkm2…"</span>
+  }]
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 6. On-Chain Storage -->
+    <div class="section" id="onchain">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <div><div class="section-title">On-Chain Storage</div><div class="section-subtitle">Smart contract state — only anchoring hashes and DID registrations</div></div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text"><strong>Principle:</strong> We store the minimum possible data on-chain — only immutable anchors (DID CID hashes, file ACL hashes) and financial state (token balances, smart contract state). All mutable metadata lives off-chain in PostgreSQL and IPFS.</div>
+      </div>
+
+      <div class="table-card" style="margin-top:20px;">
+        <div class="table-card-header">
+          <div class="table-icon" style="background:rgba(124,111,255,0.12);">⛓️</div>
+          <div><div class="table-name">DIDRegistry.sol (EVM)</div><div class="table-desc">Stores the mapping from Ethereum address → latest DID Document CID</div></div>
+          <span class="table-engine te-onchain">Ethereum / EVM</span>
+        </div>
+        <div style="padding:4px 0 16px;">
+          <pre class="code-block" style="margin:0;border-radius:0;border-left:none;border-right:none;"><span class="c-kw">contract</span> <span class="c-type">DIDRegistry</span> {
+  <span class="c-cmt">// address → IPFS CID of DID Document (stored as bytes)</span>
+  <span class="c-kw">mapping</span>(<span class="c-type">address</span> => <span class="c-type">bytes</span>) <span class="c-kw">public</span> didDocuments;
+
+  <span class="c-cmt">// address → timestamp of last DID Document update</span>
+  <span class="c-kw">mapping</span>(<span class="c-type">address</span> => <span class="c-type">uint256</span>) <span class="c-kw">public</span> lastUpdated;
+
+  <span class="c-kw">event</span> DIDDocumentUpdated(<span class="c-type">address indexed</span> identity, <span class="c-type">bytes</span> newCid);
+
+  <span class="c-kw">function</span> <span class="c-type">setAttribute</span>(<span class="c-type">bytes</span> <span class="c-kw">calldata</span> cid) <span class="c-kw">external</span> { ... }
+  <span class="c-kw">function</span> <span class="c-type">revokeAttribute</span>() <span class="c-kw">external</span> { ... }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 7. Migration Strategy -->
+    <div class="section" id="migrations">
+      <div class="section-header">
+        <div class="section-number">07</div>
+        <div><div class="section-title">Migration Strategy</div><div class="section-subtitle">Schema versioning, rollback policy, and tooling</div></div>
+      </div>
+
+      <div class="info-grid">
+        <div class="info-card">
+          <div class="info-card-title">Tooling</div>
+          <ul class="info-list">
+            <li><strong>Flyway</strong> for PostgreSQL migrations — SQL-based, version-numbered</li>
+            <li>Migrations live in <code style="color:var(--cyan);font-family:var(--mono);font-size:11px;">db/migrations/</code> as <code style="font-family:var(--mono);font-size:11px;">V{n}__{name}.sql</code></li>
+            <li>Applied automatically on service startup via CI/CD</li>
+            <li>ClickHouse DDL managed separately via Liquibase</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Conventions</div>
+          <ul class="info-list">
+            <li>All migrations must be non-destructive (add-only in production)</li>
+            <li>Column drops in a separate cleanup migration, one release later</li>
+            <li>Every foreign key has an explicit index</li>
+            <li>All timestamps in UTC TIMESTAMPTZ — no bare TIMESTAMP</li>
+          </ul>
+        </div>
+        <div class="info-card">
+          <div class="info-card-title">Rollback Policy</div>
+          <ul class="info-list">
+            <li>Each migration has a paired undo script in <code style="font-family:var(--mono);font-size:11px;">db/undo/</code></li>
+            <li>Feature flags gate new schema-dependent code paths</li>
+            <li>Blue-green deploys allow rollback at the service level</li>
+            <li>Critical migrations require DBA review sign-off before merge</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</main>
+
+<footer class="doc-footer">
+  <div class="footer-brand">BamtryOS — Database Schema v1.0</div>
+  <div class="footer-meta">Bamtry Technologies Ltd. · Confidential · Design Phase Package · Document 05 of 07</div>
+</footer>
+
+<script>
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

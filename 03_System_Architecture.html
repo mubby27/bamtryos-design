@@ -1,0 +1,1494 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BamtryOS — System Architecture</title>
+<style>
+  :root {
+    --bg: #08080F;
+    --surface: #0F0F1A;
+    --surface2: #161625;
+    --border: #1E1E35;
+    --accent: #7C6FFF;
+    --accent2: #6558E8;
+    --cyan: #00D4FF;
+    --green: #00C896;
+    --red: #FF5C7A;
+    --yellow: #FFB800;
+    --orange: #FF8A00;
+    --text: #E8E8F0;
+    --text2: #9090A8;
+    --text3: #5A5A7A;
+    --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    --mono: 'JetBrains Mono', 'Fira Code', monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--font); font-size: 14px; line-height: 1.6; }
+
+  /* Layout */
+  .sidebar {
+    position: fixed; top: 0; left: 0; width: 240px; height: 100vh;
+    background: var(--surface); border-right: 1px solid var(--border);
+    overflow-y: auto; z-index: 100; padding: 0 0 40px;
+  }
+  .sidebar-logo {
+    display: flex; align-items: center; gap: 10px;
+    padding: 20px 20px 16px; border-bottom: 1px solid var(--border);
+  }
+  .logo-mark {
+    width: 32px; height: 32px; flex-shrink: 0;
+  }
+  .logo-text { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; }
+  .logo-sub { font-size: 10px; color: var(--text2); letter-spacing: 1.5px; text-transform: uppercase; }
+  .sidebar-section { padding: 16px 12px 4px; }
+  .sidebar-section-label {
+    font-size: 10px; font-weight: 600; color: var(--text3);
+    letter-spacing: 1.2px; text-transform: uppercase; padding: 0 8px 8px;
+  }
+  .sidebar-item {
+    display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    border-radius: 8px; color: var(--text2); font-size: 13px; cursor: pointer;
+    transition: all 0.15s; text-decoration: none;
+  }
+  .sidebar-item:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-item.active { background: rgba(124,111,255,0.15); color: var(--accent); }
+  .sidebar-item .dot {
+    width: 6px; height: 6px; border-radius: 50%; background: var(--border); flex-shrink: 0;
+  }
+  .sidebar-item.active .dot { background: var(--accent); }
+
+  .main { margin-left: 240px; min-height: 100vh; }
+
+  /* Header */
+  .page-header {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    padding: 32px 48px 28px; position: sticky; top: 0; z-index: 50;
+  }
+  .header-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(124,111,255,0.12); border: 1px solid rgba(124,111,255,0.25);
+    border-radius: 20px; padding: 4px 12px; font-size: 11px; font-weight: 600;
+    color: var(--accent); letter-spacing: 0.5px; margin-bottom: 12px;
+  }
+  .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+  .page-title span { color: var(--accent); }
+  .page-desc { color: var(--text2); font-size: 14px; max-width: 640px; }
+  .header-meta {
+    display: flex; align-items: center; gap: 24px; margin-top: 16px;
+    padding-top: 16px; border-top: 1px solid var(--border);
+  }
+  .meta-item { display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text2); }
+  .meta-badge {
+    padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: 600;
+    background: rgba(0,200,150,0.12); color: var(--green); border: 1px solid rgba(0,200,150,0.2);
+  }
+
+  /* Content */
+  .content { padding: 40px 48px 80px; max-width: 1200px; }
+
+  /* Section headers */
+  .section { margin-bottom: 56px; }
+  .section-header {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 24px;
+  }
+  .section-number {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: linear-gradient(135deg, var(--accent), var(--cyan));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 13px; font-weight: 700; color: #fff; flex-shrink: 0;
+  }
+  .section-title { font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+  .section-subtitle { font-size: 13px; color: var(--text2); margin-top: 2px; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 0 0 40px; }
+
+  /* Architecture Overview Diagram */
+  .arch-diagram {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 16px;
+    padding: 32px; margin-bottom: 32px; overflow: hidden; position: relative;
+  }
+  .arch-diagram::before {
+    content: ''; position: absolute; top: -60px; right: -60px;
+    width: 200px; height: 200px;
+    background: radial-gradient(circle, rgba(124,111,255,0.08) 0%, transparent 70%);
+    pointer-events: none;
+  }
+  .arch-title {
+    font-size: 13px; font-weight: 600; color: var(--text2);
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 28px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .arch-title::before {
+    content: ''; display: block; width: 3px; height: 14px;
+    background: linear-gradient(to bottom, var(--accent), var(--cyan));
+    border-radius: 2px;
+  }
+
+  /* Layer Stack */
+  .layer-stack { display: flex; flex-direction: column; gap: 3px; }
+  .layer {
+    border-radius: 10px; padding: 16px 20px; display: flex; align-items: center;
+    justify-content: space-between; position: relative; overflow: hidden;
+    transition: transform 0.2s;
+  }
+  .layer:hover { transform: translateX(4px); }
+  .layer::before {
+    content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+  }
+  .layer-l5 { background: rgba(124,111,255,0.1); border: 1px solid rgba(124,111,255,0.2); }
+  .layer-l5::before { background: var(--accent); }
+  .layer-l4 { background: rgba(0,212,255,0.08); border: 1px solid rgba(0,212,255,0.15); }
+  .layer-l4::before { background: var(--cyan); }
+  .layer-l3 { background: rgba(0,200,150,0.08); border: 1px solid rgba(0,200,150,0.15); }
+  .layer-l3::before { background: var(--green); }
+  .layer-l2 { background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.15); }
+  .layer-l2::before { background: var(--yellow); }
+  .layer-l1 { background: rgba(255,92,122,0.08); border: 1px solid rgba(255,92,122,0.15); }
+  .layer-l1::before { background: var(--red); }
+
+  .layer-info { flex: 1; }
+  .layer-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .layer-l5 .layer-label { color: var(--accent); }
+  .layer-l4 .layer-label { color: var(--cyan); }
+  .layer-l3 .layer-label { color: var(--green); }
+  .layer-l2 .layer-label { color: var(--yellow); }
+  .layer-l1 .layer-label { color: var(--red); }
+  .layer-name { font-size: 15px; font-weight: 700; color: var(--text); }
+  .layer-desc { font-size: 12px; color: var(--text2); margin-top: 2px; }
+  .layer-components {
+    display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; max-width: 55%;
+  }
+  .layer-chip {
+    padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 500;
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+    white-space: nowrap;
+  }
+  .layer-arrow {
+    text-align: center; padding: 4px 0; color: var(--text3); font-size: 16px;
+    letter-spacing: 2px;
+  }
+
+  /* Grid cards */
+  .cards-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 24px; }
+  .cards-grid-2 { grid-template-columns: repeat(2, 1fr); }
+  .cards-grid-4 { grid-template-columns: repeat(4, 1fr); }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 20px; transition: border-color 0.2s;
+  }
+  .card:hover { border-color: var(--accent); }
+  .card-icon {
+    width: 36px; height: 36px; border-radius: 8px; display: flex;
+    align-items: center; justify-content: center; margin-bottom: 12px; font-size: 16px;
+  }
+  .card-title { font-size: 14px; font-weight: 600; margin-bottom: 6px; }
+  .card-desc { font-size: 12px; color: var(--text2); line-height: 1.5; }
+  .card-tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 12px; }
+  .tag {
+    padding: 3px 8px; border-radius: 5px; font-size: 11px;
+    background: var(--surface2); color: var(--text2); border: 1px solid var(--border);
+  }
+
+  /* Full-width diagram boxes */
+  .diagram-box {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 24px; margin-bottom: 24px;
+  }
+  .diagram-box-title {
+    font-size: 12px; font-weight: 600; color: var(--text2); letter-spacing: 0.8px;
+    text-transform: uppercase; margin-bottom: 20px; padding-bottom: 12px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  /* Data flow */
+  .flow-row {
+    display: flex; align-items: center; gap: 0; margin-bottom: 8px;
+  }
+  .flow-node {
+    padding: 10px 16px; border-radius: 8px; font-size: 12px; font-weight: 600;
+    text-align: center; white-space: nowrap; flex-shrink: 0;
+  }
+  .flow-arrow {
+    flex: 1; height: 2px; background: linear-gradient(to right, var(--border), var(--accent), var(--border));
+    position: relative; margin: 0 4px;
+  }
+  .flow-arrow::after {
+    content: '▶'; position: absolute; right: -6px; top: 50%;
+    transform: translateY(-50%); font-size: 10px; color: var(--accent);
+  }
+  .flow-label {
+    position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    font-size: 10px; color: var(--text3); white-space: nowrap;
+  }
+  .fn-purple { background: rgba(124,111,255,0.12); color: var(--accent); border: 1px solid rgba(124,111,255,0.25); }
+  .fn-cyan { background: rgba(0,212,255,0.1); color: var(--cyan); border: 1px solid rgba(0,212,255,0.2); }
+  .fn-green { background: rgba(0,200,150,0.1); color: var(--green); border: 1px solid rgba(0,200,150,0.2); }
+  .fn-yellow { background: rgba(255,184,0,0.1); color: var(--yellow); border: 1px solid rgba(255,184,0,0.2); }
+  .fn-red { background: rgba(255,92,122,0.1); color: var(--red); border: 1px solid rgba(255,92,122,0.2); }
+  .fn-gray { background: var(--surface2); color: var(--text2); border: 1px solid var(--border); }
+
+  /* Component table */
+  .comp-table { width: 100%; border-collapse: collapse; }
+  .comp-table th {
+    text-align: left; padding: 10px 16px; font-size: 11px; font-weight: 600;
+    color: var(--text3); letter-spacing: 0.8px; text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .comp-table td {
+    padding: 12px 16px; font-size: 13px; border-bottom: 1px solid rgba(30,30,53,0.5);
+    vertical-align: top;
+  }
+  .comp-table tr:last-child td { border-bottom: none; }
+  .comp-table tr:hover td { background: rgba(124,111,255,0.04); }
+  .comp-table td:first-child { font-weight: 600; color: var(--text); white-space: nowrap; }
+  .comp-table td:not(:first-child) { color: var(--text2); }
+
+  /* Spec list */
+  .spec-list { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .spec-list li {
+    display: flex; align-items: flex-start; gap: 10px; font-size: 13px; color: var(--text2);
+  }
+  .spec-list li::before {
+    content: '◆'; color: var(--accent); font-size: 8px; margin-top: 4px; flex-shrink: 0;
+  }
+  .spec-list li strong { color: var(--text); }
+
+  /* Chain grid */
+  .chain-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+  .chain-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px 12px; text-align: center; transition: all 0.2s;
+  }
+  .chain-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .chain-icon { font-size: 24px; margin-bottom: 8px; }
+  .chain-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .chain-type { font-size: 11px; color: var(--text2); }
+  .chain-status {
+    display: inline-flex; align-items: center; gap: 4px; margin-top: 8px;
+    font-size: 10px; font-weight: 600; color: var(--green); letter-spacing: 0.5px;
+  }
+  .chain-status::before {
+    content: ''; width: 5px; height: 5px; border-radius: 50%; background: var(--green);
+  }
+
+  /* Infra diagram */
+  .infra-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2px; }
+  .infra-zone {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px; position: relative; overflow: hidden;
+  }
+  .infra-zone-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase;
+    margin-bottom: 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border);
+  }
+  .infra-component {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+    padding: 8px 10px; font-size: 12px; color: var(--text2); margin-bottom: 6px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .infra-component:last-child { margin-bottom: 0; }
+  .infra-badge {
+    font-size: 10px; padding: 2px 6px; border-radius: 4px; font-weight: 600;
+  }
+  .ib-green { background: rgba(0,200,150,0.12); color: var(--green); }
+  .ib-blue { background: rgba(0,212,255,0.1); color: var(--cyan); }
+  .ib-purple { background: rgba(124,111,255,0.12); color: var(--accent); }
+
+  /* Security model */
+  .security-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .security-item {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 10px;
+    padding: 16px;
+  }
+  .security-item-title {
+    font-size: 13px; font-weight: 600; margin-bottom: 8px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .security-icon { font-size: 16px; }
+  .security-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+  .security-list li { font-size: 12px; color: var(--text2); display: flex; align-items: center; gap: 6px; }
+  .security-list li::before { content: '✓'; color: var(--green); font-weight: 700; font-size: 11px; }
+
+  /* Timeline/phases */
+  .phase-list { display: flex; flex-direction: column; gap: 0; }
+  .phase-item {
+    display: flex; gap: 16px; position: relative; padding-bottom: 24px;
+  }
+  .phase-item:last-child { padding-bottom: 0; }
+  .phase-line-wrap { display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+  .phase-dot {
+    width: 14px; height: 14px; border-radius: 50%;
+    border: 2px solid var(--accent); background: var(--bg); flex-shrink: 0; z-index: 1;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .phase-dot.done { background: var(--accent); }
+  .phase-dot-inner { width: 4px; height: 4px; border-radius: 50%; background: #fff; }
+  .phase-connector {
+    width: 2px; flex: 1; background: var(--border); margin: 2px 0;
+  }
+  .phase-content { flex: 1; padding-top: 0; }
+  .phase-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 600; color: var(--accent); margin-bottom: 4px;
+  }
+  .phase-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .phase-desc { font-size: 13px; color: var(--text2); margin-bottom: 8px; }
+  .phase-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+  .phase-chip {
+    padding: 3px 9px; border-radius: 6px; font-size: 11px; font-weight: 500;
+    background: var(--surface); border: 1px solid var(--border); color: var(--text2);
+  }
+
+  /* Footer */
+  .doc-footer {
+    background: var(--surface); border-top: 1px solid var(--border);
+    padding: 24px 48px; margin-left: 240px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .footer-brand { font-size: 13px; font-weight: 600; color: var(--text); }
+  .footer-meta { font-size: 12px; color: var(--text3); }
+
+  /* Code block */
+  .code-block {
+    background: #0A0A14; border: 1px solid var(--border); border-radius: 10px;
+    padding: 20px; font-family: var(--mono); font-size: 12px; line-height: 1.7;
+    overflow-x: auto; margin: 0;
+  }
+  .code-line { display: block; }
+  .c-keyword { color: #C792EA; }
+  .c-string { color: #C3E88D; }
+  .c-comment { color: var(--text3); font-style: italic; }
+  .c-type { color: var(--cyan); }
+  .c-number { color: #F78C6C; }
+  .c-fn { color: #82AAFF; }
+
+  /* Tooltip / callout */
+  .callout {
+    border-radius: 10px; padding: 16px 20px; margin: 16px 0;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .callout-info { background: rgba(0,212,255,0.07); border: 1px solid rgba(0,212,255,0.15); }
+  .callout-warn { background: rgba(255,184,0,0.07); border: 1px solid rgba(255,184,0,0.15); }
+  .callout-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .callout-text { font-size: 13px; color: var(--text2); line-height: 1.5; }
+  .callout-text strong { color: var(--text); }
+
+  /* Badge row */
+  .badge-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; }
+  .badge {
+    padding: 5px 12px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    display: flex; align-items: center; gap: 5px;
+  }
+  .badge-purple { background: rgba(124,111,255,0.12); color: var(--accent); border: 1px solid rgba(124,111,255,0.2); }
+  .badge-cyan { background: rgba(0,212,255,0.1); color: var(--cyan); border: 1px solid rgba(0,212,255,0.15); }
+  .badge-green { background: rgba(0,200,150,0.1); color: var(--green); border: 1px solid rgba(0,200,150,0.15); }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+  @media print {
+    .sidebar { display: none; }
+    .main { margin-left: 0; }
+    .doc-footer { margin-left: 0; }
+    .content { padding: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Sidebar -->
+<nav class="sidebar">
+  <div class="sidebar-logo">
+    <svg class="logo-mark" viewBox="0 0 32 32" fill="none">
+      <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
+      <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
+      <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/>
+      <circle cx="28" cy="11" r="1.5" fill="#00D4FF"/>
+      <circle cx="28" cy="21" r="1.5" fill="#00D4FF"/>
+      <circle cx="16" cy="28" r="1.5" fill="#00D4FF"/>
+      <circle cx="4" cy="21" r="1.5" fill="#00D4FF"/>
+      <circle cx="4" cy="11" r="1.5" fill="#00D4FF"/>
+      <line x1="16" y1="12" x2="16" y2="4" stroke="#7C6FFF" stroke-width="0.75" stroke-dasharray="2,2"/>
+      <line x1="19.5" y1="14" x2="28" y2="11" stroke="#7C6FFF" stroke-width="0.75" stroke-dasharray="2,2"/>
+      <line x1="19.5" y1="18" x2="28" y2="21" stroke="#7C6FFF" stroke-width="0.75" stroke-dasharray="2,2"/>
+    </svg>
+    <div>
+      <div class="logo-text">BamtryOS</div>
+      <div class="logo-sub">Design Phase</div>
+    </div>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Documents</div>
+    <a class="sidebar-item" href="01_Design_System.html"><span class="dot"></span>Design System</a>
+    <a class="sidebar-item" href="02_UI_Prototype.html"><span class="dot"></span>UI Prototype</a>
+    <a class="sidebar-item active" href="#"><span class="dot"></span>System Architecture</a>
+    <a class="sidebar-item" href="04_API_Specification.html"><span class="dot"></span>API Specification</a>
+    <a class="sidebar-item" href="05_Database_Schema.html"><span class="dot"></span>Database Schema</a>
+    <a class="sidebar-item" href="06_SDK_Specification.html"><span class="dot"></span>SDK Specification</a>
+    <a class="sidebar-item" href="07_User_Flows.html"><span class="dot"></span>User Flows</a>
+  </div>
+
+  <div class="sidebar-section">
+    <div class="sidebar-section-label">Sections</div>
+    <a class="sidebar-item" href="#overview"><span class="dot"></span>Overview</a>
+    <a class="sidebar-item" href="#layers"><span class="dot"></span>Layer Architecture</a>
+    <a class="sidebar-item" href="#kernel"><span class="dot"></span>Core Kernel</a>
+    <a class="sidebar-item" href="#protocol"><span class="dot"></span>Protocol Bridge</a>
+    <a class="sidebar-item" href="#ai"><span class="dot"></span>AI Agent Layer</a>
+    <a class="sidebar-item" href="#services"><span class="dot"></span>Service Layer</a>
+    <a class="sidebar-item" href="#app"><span class="dot"></span>App Layer & SDK</a>
+    <a class="sidebar-item" href="#chains"><span class="dot"></span>Chain Support</a>
+    <a class="sidebar-item" href="#infra"><span class="dot"></span>Infrastructure</a>
+    <a class="sidebar-item" href="#security"><span class="dot"></span>Security Model</a>
+    <a class="sidebar-item" href="#dataflow"><span class="dot"></span>Data Flows</a>
+    <a class="sidebar-item" href="#scalability"><span class="dot"></span>Scalability</a>
+  </div>
+</nav>
+
+<!-- Main Content -->
+<main class="main">
+  <div class="page-header">
+    <div class="header-tag">📐 Document 03 of 07</div>
+    <h1 class="page-title">System <span>Architecture</span></h1>
+    <p class="page-desc">Complete technical architecture specification for BamtryOS — a hybrid decentralised operating system covering all five layers, blockchain integrations, AI infrastructure, data flows, and deployment topology.</p>
+    <div class="header-meta">
+      <div class="meta-item">
+        <span>Bamtry Technologies Ltd.</span>
+        <span class="meta-badge">CONFIDENTIAL</span>
+      </div>
+      <div class="meta-item">Version 1.0 &nbsp;·&nbsp; Design Phase</div>
+      <div class="meta-item">For: Jam-Forte Technologies</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- 1. Overview -->
+    <div class="section" id="overview">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div>
+          <div class="section-title">Architecture Overview</div>
+          <div class="section-subtitle">High-level system topology and design philosophy</div>
+        </div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        BamtryOS is designed as a <strong style="color:var(--text)">hybrid decentralised operating system</strong> — a platform layer that abstracts blockchain complexity while delivering a unified, consumer-grade interface for Web3 interaction. The architecture is built around five vertical layers, each with clearly defined responsibilities and interfaces, enabling independent scaling and phased delivery.
+      </p>
+
+      <div class="cards-grid cards-grid-3" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(124,111,255,0.12);">🏗️</div>
+          <div class="card-title">5-Layer Architecture</div>
+          <div class="card-desc">Clean separation of concerns from kernel primitives through to user-facing application layer and SDK.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,212,255,0.1);">🔗</div>
+          <div class="card-title">Multi-Chain Native</div>
+          <div class="card-desc">First-class support for EVM, Solana, Cosmos, and Bitcoin via a unified Protocol Bridge abstraction.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,200,150,0.1);">🤖</div>
+          <div class="card-title">AI-Embedded</div>
+          <div class="card-desc">LangChain + AutoGen agents with GPT-4o are a native architectural layer, not a bolt-on feature.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(255,184,0,0.1);">🪪</div>
+          <div class="card-title">DID-First Identity</div>
+          <div class="card-desc">W3C Decentralised Identifiers as the identity primitive — replacing usernames and passwords at the OS level.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(255,92,122,0.1);">📦</div>
+          <div class="card-title">Universal SDK</div>
+          <div class="card-desc">Write once, deploy to Android, iOS, Windows, macOS, and Linux with a single TypeScript SDK interface.</div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(124,111,255,0.12);">🔐</div>
+          <div class="card-title">Zero-Trust Security</div>
+          <div class="card-desc">No central authentication server. Keys never leave the device. IPFS-encrypted storage. TEE hardware support.</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Design Principle:</strong> Every architectural decision prioritises user sovereignty. Users own their identity (DID), their data (IPFS), and their keys (local keystore). BamtryOS is the OS layer that makes this accessible without sacrificing UX quality.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 2. Layer Stack -->
+    <div class="section" id="layers">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div>
+          <div class="section-title">Five-Layer Architecture</div>
+          <div class="section-subtitle">Vertical decomposition of the BamtryOS stack</div>
+        </div>
+      </div>
+
+      <div class="arch-diagram">
+        <div class="arch-title">BamtryOS Stack — Top to Bottom</div>
+        <div class="layer-stack">
+
+          <div class="layer layer-l5">
+            <div class="layer-info">
+              <div class="layer-label">Layer 5 — Top</div>
+              <div class="layer-name">Application Layer</div>
+              <div class="layer-desc">User-facing interfaces and third-party dApps. Universal SDK surface.</div>
+            </div>
+            <div class="layer-components">
+              <span class="layer-chip">Desktop Client</span>
+              <span class="layer-chip">Mobile App</span>
+              <span class="layer-chip">Web Client</span>
+              <span class="layer-chip">dApp Store</span>
+              <span class="layer-chip">Third-Party dApps</span>
+            </div>
+          </div>
+
+          <div class="layer-arrow">↕</div>
+
+          <div class="layer layer-l4">
+            <div class="layer-info">
+              <div class="layer-label">Layer 4</div>
+              <div class="layer-name">AI Agent Layer</div>
+              <div class="layer-desc">Autonomous agents for transaction assistance, portfolio analysis, and UX simplification.</div>
+            </div>
+            <div class="layer-components">
+              <span class="layer-chip">LangChain</span>
+              <span class="layer-chip">AutoGen</span>
+              <span class="layer-chip">GPT-4o</span>
+              <span class="layer-chip">Pinecone</span>
+              <span class="layer-chip">FAISS</span>
+            </div>
+          </div>
+
+          <div class="layer-arrow">↕</div>
+
+          <div class="layer layer-l3">
+            <div class="layer-info">
+              <div class="layer-label">Layer 3</div>
+              <div class="layer-name">Service Layer</div>
+              <div class="layer-desc">Core platform services: identity, wallet, storage, notifications, marketplace.</div>
+            </div>
+            <div class="layer-components">
+              <span class="layer-chip">DID Service</span>
+              <span class="layer-chip">Wallet Service</span>
+              <span class="layer-chip">Storage Gateway</span>
+              <span class="layer-chip">App Registry</span>
+              <span class="layer-chip">Auth Service</span>
+            </div>
+          </div>
+
+          <div class="layer-arrow">↕</div>
+
+          <div class="layer layer-l2">
+            <div class="layer-info">
+              <div class="layer-label">Layer 2</div>
+              <div class="layer-name">Protocol Bridge</div>
+              <div class="layer-desc">Unified blockchain abstraction. Translates universal API calls into chain-specific instructions.</div>
+            </div>
+            <div class="layer-components">
+              <span class="layer-chip">EVM Adapter</span>
+              <span class="layer-chip">Solana Adapter</span>
+              <span class="layer-chip">Cosmos Adapter</span>
+              <span class="layer-chip">Bitcoin Adapter</span>
+              <span class="layer-chip">IPFS Gateway</span>
+            </div>
+          </div>
+
+          <div class="layer-arrow">↕</div>
+
+          <div class="layer layer-l1">
+            <div class="layer-info">
+              <div class="layer-label">Layer 1 — Bottom</div>
+              <div class="layer-name">Core Kernel</div>
+              <div class="layer-desc">Cryptographic primitives, secure keystore, DID resolver, local event bus, and OS integration.</div>
+            </div>
+            <div class="layer-components">
+              <span class="layer-chip">Keystore (TEE)</span>
+              <span class="layer-chip">Crypto Engine</span>
+              <span class="layer-chip">DID Resolver</span>
+              <span class="layer-chip">Event Bus</span>
+              <span class="layer-chip">P2P Node</span>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text">
+          <strong>Inter-layer contract:</strong> Each layer exposes a versioned interface to the layer above it. Layers communicate only through defined interfaces — never through shared memory or direct internal calls. This guarantees that any layer can be upgraded independently without breaking the rest of the stack.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3. Core Kernel -->
+    <div class="section" id="kernel">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div>
+          <div class="section-title">Core Kernel</div>
+          <div class="section-subtitle">Cryptographic foundation and device-level primitives</div>
+        </div>
+      </div>
+
+      <div class="cards-grid cards-grid-2" style="grid-template-columns:repeat(2,1fr)">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(255,92,122,0.1);font-size:20px;">🔑</div>
+          <div class="card-title">Secure Keystore</div>
+          <div class="card-desc">Private keys are generated and stored in hardware-backed secure storage (Android Keystore, iOS Secure Enclave, TPM on desktop). Keys never leave the device in plaintext. All signing operations execute within the TEE boundary.</div>
+          <div class="card-tags">
+            <span class="tag">AES-256-GCM</span><span class="tag">ECDSA secp256k1</span><span class="tag">Ed25519</span><span class="tag">TEE</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(255,92,122,0.1);font-size:20px;">🧮</div>
+          <div class="card-title">Crypto Engine</div>
+          <div class="card-desc">Native cryptographic primitives for hashing, signing, verification, and key derivation. Supports BIP-39/44/84 for HD wallet derivation paths across all integrated chains. Exposes a unified CryptoAPI to upper layers.</div>
+          <div class="card-tags">
+            <span class="tag">BIP-39/44/84</span><span class="tag">SHA-256/3</span><span class="tag">Keccak-256</span><span class="tag">Blake2b</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(255,92,122,0.1);font-size:20px;">🪪</div>
+          <div class="card-title">DID Resolver</div>
+          <div class="card-desc">W3C DID Core 1.0 compliant resolver supporting did:ethr, did:sol, did:key, and custom did:bamtry method. Resolves DID Documents from IPFS and on-chain registries. Manages verifiable credential issuance and verification.</div>
+          <div class="card-tags">
+            <span class="tag">W3C DID Core 1.0</span><span class="tag">did:ethr</span><span class="tag">did:sol</span><span class="tag">Verifiable Credentials</span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(255,92,122,0.1);font-size:20px;">📡</div>
+          <div class="card-title">Local Event Bus</div>
+          <div class="card-desc">Async publish-subscribe system for intra-device communication between layers. Uses persistent message queues for offline resilience. Events are signed by the kernel to prevent injection from untrusted sources.</div>
+          <div class="card-tags">
+            <span class="tag">Pub/Sub</span><span class="tag">Message Queue</span><span class="tag">Signed Events</span><span class="tag">Offline-first</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram-box" style="margin-top:24px;">
+        <div class="diagram-box-title">Key Derivation Architecture</div>
+        <pre class="code-block"><code><span class="c-comment">// BIP-39 → BIP-44 HD wallet derivation path</span>
+<span class="c-keyword">const</span> derivationPaths = {
+  ethereum:   <span class="c-string">"m/44'/60'/0'/0/0"</span>,     <span class="c-comment">// ETH, Polygon, BSC</span>
+  solana:     <span class="c-string">"m/44'/501'/0'/0'"</span>,    <span class="c-comment">// Solana (BIP-44 variant)</span>
+  cosmos:     <span class="c-string">"m/44'/118'/0'/0/0"</span>,   <span class="c-comment">// Cosmos Hub, Osmosis</span>
+  bitcoin:    <span class="c-string">"m/84'/0'/0'/0/0"</span>,     <span class="c-comment">// Bitcoin native SegWit</span>
+};
+
+<span class="c-comment">// Master seed → chain-specific keypairs from single mnemonic</span>
+<span class="c-keyword">interface</span> <span class="c-type">KeystoreEntry</span> {
+  chainId:    <span class="c-type">string</span>;
+  publicKey:  <span class="c-type">Uint8Array</span>;
+  path:       <span class="c-type">string</span>;
+  algorithm:  <span class="c-string">'secp256k1'</span> | <span class="c-string">'ed25519'</span>;
+  <span class="c-comment">// privateKey is NEVER stored outside TEE boundary</span>
+}</code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 4. Protocol Bridge -->
+    <div class="section" id="protocol">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div>
+          <div class="section-title">Protocol Bridge</div>
+          <div class="section-subtitle">Unified multi-chain abstraction layer</div>
+        </div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        The Protocol Bridge is the translation layer between BamtryOS's universal API and the heterogeneous world of blockchain protocols. It implements the <strong style="color:var(--text)">Adapter Pattern</strong> — each blockchain has a dedicated adapter that implements a common <code style="color:var(--cyan);font-family:var(--mono);font-size:12px;">IChainAdapter</code> interface. Upper layers interact only with this interface, never with chain-specific libraries directly.
+      </p>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">Universal Chain Interface</div>
+        <pre class="code-block"><code><span class="c-keyword">interface</span> <span class="c-type">IChainAdapter</span> {
+  <span class="c-comment">// Identity</span>
+  <span class="c-fn">getAddress</span>(): <span class="c-type">Promise</span>&lt;<span class="c-type">string</span>&gt;;
+  <span class="c-fn">signMessage</span>(msg: <span class="c-type">string</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">string</span>&gt;;
+
+  <span class="c-comment">// Balances & Tokens</span>
+  <span class="c-fn">getBalance</span>(address: <span class="c-type">string</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">BigInt</span>&gt;;
+  <span class="c-fn">getTokenBalances</span>(address: <span class="c-type">string</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">TokenBalance</span>[]&gt;;
+
+  <span class="c-comment">// Transactions</span>
+  <span class="c-fn">buildTransaction</span>(params: <span class="c-type">TxParams</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">RawTx</span>&gt;;
+  <span class="c-fn">signTransaction</span>(tx: <span class="c-type">RawTx</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">SignedTx</span>&gt;;
+  <span class="c-fn">broadcastTransaction</span>(tx: <span class="c-type">SignedTx</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">TxHash</span>&gt;;
+  <span class="c-fn">getTransactionStatus</span>(hash: <span class="c-type">TxHash</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">TxStatus</span>&gt;;
+
+  <span class="c-comment">// Smart Contracts</span>
+  <span class="c-fn">callContract</span>(params: <span class="c-type">ContractCallParams</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">unknown</span>&gt;;
+  <span class="c-fn">estimateFee</span>(tx: <span class="c-type">TxParams</span>): <span class="c-type">Promise</span>&lt;<span class="c-type">FeeEstimate</span>&gt;;
+
+  <span class="c-comment">// Subscription</span>
+  <span class="c-fn">subscribeToAddress</span>(address: <span class="c-type">string</span>, cb: <span class="c-type">EventCallback</span>): <span class="c-type">Unsubscribe</span>;
+}</code></pre>
+      </div>
+
+      <table class="comp-table" style="margin-top:24px;">
+        <thead>
+          <tr>
+            <th>Adapter</th>
+            <th>Library</th>
+            <th>Chains Covered</th>
+            <th>Key Algorithm</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>EVM Adapter</td>
+            <td>ethers.js v6, web3.js</td>
+            <td>Ethereum, Polygon, BSC, Arbitrum, Optimism, Base</td>
+            <td>secp256k1</td>
+            <td><span class="meta-badge">Phase 1</span></td>
+          </tr>
+          <tr>
+            <td>Solana Adapter</td>
+            <td>@solana/web3.js</td>
+            <td>Solana Mainnet, Devnet</td>
+            <td>Ed25519</td>
+            <td><span class="meta-badge">Phase 1</span></td>
+          </tr>
+          <tr>
+            <td>Cosmos Adapter</td>
+            <td>CosmJS, cosmwasm-js</td>
+            <td>Cosmos Hub, Osmosis, Juno, Axone</td>
+            <td>secp256k1</td>
+            <td><span class="meta-badge">Phase 1</span></td>
+          </tr>
+          <tr>
+            <td>Bitcoin Adapter</td>
+            <td>bitcoinjs-lib</td>
+            <td>Bitcoin Mainnet, Testnet</td>
+            <td>secp256k1</td>
+            <td><span style="background:rgba(255,184,0,0.1);color:var(--yellow);border:1px solid rgba(255,184,0,0.2);padding:3px 10px;border-radius:12px;font-size:11px;font-weight:600;">Phase 2</span></td>
+          </tr>
+          <tr>
+            <td>IPFS Gateway</td>
+            <td>ipfs-http-client, Helia</td>
+            <td>IPFS, Filecoin</td>
+            <td>N/A</td>
+            <td><span class="meta-badge">Phase 1</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 5. AI Agent Layer -->
+    <div class="section" id="ai">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div>
+          <div class="section-title">AI Agent Layer</div>
+          <div class="section-subtitle">Embedded autonomous intelligence using LangChain + AutoGen</div>
+        </div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        The AI Agent Layer is a native architectural component that gives BamtryOS its intelligent UX characteristics. Agents have access to user context (portfolio, history, preferences) and can initiate on-chain actions with explicit user approval. All agent actions are sandboxed — agents propose, humans confirm.
+      </p>
+
+      <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,212,255,0.1);">💬</div>
+          <div class="card-title">Conversational Agent</div>
+          <div class="card-desc">Natural language interface for all BamtryOS operations. Users can transact, manage storage, and configure settings via chat. Powered by GPT-4o with system prompts tuned for Web3 workflows.</div>
+          <div class="card-tags"><span class="tag">GPT-4o</span><span class="tag">LangChain</span><span class="tag">RAG</span></div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,212,255,0.1);">📊</div>
+          <div class="card-title">Portfolio Agent</div>
+          <div class="card-desc">Autonomous monitoring of wallet positions across all chains. Provides alerts, rebalancing suggestions, and gas fee optimisation. Accesses real-time price data via oracle feeds.</div>
+          <div class="card-tags"><span class="tag">AutoGen</span><span class="tag">Pinecone</span><span class="tag">Price Oracles</span></div>
+        </div>
+        <div class="card">
+          <div class="card-icon" style="background:rgba(0,212,255,0.1);">🔍</div>
+          <div class="card-title">Transaction Agent</div>
+          <div class="card-desc">Reviews proposed transactions for risk signals: address sanity, contract audit status, fee anomalies, and phishing patterns. Acts as a safety layer before user confirmation.</div>
+          <div class="card-tags"><span class="tag">FAISS</span><span class="tag">On-chain data</span><span class="tag">Risk scoring</span></div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">Agent Architecture — RAG Pipeline</div>
+        <div class="flow-row" style="flex-wrap:wrap;gap:8px;align-items:center;justify-content:center;">
+          <div class="flow-node fn-gray" style="width:110px;">User Input</div>
+          <div style="color:var(--accent);font-size:18px;">→</div>
+          <div class="flow-node fn-cyan" style="width:130px;">Intent Parser</div>
+          <div style="color:var(--accent);font-size:18px;">→</div>
+          <div class="flow-node fn-purple" style="width:130px;">Context Retrieval<br><span style="font-size:10px;color:var(--text3)">Pinecone + FAISS</span></div>
+          <div style="color:var(--accent);font-size:18px;">→</div>
+          <div class="flow-node fn-cyan" style="width:130px;">GPT-4o<br><span style="font-size:10px;color:var(--text3)">Azure OpenAI</span></div>
+          <div style="color:var(--accent);font-size:18px;">→</div>
+          <div class="flow-node fn-green" style="width:130px;">Action Proposal</div>
+          <div style="color:var(--accent);font-size:18px;">→</div>
+          <div class="flow-node fn-yellow" style="width:130px;">User Confirms</div>
+          <div style="color:var(--accent);font-size:18px;">→</div>
+          <div class="flow-node fn-green" style="width:110px;">Execute</div>
+        </div>
+        <div style="margin-top:20px;padding-top:16px;border-top:1px solid var(--border);">
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;">
+            <div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Context Sources</div>
+              <ul class="spec-list">
+                <li>Wallet balances &amp; history</li>
+                <li>DID credentials</li>
+                <li>Installed dApps</li>
+                <li>Chain network status</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Vector Stores</div>
+              <ul class="spec-list">
+                <li>Pinecone (cloud, long-term)</li>
+                <li>FAISS (local, low-latency)</li>
+                <li>Contract ABI embeddings</li>
+                <li>User preference vectors</li>
+              </ul>
+            </div>
+            <div>
+              <div style="font-size:11px;color:var(--text3);margin-bottom:6px;text-transform:uppercase;letter-spacing:0.8px;">Safety Constraints</div>
+              <ul class="spec-list">
+                <li>Agents cannot sign without user PIN</li>
+                <li>All proposals are human-confirmed</li>
+                <li>Action log is immutable</li>
+                <li>Spending limits enforced by kernel</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 6. Service Layer -->
+    <div class="section" id="services">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <div>
+          <div class="section-title">Service Layer</div>
+          <div class="section-subtitle">Core platform services and business logic</div>
+        </div>
+      </div>
+
+      <table class="comp-table">
+        <thead>
+          <tr>
+            <th>Service</th>
+            <th>Responsibility</th>
+            <th>Technology</th>
+            <th>Storage</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Identity Service</td>
+            <td>DID creation, document management, credential issuance, device linking</td>
+            <td>FastAPI, W3C DID SDK</td>
+            <td>IPFS (DID Doc), on-chain (registry)</td>
+          </tr>
+          <tr>
+            <td>Wallet Service</td>
+            <td>Multi-chain balance aggregation, transaction history, token metadata</td>
+            <td>FastAPI, ethers.js, @solana/web3.js</td>
+            <td>PostgreSQL (cache), blockchain (source of truth)</td>
+          </tr>
+          <tr>
+            <td>Storage Gateway</td>
+            <td>IPFS file pinning, encryption, access control, CID management</td>
+            <td>FastAPI, Helia, Filecoin</td>
+            <td>IPFS network, Filecoin deals</td>
+          </tr>
+          <tr>
+            <td>App Registry</td>
+            <td>dApp metadata, installation, permissions, version management</td>
+            <td>FastAPI, PostgreSQL</td>
+            <td>PostgreSQL, IPFS (app bundles)</td>
+          </tr>
+          <tr>
+            <td>Auth Service</td>
+            <td>DID-based session management, device attestation, biometric binding</td>
+            <td>FastAPI, JWT (DID-signed)</td>
+            <td>Encrypted local store</td>
+          </tr>
+          <tr>
+            <td>Notification Service</td>
+            <td>On-chain event watching, push alerts, in-app messages</td>
+            <td>WebSocket, FCM/APNs</td>
+            <td>Redis (event queue)</td>
+          </tr>
+          <tr>
+            <td>Analytics Service</td>
+            <td>Privacy-preserving usage analytics, performance telemetry</td>
+            <td>FastAPI, ClickHouse</td>
+            <td>ClickHouse (aggregated, no PII)</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="callout callout-info" style="margin-top:24px;">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Deployment model:</strong> All services are containerised with Docker and orchestrated by Kubernetes. Each service can be scaled horizontally. Services communicate via REST + WebSocket internally, and all external-facing endpoints are behind an API Gateway with rate limiting and DID-based authentication.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 7. App Layer & SDK -->
+    <div class="section" id="app">
+      <div class="section-header">
+        <div class="section-number">07</div>
+        <div>
+          <div class="section-title">Application Layer &amp; Universal SDK</div>
+          <div class="section-subtitle">Client targets and developer-facing interface</div>
+        </div>
+      </div>
+
+      <div class="cards-grid" style="grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:24px;">
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🤖</div>
+          <div class="card-title" style="font-size:13px;">Android</div>
+          <div class="card-desc" style="font-size:11px;">React Native + Kotlin bridge. Android Keystore TEE.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🍎</div>
+          <div class="card-title" style="font-size:13px;">iOS</div>
+          <div class="card-desc" style="font-size:11px;">React Native + Swift bridge. Secure Enclave.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🪟</div>
+          <div class="card-title" style="font-size:13px;">Windows</div>
+          <div class="card-desc" style="font-size:11px;">Electron + TypeScript. TPM 2.0 / DPAPI.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🍏</div>
+          <div class="card-title" style="font-size:13px;">macOS</div>
+          <div class="card-desc" style="font-size:11px;">Electron + TypeScript. Keychain / T2 chip.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:32px;margin-bottom:8px;">🐧</div>
+          <div class="card-title" style="font-size:13px;">Linux</div>
+          <div class="card-desc" style="font-size:11px;">Electron + TypeScript. libsecret / TPM.</div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">SDK Module Architecture</div>
+        <pre class="code-block"><code><span class="c-comment">// @bamtry/sdk — public surface</span>
+<span class="c-keyword">import</span> { BamtryOS } <span class="c-keyword">from</span> <span class="c-string">'@bamtry/sdk'</span>;
+
+<span class="c-keyword">const</span> os = <span class="c-keyword">new</span> <span class="c-type">BamtryOS</span>({ network: <span class="c-string">'mainnet'</span> });
+<span class="c-keyword">await</span> os.<span class="c-fn">init</span>();
+
+<span class="c-comment">// Identity module</span>
+<span class="c-keyword">const</span> did = <span class="c-keyword">await</span> os.identity.<span class="c-fn">create</span>({ pin: <span class="c-string">'...'</span> });
+<span class="c-keyword">const</span> doc = <span class="c-keyword">await</span> os.identity.<span class="c-fn">resolve</span>(did);
+
+<span class="c-comment">// Wallet module — chain-agnostic interface</span>
+<span class="c-keyword">const</span> balance = <span class="c-keyword">await</span> os.wallet.<span class="c-fn">getBalance</span>({ chain: <span class="c-string">'ethereum'</span> });
+<span class="c-keyword">const</span> txHash  = <span class="c-keyword">await</span> os.wallet.<span class="c-fn">send</span>({ chain: <span class="c-string">'solana'</span>, to: <span class="c-string">'...'</span>, amount: <span class="c-string">'1.5'</span> });
+
+<span class="c-comment">// Storage module</span>
+<span class="c-keyword">const</span> cid  = <span class="c-keyword">await</span> os.storage.<span class="c-fn">upload</span>(file, { encrypt: <span class="c-keyword">true</span> });
+<span class="c-keyword">const</span> file = <span class="c-keyword">await</span> os.storage.<span class="c-fn">get</span>(cid);
+
+<span class="c-comment">// AI Agent module</span>
+<span class="c-keyword">const</span> reply = <span class="c-keyword">await</span> os.agent.<span class="c-fn">chat</span>(<span class="c-string">'Swap 0.1 ETH to USDC on Uniswap'</span>);
+<span class="c-comment">// → returns proposed action for user approval before execution</span></code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 8. Chain Support -->
+    <div class="section" id="chains">
+      <div class="section-header">
+        <div class="section-number">08</div>
+        <div>
+          <div class="section-title">Blockchain Network Support</div>
+          <div class="section-subtitle">Multi-chain integration matrix</div>
+        </div>
+      </div>
+
+      <div class="chain-grid" style="grid-template-columns:repeat(5,1fr);">
+        <div class="chain-card">
+          <div class="chain-icon">⟠</div>
+          <div class="chain-name">Ethereum</div>
+          <div class="chain-type">EVM Mainnet</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">🟣</div>
+          <div class="chain-name">Polygon</div>
+          <div class="chain-type">EVM L2</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">☀️</div>
+          <div class="chain-name">Solana</div>
+          <div class="chain-type">SVM</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">⚛️</div>
+          <div class="chain-name">Cosmos</div>
+          <div class="chain-type">Tendermint</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">₿</div>
+          <div class="chain-name">Bitcoin</div>
+          <div class="chain-type">UTXO</div>
+          <div class="chain-status" style="color:var(--yellow);border-color:var(--yellow);">Phase 2</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">🔵</div>
+          <div class="chain-name">Arbitrum</div>
+          <div class="chain-type">EVM L2</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">🔴</div>
+          <div class="chain-name">Optimism</div>
+          <div class="chain-type">EVM L2</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">🟦</div>
+          <div class="chain-name">Base</div>
+          <div class="chain-type">EVM L2</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">🌊</div>
+          <div class="chain-name">Osmosis</div>
+          <div class="chain-type">Cosmos IBC</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+        <div class="chain-card">
+          <div class="chain-icon">⚡</div>
+          <div class="chain-name">Axone</div>
+          <div class="chain-type">Cosmos IBC</div>
+          <div class="chain-status">Phase 1</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:24px;">
+        <span class="callout-icon">🔗</span>
+        <div class="callout-text">
+          <strong>Cross-chain transactions:</strong> The Protocol Bridge includes a cross-chain routing module that can route assets through decentralised bridges (LayerZero, Wormhole) and DEX aggregators (1inch, Jupiter) without requiring users to understand the underlying mechanics. The AI Agent Layer provides natural language bridging instructions.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 9. Infrastructure -->
+    <div class="section" id="infra">
+      <div class="section-header">
+        <div class="section-number">09</div>
+        <div>
+          <div class="section-title">Infrastructure &amp; Deployment</div>
+          <div class="section-subtitle">Cloud topology, containerisation, and DevOps pipeline</div>
+        </div>
+      </div>
+
+      <div class="infra-grid" style="grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:24px;">
+        <div class="infra-zone">
+          <div class="infra-zone-label" style="color:var(--accent);">Client Tier</div>
+          <div class="infra-component">Electron Desktop App<span class="infra-badge ib-purple">Local</span></div>
+          <div class="infra-component">React Native Mobile<span class="infra-badge ib-purple">Local</span></div>
+          <div class="infra-component">Web PWA<span class="infra-badge ib-blue">CDN</span></div>
+          <div class="infra-component">SDK (npm package)<span class="infra-badge ib-purple">Local</span></div>
+        </div>
+        <div class="infra-zone">
+          <div class="infra-zone-label" style="color:var(--cyan);">API Gateway Tier</div>
+          <div class="infra-component">NGINX / Kong Gateway<span class="infra-badge ib-blue">Cloud</span></div>
+          <div class="infra-component">Rate Limiter<span class="infra-badge ib-blue">Cloud</span></div>
+          <div class="infra-component">DID Auth Middleware<span class="infra-badge ib-blue">Cloud</span></div>
+          <div class="infra-component">WebSocket Server<span class="infra-badge ib-blue">Cloud</span></div>
+        </div>
+        <div class="infra-zone">
+          <div class="infra-zone-label" style="color:var(--green);">Service Tier</div>
+          <div class="infra-component">Identity Service<span class="infra-badge ib-green">K8s Pod</span></div>
+          <div class="infra-component">Wallet Service<span class="infra-badge ib-green">K8s Pod</span></div>
+          <div class="infra-component">Storage Gateway<span class="infra-badge ib-green">K8s Pod</span></div>
+          <div class="infra-component">AI Agent Service<span class="infra-badge ib-green">K8s Pod</span></div>
+          <div class="infra-component">App Registry<span class="infra-badge ib-green">K8s Pod</span></div>
+        </div>
+        <div class="infra-zone">
+          <div class="infra-zone-label" style="color:var(--yellow);">Data Tier</div>
+          <div class="infra-component">PostgreSQL (RDS)<span class="infra-badge ib-blue">Cloud</span></div>
+          <div class="infra-component">Redis (ElastiCache)<span class="infra-badge ib-blue">Cloud</span></div>
+          <div class="infra-component">ClickHouse<span class="infra-badge ib-blue">Cloud</span></div>
+          <div class="infra-component">Pinecone Vector DB<span class="infra-badge ib-blue">SaaS</span></div>
+        </div>
+        <div class="infra-zone">
+          <div class="infra-zone-label" style="color:var(--red);">Blockchain Tier</div>
+          <div class="infra-component">Infura / Alchemy (EVM)<span class="infra-badge ib-blue">SaaS</span></div>
+          <div class="infra-component">QuickNode (Solana)<span class="infra-badge ib-blue">SaaS</span></div>
+          <div class="infra-component">Custom Cosmos Node<span class="infra-badge ib-green">Self</span></div>
+          <div class="infra-component">IPFS Node (Helia)<span class="infra-badge ib-green">Self</span></div>
+        </div>
+        <div class="infra-zone">
+          <div class="infra-zone-label" style="color:var(--text2);">AI &amp; Observability</div>
+          <div class="infra-component">Azure OpenAI GPT-4o<span class="infra-badge ib-blue">SaaS</span></div>
+          <div class="infra-component">Datadog / Grafana<span class="infra-badge ib-blue">SaaS</span></div>
+          <div class="infra-component">Sentry (error tracking)<span class="infra-badge ib-blue">SaaS</span></div>
+          <div class="infra-component">GitHub Actions CI/CD<span class="infra-badge ib-blue">SaaS</span></div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">CI/CD Pipeline</div>
+        <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:center;">
+          <div class="flow-node fn-gray">Dev Push</div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-gray">GitHub PR</div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-cyan">Lint + Tests<br><span style="font-size:10px">Jest, Vitest</span></div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-cyan">Build<br><span style="font-size:10px">TypeScript</span></div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-purple">Docker Image<br><span style="font-size:10px">ECR</span></div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-yellow">Staging Deploy<br><span style="font-size:10px">K8s</span></div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-yellow">E2E Tests<br><span style="font-size:10px">Cypress</span></div>
+          <span style="color:var(--accent)">→</span>
+          <div class="flow-node fn-green">Production<br><span style="font-size:10px">K8s + CDN</span></div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 10. Security Model -->
+    <div class="section" id="security">
+      <div class="section-header">
+        <div class="section-number">10</div>
+        <div>
+          <div class="section-title">Security Model</div>
+          <div class="section-subtitle">Zero-trust, device-first security architecture</div>
+        </div>
+      </div>
+
+      <div class="security-grid" style="grid-template-columns:repeat(2,1fr);gap:16px;">
+        <div class="security-item">
+          <div class="security-item-title"><span class="security-icon">🔐</span> Key Management</div>
+          <ul class="security-list">
+            <li>Private keys generated on-device using secure RNG</li>
+            <li>Keys stored in TEE (Android Keystore / Secure Enclave / TPM)</li>
+            <li>Keys never transmitted in plaintext — ever</li>
+            <li>Hardware-backed biometric binding (fingerprint/FaceID)</li>
+            <li>BIP-39 12/24-word mnemonic recovery (user-held)</li>
+          </ul>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title"><span class="security-icon">🪪</span> Identity &amp; Auth</div>
+          <ul class="security-list">
+            <li>DID-based authentication — no username/password server</li>
+            <li>Challenge-response sign-in (wallet signature challenge)</li>
+            <li>Session tokens are DID-signed JWTs with short expiry</li>
+            <li>Device revocation propagated to all DID document controllers</li>
+            <li>Verifiable Credentials for selective disclosure</li>
+          </ul>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title"><span class="security-icon">📦</span> Data &amp; Storage</div>
+          <ul class="security-list">
+            <li>All IPFS uploads encrypted with user's public key (AES-256-GCM)</li>
+            <li>Encryption keys derived from DID key material</li>
+            <li>CID access control list stored on-chain</li>
+            <li>Local data encrypted at rest (SQLCipher / DPAPI)</li>
+            <li>No PII stored on Bamtry servers</li>
+          </ul>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title"><span class="security-icon">🛡️</span> Transaction Safety</div>
+          <ul class="security-list">
+            <li>All transactions require PIN/biometric confirmation</li>
+            <li>AI Transaction Agent screens for phishing/anomalies</li>
+            <li>Spending limits configurable per chain and per dApp</li>
+            <li>dApp permission model (camera, contacts, sign, etc.)</li>
+            <li>Transaction simulation before broadcast (fork-based preview)</li>
+          </ul>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title"><span class="security-icon">🔒</span> Transport Security</div>
+          <ul class="security-list">
+            <li>TLS 1.3 enforced on all API endpoints</li>
+            <li>Certificate pinning on mobile clients</li>
+            <li>HSTS + CSP headers on all web surfaces</li>
+            <li>All WebSocket connections authenticated via DID token</li>
+          </ul>
+        </div>
+        <div class="security-item">
+          <div class="security-item-title"><span class="security-icon">🧪</span> Auditing</div>
+          <ul class="security-list">
+            <li>Smart contract audits required before dApp Store listing</li>
+            <li>OWASP ASVS Level 2 compliance target</li>
+            <li>Penetration testing before mainnet launch</li>
+            <li>Bug bounty program via Immunefi post-launch</li>
+            <li>Immutable on-chain audit trail for all signed actions</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 11. Data Flows -->
+    <div class="section" id="dataflow">
+      <div class="section-header">
+        <div class="section-number">11</div>
+        <div>
+          <div class="section-title">Critical Data Flows</div>
+          <div class="section-subtitle">End-to-end traces for primary system operations</div>
+        </div>
+      </div>
+
+      <div class="diagram-box" style="margin-bottom:16px;">
+        <div class="diagram-box-title">Flow A — DID Creation &amp; Onboarding</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-gray" style="min-width:140px;">1. User opens app</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-gray" style="min-width:140px;">2. Generates mnemonic (local)</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-red" style="min-width:140px;">3. Stores in TEE keystore</div>
+          </div>
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-yellow" style="min-width:140px;">4. Derives chain keypairs</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-purple" style="min-width:140px;">5. Creates DID document</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-cyan" style="min-width:140px;">6. Pins DID doc to IPFS</div>
+          </div>
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-green" style="min-width:140px;">7. Registers on-chain</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-green" style="min-width:140px;">8. Returns DID to user</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-green" style="min-width:140px;">✓ Onboarding complete</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram-box" style="margin-bottom:16px;">
+        <div class="diagram-box-title">Flow B — Cross-Chain Asset Transfer</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-gray" style="min-width:120px;">1. User inputs intent</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-cyan" style="min-width:120px;">2. AI parses intent</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-purple" style="min-width:120px;">3. Route calculated</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-yellow" style="min-width:120px;">4. Fee preview shown</div>
+          </div>
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-yellow" style="min-width:120px;">5. User confirms</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-red" style="min-width:120px;">6. Signs in TEE</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-yellow" style="min-width:120px;">7. Bridge tx broadcast</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-green" style="min-width:120px;">8. Destination settled</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">Flow C — Encrypted IPFS File Upload</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-gray" style="min-width:130px;">1. User selects file</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-red" style="min-width:130px;">2. AES-256 encrypt (local)</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-cyan" style="min-width:130px;">3. Upload ciphertext to IPFS</div>
+          </div>
+          <div class="flow-row" style="align-items:center;gap:8px;">
+            <div class="flow-node fn-purple" style="min-width:130px;">4. CID returned</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-green" style="min-width:130px;">5. CID + access list stored</div>
+            <span style="color:var(--text3)">→</span>
+            <div class="flow-node fn-green" style="min-width:130px;">✓ File accessible via CID</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 12. Scalability -->
+    <div class="section" id="scalability">
+      <div class="section-header">
+        <div class="section-number">12</div>
+        <div>
+          <div class="section-title">Scalability &amp; Performance Targets</div>
+          <div class="section-subtitle">Non-functional requirements and growth architecture</div>
+        </div>
+      </div>
+
+      <div class="cards-grid cards-grid-4" style="grid-template-columns:repeat(4,1fr);margin-bottom:24px;">
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;font-weight:800;color:var(--accent);letter-spacing:-1px;">&lt;200ms</div>
+          <div class="card-title" style="font-size:12px;margin-top:4px;">API P95 Latency</div>
+          <div class="card-desc" style="font-size:11px;">Service layer response time target for all non-blockchain operations.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;font-weight:800;color:var(--cyan);letter-spacing:-1px;">99.9%</div>
+          <div class="card-title" style="font-size:12px;margin-top:4px;">Uptime SLA</div>
+          <div class="card-desc" style="font-size:11px;">Target service availability. Core wallet functions work offline.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;font-weight:800;color:var(--green);letter-spacing:-1px;">10k+</div>
+          <div class="card-title" style="font-size:12px;margin-top:4px;">Concurrent Users</div>
+          <div class="card-desc" style="font-size:11px;">Phase 1 capacity. Horizontal K8s scaling for growth beyond this.</div>
+        </div>
+        <div class="card" style="text-align:center;">
+          <div style="font-size:28px;font-weight:800;color:var(--yellow);letter-spacing:-1px;">&lt;3s</div>
+          <div class="card-title" style="font-size:12px;margin-top:4px;">Cold Start</div>
+          <div class="card-desc" style="font-size:11px;">Time to interactive for desktop app. Mobile target: &lt;2s.</div>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">Build &amp; Delivery Phases</div>
+        <div class="phase-list">
+          <div class="phase-item">
+            <div class="phase-line-wrap">
+              <div class="phase-dot done"><div class="phase-dot-inner"></div></div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-tag">Phase 1 — MVP</div>
+              <div class="phase-title">Core Identity + Wallet + AI Chat</div>
+              <div class="phase-desc">DID creation, EVM + Solana + Cosmos wallet, conversational AI agent, IPFS storage, dApp Store (curated). Desktop + mobile clients.</div>
+              <div class="phase-chips">
+                <span class="phase-chip">Core Kernel</span>
+                <span class="phase-chip">EVM Adapter</span>
+                <span class="phase-chip">Solana Adapter</span>
+                <span class="phase-chip">Cosmos Adapter</span>
+                <span class="phase-chip">DID Service</span>
+                <span class="phase-chip">AI Chat Agent</span>
+                <span class="phase-chip">IPFS Storage</span>
+              </div>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-line-wrap">
+              <div class="phase-dot"><div class="phase-dot-inner"></div></div>
+              <div class="phase-connector"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-tag">Phase 2 — Growth</div>
+              <div class="phase-title">Bitcoin + SDK + Marketplace</div>
+              <div class="phase-desc">Bitcoin wallet support, public SDK release, open dApp Store marketplace, compute marketplace (Axone integration), Portfolio Agent, Developer Console.</div>
+              <div class="phase-chips">
+                <span class="phase-chip">Bitcoin Adapter</span>
+                <span class="phase-chip">Universal SDK</span>
+                <span class="phase-chip">Open dApp Store</span>
+                <span class="phase-chip">Portfolio Agent</span>
+                <span class="phase-chip">Compute Marketplace</span>
+                <span class="phase-chip">Developer Console</span>
+              </div>
+            </div>
+          </div>
+          <div class="phase-item">
+            <div class="phase-line-wrap">
+              <div class="phase-dot"></div>
+            </div>
+            <div class="phase-content">
+              <div class="phase-tag">Phase 3 — Scale</div>
+              <div class="phase-title">Enterprise Licensing + DAO Governance</div>
+              <div class="phase-desc">Enterprise B2B SDK licensing, DAO treasury governance, hardware wallet support (Ledger/Trezor), additional chain integrations, advanced AI agents.</div>
+              <div class="phase-chips">
+                <span class="phase-chip">Enterprise SDK</span>
+                <span class="phase-chip">DAO Treasury</span>
+                <span class="phase-chip">Ledger/Trezor</span>
+                <span class="phase-chip">Advanced AI Agents</span>
+                <span class="phase-chip">More Chains</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="badge-row" style="margin-top:24px;">
+        <span class="badge badge-purple">TypeScript / Node.js backend</span>
+        <span class="badge badge-cyan">FastAPI microservices</span>
+        <span class="badge badge-green">Docker + Kubernetes</span>
+        <span class="badge badge-purple">PostgreSQL + Redis</span>
+        <span class="badge badge-cyan">Azure OpenAI GPT-4o</span>
+        <span class="badge badge-green">IPFS + Filecoin</span>
+        <span class="badge badge-purple">LangChain + AutoGen</span>
+        <span class="badge badge-cyan">Pinecone + FAISS</span>
+        <span class="badge badge-green">Electron + React Native</span>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</main>
+
+<footer class="doc-footer">
+  <div>
+    <div class="footer-brand">BamtryOS — System Architecture v1.0</div>
+  </div>
+  <div class="footer-meta">Bamtry Technologies Ltd. · Confidential · Design Phase Package · Document 03 of 07</div>
+</footer>
+
+<script>
+  // Smooth scroll for sidebar nav
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      e.preventDefault();
+      const target = document.querySelector(a.getAttribute('href'));
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Highlight active section on scroll
+  const sections = document.querySelectorAll('.section[id]');
+  const sidebarLinks = document.querySelectorAll('.sidebar-item[href^="#"]');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        sidebarLinks.forEach(l => l.classList.remove('active'));
+        const active = document.querySelector(`.sidebar-item[href="#${entry.target.id}"]`);
+        if (active) active.classList.add('active');
+      }
+    });
+  }, { threshold: 0.3, rootMargin: '-80px 0px 0px 0px' });
+  sections.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>
