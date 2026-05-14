@@ -58,6 +58,11 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 .topbar{display:flex;align-items:center;justify-content:space-between;padding:16px 28px;border-bottom:1px solid var(--border);background:var(--surface);position:sticky;top:0;z-index:10;}
 .topbar-title{font-size:18px;font-weight:700;}
 .topbar-right{display:flex;align-items:center;gap:12px;}
+/* CLOUD OS STATUS BADGE */
+.cloudos-status{display:inline-flex;align-items:center;gap:6px;background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--green);}
+.cloudos-status .pulse{width:7px;height:7px;border-radius:50%;background:var(--green);animation:pulse 2s infinite;}
+.bridge-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:20px;padding:5px 12px;font-size:11px;font-weight:600;color:var(--cyan);}
+@keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(0,200,150,0.4);}50%{opacity:0.8;box-shadow:0 0 0 4px rgba(0,200,150,0);}}
 
 /* GRID */
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
@@ -360,6 +365,8 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
   <div class="topbar">
     <div class="topbar-title">Dashboard</div>
     <div class="topbar-right">
+      <span class="bridge-badge">📱 Bridge App</span>
+      <span class="cloudos-status"><span class="pulse"></span>Cloud OS Connected</span>
       <span class="tag tag-green">● Mainnet</span>
       <div class="avatar">AA</div>
     </div>
@@ -512,6 +519,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
   <div class="topbar">
     <div class="topbar-title">Wallet</div>
     <div class="topbar-right">
+      <span class="cloudos-status"><span class="pulse"></span>Wallet Engine: Cloud OS</span>
       <button class="btn btn-secondary btn-sm">⬇ Receive</button>
       <button class="btn btn-primary btn-sm" onclick="show('send-tx')">⬆ Send</button>
     </div>
@@ -604,7 +612,10 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 <div class="screen" id="s-identity">
   <div class="topbar">
     <div class="topbar-title">Identity</div>
-    <div class="topbar-right"><button class="btn btn-primary btn-sm">+ Add Device</button></div>
+    <div class="topbar-right">
+      <span class="cloudos-status"><span class="pulse"></span>DID: Cloud OS</span>
+      <button class="btn btn-primary btn-sm">+ Add Device</button>
+    </div>
   </div>
   <div class="content">
     <!-- DID Card -->
@@ -683,6 +694,7 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
   <div class="topbar">
     <div class="topbar-title">dApp Store</div>
     <div class="topbar-right">
+      <span class="cloudos-status"><span class="pulse"></span>App Module: Cloud OS</span>
       <input type="text" placeholder="Search dApps..." style="width:220px;padding:8px 12px;font-size:13px;background:var(--card);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:var(--font);outline:none;"/>
     </div>
   </div>
@@ -775,7 +787,10 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 <div class="screen" id="s-storage">
   <div class="topbar">
     <div class="topbar-title">Decentralised Storage</div>
-    <div class="topbar-right"><button class="btn btn-primary btn-sm">⬆ Upload File</button></div>
+    <div class="topbar-right">
+      <span class="cloudos-status"><span class="pulse"></span>Storage: Cloud OS</span>
+      <button class="btn btn-primary btn-sm">⬆ Upload File</button>
+    </div>
   </div>
   <div class="content">
     <!-- Storage Overview -->
@@ -871,7 +886,10 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 <div class="screen" id="s-ai-agent">
   <div class="topbar">
     <div class="topbar-title">AI Agent</div>
-    <div class="topbar-right"><span class="tag tag-green">● GPT-4o Connected</span></div>
+    <div class="topbar-right">
+      <span class="cloudos-status"><span class="pulse"></span>AI Module: Cloud OS</span>
+      <span class="tag tag-green">● GPT-4o Connected</span>
+    </div>
   </div>
   <div class="content" style="max-width:720px;margin:0 auto;">
     <div style="text-align:center;padding:20px 0 28px;">
@@ -932,7 +950,10 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 
 <!-- ===== SETTINGS ===== -->
 <div class="screen" id="s-settings">
-  <div class="topbar"><div class="topbar-title">Settings</div></div>
+  <div class="topbar">
+    <div class="topbar-title">Settings</div>
+    <div class="topbar-right"><span class="cloudos-status"><span class="pulse"></span>Profile: Cloud OS</span></div>
+  </div>
   <div class="content" style="max-width:680px;">
     <div class="card" style="margin-bottom:16px;">
       <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--text3);margin-bottom:4px;">Security</div>
@@ -1000,7 +1021,10 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 <div class="screen" id="s-devices">
   <div class="topbar">
     <div class="topbar-title">Devices</div>
-    <div class="topbar-right"><button class="btn btn-primary btn-sm">+ Link New Device</button></div>
+    <div class="topbar-right">
+      <span class="cloudos-status"><span class="pulse"></span>Device Auth: Cloud OS</span>
+      <button class="btn btn-primary btn-sm">+ Link New Device</button>
+    </div>
   </div>
   <div class="content" style="max-width:680px;">
     <p style="color:var(--text2);font-size:14px;margin-bottom:24px;">Your BamtryOS identity and wallet are synced across all linked devices. Revoke access to any device instantly from here.</p>
@@ -1037,7 +1061,11 @@ input[type=text]:focus,input[type=password]:focus{border-color:var(--accent);}
 <div class="screen" id="s-dev-console">
   <div class="topbar">
     <div class="topbar-title">Developer Console</div>
-    <div class="topbar-right"><span class="tag tag-purple">SDK v1.0.0</span><span class="tag tag-green">● Connected</span></div>
+    <div class="topbar-right">
+      <span class="bridge-badge">📱 Bridge App Local</span>
+      <span class="cloudos-status"><span class="pulse"></span>Cloud OS Connected</span>
+      <span class="tag tag-purple">SDK v1.0.0</span>
+    </div>
   </div>
   <div class="content">
     <div class="g2" style="margin-bottom:20px;">
@@ -1131,7 +1159,11 @@ console.<span class="fn">log</span>(identity.did);
 <div class="screen" id="s-send-tx">
   <div class="topbar">
     <div class="topbar-title">Send Transaction</div>
-    <div class="topbar-right"><button class="btn btn-secondary btn-sm" onclick="show('wallet')">← Back to Wallet</button></div>
+    <div class="topbar-right">
+      <span class="bridge-badge">📱 Signs in TEE</span>
+      <span class="cloudos-status"><span class="pulse"></span>Tx Module: Cloud OS</span>
+      <button class="btn btn-secondary btn-sm" onclick="show('wallet')">← Back to Wallet</button>
+    </div>
   </div>
   <div class="content" style="max-width:560px;margin:0 auto;">
     <div class="card">

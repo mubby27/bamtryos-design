@@ -65,9 +65,15 @@
   .step-actor{font-size:10px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;padding:2px 8px;border-radius:4px;}
   .sa-user{background:rgba(0,212,255,0.1);color:var(--cyan);}
   .sa-system{background:rgba(124,111,255,0.12);color:var(--accent);}
+  .sa-bridge{background:rgba(0,212,255,0.12);color:#38C9FF;border:1px solid rgba(0,212,255,0.25);}
+  .sa-cloudos{background:rgba(124,111,255,0.15);color:#A89BFF;border:1px solid rgba(124,111,255,0.3);}
   .sa-chain{background:rgba(255,184,0,0.1);color:var(--yellow);}
   .sa-ai{background:rgba(0,200,150,0.1);color:var(--green);}
   .sa-tee{background:rgba(255,92,122,0.1);color:var(--red);}
+  .hs-bridge{background:rgba(0,212,255,0.08);color:#38C9FF;border:1px solid rgba(0,212,255,0.2);}
+  .hs-cloudos{background:rgba(124,111,255,0.08);color:#A89BFF;border:1px solid rgba(124,111,255,0.2);}
+  .hs-ipfs{background:rgba(255,138,0,0.08);color:var(--orange);border:1px solid rgba(255,138,0,0.15);}
+  .hs-ok{background:rgba(0,200,150,0.08);color:var(--green);border:1px solid rgba(0,200,150,0.15);}
   .step-name{font-size:13px;font-weight:700;color:var(--text);}
   .step-desc{font-size:12px;color:var(--text2);line-height:1.5;}
   .step-note{font-size:11px;color:var(--text3);margin-top:6px;font-style:italic;}
@@ -221,7 +227,7 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">2</div><div class="step-line" style="background:linear-gradient(to bottom,var(--accent),var(--red));"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Generates 12-word BIP-39 mnemonic on device</span></div><div class="step-desc">Mnemonic is generated locally using a cryptographically secure random number generator. Never sent over the network.</div><div class="step-note">Security: CSPRNG with 128 bits of entropy → 2048-word BIP-39 dictionary → 12-word phrase</div></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-bridge">Bridge App</span><span class="step-name">Generates 12-word BIP-39 mnemonic locally on device</span></div><div class="step-desc">Mnemonic is generated inside the Bridge App using a cryptographically secure random number generator. It never leaves the device and is never sent to the Cloud OS.</div><div class="step-note">Security: CSPRNG with 128 bits of entropy → 2048-word BIP-39 dictionary → 12-word phrase (local only)</div></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--red);">3</div><div class="step-line" style="background:linear-gradient(to bottom,var(--red),var(--yellow));"></div></div>
@@ -233,11 +239,11 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">5</div><div class="step-line" style="background:linear-gradient(to bottom,var(--accent),var(--cyan));"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Derives chain keypairs and creates DID Document</span></div><div class="step-desc">BIP-44 derivation paths produce ETH, SOL, ATOM addresses from the master seed. DID Document is assembled (W3C DID Core 1.0) referencing the primary public key.</div><span class="step-chip">did:bamtry created</span><span class="step-chip">DID Document assembled</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-bridge">Bridge App</span><span class="step-name">Derives chain keypairs locally → sends DID Document to Cloud OS for registration</span></div><div class="step-desc">BIP-44 derivation paths produce ETH, SOL, ATOM addresses inside the Bridge App TEE. DID Document is assembled (W3C DID Core 1.0) and sent to the Cloud OS Identity Module for permanent registration. The private keys never leave the Bridge App.</div><span class="step-chip">did:bamtry created (Bridge App)</span><span class="step-chip">DID registered in Cloud OS</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--orange);">6</div><div class="step-line" style="background:linear-gradient(to bottom,var(--orange),var(--green));"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-chain">IPFS + Chain</span><span class="step-name">DID Document pinned to IPFS, CID anchored on-chain</span></div><div class="step-desc">DID Document is uploaded to IPFS via Bamtry's gateway. The returned CID is submitted as a transaction to the DIDRegistry smart contract on Ethereum.</div><span class="step-chip">IPFS CID returned</span><span class="step-chip">On-chain tx submitted</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Cloud OS Storage Module pins DID Document to IPFS, anchors CID on-chain</span></div><div class="step-desc">The Cloud OS Identity Module routes the DID Document to IPFS via Bamtry's pinning gateway. The returned CID is submitted to the DIDRegistry smart contract. The identity now lives permanently in the decentralised Cloud OS runtime — not on any device.</div><span class="step-chip">IPFS CID returned</span><span class="step-chip">On-chain tx via Cloud OS</span><span class="step-chip">Identity: Cloud OS owned</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--green);">7</div></div>
@@ -297,11 +303,11 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">2</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Address validation and AI risk screen</span></div><div class="step-desc">Recipient address is validated (checksum, length). If a contract, AI Transaction Agent screens for known scam patterns, audit status, and anomalous parameters.</div><span class="step-chip">Address checksum ✓</span><span class="step-chip">AI risk score calculated</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Transaction Module validates address + AI risk screen</span></div><div class="step-desc">The Bridge App sends the transaction intent to the Cloud OS Transaction Module. Address checksum and format are validated server-side. The AI Agent (Cloud OS) screens for known scam patterns, contract audit status, and anomalous parameters.</div><span class="step-chip">Address checksum ✓</span><span class="step-chip">AI risk score: Cloud OS</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">3</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Transaction simulation and fee estimate</span></div><div class="step-desc">Protocol Bridge builds the unsigned transaction. Simulation runs against a fork of the chain to verify it won't revert. Gas fee estimate shown in native token and USD.</div><span class="step-chip">Fee: 0.0005 ETH (~$1.50)</span><span class="step-chip">Simulation: Success</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Transaction Module builds, simulates, and estimates fee</span></div><div class="step-desc">The Cloud OS Transaction Module builds the unsigned transaction and runs a simulation against a fork of the target chain to confirm it won't revert. Fee estimate is normalised and returned to the Bridge App for display. Orchestration logic lives entirely in the Cloud OS.</div><span class="step-chip">Fee: 0.0005 ETH (~$1.50)</span><span class="step-chip">Simulation: Cloud OS</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--cyan);">4</div><div class="step-line" style="background:var(--border);"></div></div>
@@ -313,11 +319,11 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--orange);">6</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-chain">Blockchain</span><span class="step-name">Signed transaction broadcast to network</span></div><div class="step-desc">Protocol Bridge broadcasts the signed transaction via RPC (Infura/Alchemy for EVM, QuickNode for Solana). Transaction hash returned immediately.</div><span class="step-chip">TxHash: 0xabc…</span><span class="step-chip">Status: Pending</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Transaction Module receives signed bytes, broadcasts to network</span></div><div class="step-desc">The Bridge App returns only the signed bytes to the Cloud OS — the private key never left the Bridge App TEE. The Cloud OS Transaction Module broadcasts via RPC (Infura/Alchemy for EVM, QuickNode for Solana). TxHash returned to Bridge App for display.</div><span class="step-chip">TxHash: 0xabc…</span><span class="step-chip">Status: Pending</span><span class="step-chip">Key stayed in Bridge App</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--green);">7</div></div>
-            <div class="step-card" style="border-color:rgba(0,200,150,0.3);"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Real-time confirmation updates via WebSocket</span></div><div class="step-desc">Balance cache is invalidated. WebSocket pushes <code style="font-family:var(--mono);font-size:11px;color:var(--cyan);">transaction:update</code> events as confirmations accumulate. Activity feed and notification updated.</div><div class="step-note">EVM: 12 confirmations = final. Solana: 1 confirmation. Cosmos: 1 block.</div></div>
+            <div class="step-card" style="border-color:rgba(0,200,150,0.3);"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Cloud OS pushes real-time confirmation updates to Bridge App via WebSocket</span></div><div class="step-desc">Cloud OS invalidates the balance cache. WebSocket pushes <code style="font-family:var(--mono);font-size:11px;color:var(--cyan);">transaction:update</code> events to the Bridge App as confirmations accumulate. Bridge App renders the activity feed and notification update.</div><div class="step-note">EVM: 12 confirmations = final. Solana: 1 confirmation. Cosmos: 1 block.</div></div>
           </div>
         </div>
       </div>
@@ -356,15 +362,15 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--red);">2</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-tee">Device (local)</span><span class="step-name">File encrypted on-device before leaving storage</span></div><div class="step-desc">SDK derives an AES-256-GCM encryption key from the DID's key material. File is encrypted locally — the plaintext never leaves the device. Encrypted bytes streamed to the upload buffer.</div><span class="step-chip">Key derivation: HKDF-SHA256</span><span class="step-chip">Cipher: AES-256-GCM</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-bridge">Bridge App</span><span class="step-name">File encrypted inside Bridge App — plaintext never leaves the device</span></div><div class="step-desc">The Bridge App derives an AES-256-GCM encryption key from the DID's key material (via TEE). File is encrypted entirely within the Bridge App — plaintext never reaches the Cloud OS or IPFS. Only ciphertext is transmitted.</div><span class="step-chip">Key derivation: HKDF-SHA256</span><span class="step-chip">Cipher: AES-256-GCM</span><span class="step-chip">Plaintext: Bridge App only</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--orange);">3</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-chain">IPFS</span><span class="step-name">Ciphertext uploaded and pinned by Bamtry IPFS node</span></div><div class="step-desc">Encrypted bytes are streamed to the Storage Gateway API via multipart upload. Progress callback updates the UI. Bamtry's IPFS node pins the content and returns the CIDv1.</div><div class="step-note">Upload shows real-time progress bar (0–100%)</div></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Storage Module receives ciphertext, pins to IPFS</span></div><div class="step-desc">Encrypted bytes are streamed from the Bridge App to the Cloud OS Storage Module via multipart upload. The Cloud OS routes ciphertext to Bamtry's IPFS pinning node — it never sees the plaintext. Progress callbacks update the Bridge App UI in real-time.</div><div class="step-note">Upload shows real-time progress bar (0–100%)</div></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">4</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">CID and metadata saved to PostgreSQL</span></div><div class="step-desc">CID, file name, MIME type, size, and tags are saved in the <code style="font-family:var(--mono);font-size:11px;color:var(--cyan);">storage_files</code> table. Access control list initialised with owner's DID.</div></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Storage Module saves CID and metadata — access scoped to owner DID</span></div><div class="step-desc">CID, file name, MIME type, size, and tags are saved in the Cloud OS <code style="font-family:var(--mono);font-size:11px;color:var(--cyan);">storage_files</code> table. Access control list is initialised with the owner's DID. Apps are granted scoped access, not ownership.</div></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--green);">5</div></div>
@@ -404,7 +410,7 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">4</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Action card rendered: swap preview + risk score</span></div><div class="step-desc">UI renders a structured action card showing: from/to token, expected output (e.g. 300.24 USDC), estimated fee ($1.20), AI risk score (LOW, score: 8/100), and "Confirm" / "Cancel" buttons.</div></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Cloud OS sends action card to Bridge App for rendering</span></div><div class="step-desc">The Cloud OS AI Module sends a structured TRANSACTION_PROPOSAL to the Bridge App. The Bridge App renders the action card: from/to token, expected output (e.g. 300.24 USDC), estimated fee ($1.20), AI risk score (LOW, score: 8/100), and "Confirm" / "Cancel" buttons.</div></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--cyan);">5</div><div class="step-line" style="background:var(--border);"></div></div>
@@ -416,7 +422,7 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--green);">7</div></div>
-            <div class="step-card" style="border-color:rgba(0,200,150,0.3);"><div class="step-card-top"><span class="step-actor sa-chain">Ethereum</span><span class="step-name">Swap executed on Uniswap, agent confirms in chat</span></div><div class="step-desc">Transaction broadcast. Agent responds in chat: "Swap submitted! Tx: 0xabc… — I'll let you know when it confirms." WebSocket pushes confirmation when mined.</div></div>
+            <div class="step-card" style="border-color:rgba(0,200,150,0.3);"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Transaction Module broadcasts to Ethereum; AI Agent confirms in chat</span></div><div class="step-desc">Bridge App returns only the signed bytes to the Cloud OS Transaction Module — keys never left the Bridge App TEE. Cloud OS broadcasts to Ethereum via RPC. The AI Agent responds in the Bridge App chat: "Swap submitted! Tx: 0xabc… — I'll notify you on confirmation." Cloud OS WebSocket pushes confirmation when mined.</div></div>
           </div>
         </div>
       </div>
@@ -442,11 +448,11 @@
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-user">View App Detail</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
-          <div class="hstep hs-sys">Review Permissions</div>
+          <div class="hstep hs-cloudos">Cloud OS<br>Permissions</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-user">Grant &amp; Install</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
-          <div class="hstep hs-sys">Record in DB</div>
+          <div class="hstep hs-cloudos">Cloud OS<br>Binds to DID</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-ok">✓ App Appears<br>on Dashboard</div>
         </div>
@@ -467,11 +473,11 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">3</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Permission review sheet presented</span></div><div class="step-desc">Bottom sheet shows each requested permission with a plain-English explanation. User can individually toggle optional permissions. Required permissions cannot be deselected.</div><span class="step-chip">wallet:read — required</span><span class="step-chip">wallet:sign — optional</span></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Cloud OS App Module serves permission review sheet to Bridge App</span></div><div class="step-desc">The Cloud OS App Module reads the app's declared permissions from its .w3app manifest and sends a structured permission list to the Bridge App for rendering. User can toggle optional permissions; required ones cannot be deselected.</div><span class="step-chip">wallet:read — required</span><span class="step-chip">wallet:sign — optional</span></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--green);">4</div></div>
-            <div class="step-card" style="border-color:rgba(0,200,150,0.3);"><div class="step-card-top"><span class="step-actor sa-user">User</span><span class="step-name">Taps "Install" → app appears in installed list</span></div><div class="step-desc">POST /apps/{appId}/install called with granted permissions. Record saved to app_installs table. App icon appears on Dashboard quick-access and in the Installed Apps section.</div></div>
+            <div class="step-card" style="border-color:rgba(0,200,150,0.3);"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Cloud OS binds app to user's DID — Bridge App downloads native wrapper</span></div><div class="step-desc">Cloud OS App Module records granted permissions and binds the app to the user's DID. The Bridge App downloads the platform-native wrapper binary (.aab / .ipa / .msix). App installs locally on device but is governed globally by the user's DID in the Cloud OS.</div></div>
           </div>
         </div>
       </div>
@@ -502,7 +508,7 @@
               </div>
               <div class="step-row">
                 <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);width:16px;height:16px;font-size:8px;">2</div><div class="step-line" style="background:var(--border);"></div></div>
-                <div class="step-card" style="padding:10px 12px;"><div class="step-name" style="font-size:12px;">QR Code displayed (15-min TTL)</div><div class="step-desc" style="font-size:11px;">Pairing token generated and encoded as QR. Server stores token in Redis with 15-min TTL.</div></div>
+                <div class="step-card" style="padding:10px 12px;"><div class="step-name" style="font-size:12px;">QR Code displayed (15-min TTL)</div><div class="step-desc" style="font-size:11px;">Pairing token generated by the Cloud OS Profile Module and encoded as QR by the Bridge App. Cloud OS stores token in Redis with 15-min TTL.</div></div>
               </div>
               <div class="step-row">
                 <div class="step-connector-col"><div class="step-dot" style="background:var(--green);width:16px;height:16px;font-size:8px;">5</div></div>
@@ -519,7 +525,7 @@
               </div>
               <div class="step-row">
                 <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);width:16px;height:16px;font-size:8px;">4</div><div class="step-line" style="background:var(--border);"></div></div>
-                <div class="step-card" style="padding:10px 12px;"><div class="step-name" style="font-size:12px;">Scans QR → Pairing request sent</div><div class="step-desc" style="font-size:11px;">Device B's public key + token submitted. Server verifies token, links device B's public key to the DID. DID Document updated.</div></div>
+                <div class="step-card" style="padding:10px 12px;"><div class="step-name" style="font-size:12px;">Scans QR → Pairing request sent to Cloud OS</div><div class="step-desc" style="font-size:11px;">Device B's public key + token submitted to Cloud OS Identity Module. Cloud OS verifies token validity, links Device B's public key to the user's DID, and updates the DID Document. The mnemonic is never transmitted.</div></div>
               </div>
               <div class="step-row">
                 <div class="step-connector-col"><div class="step-dot" style="background:var(--green);width:16px;height:16px;font-size:8px;">✓</div></div>
@@ -551,7 +557,7 @@
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-ai">AI selects<br>best route</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
-          <div class="hstep hs-sys">Fee + quote<br>preview</div>
+          <div class="hstep hs-cloudos">Cloud OS<br>Fee + quote</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-user">Confirm<br>+ PIN</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
@@ -563,7 +569,7 @@
         </div>
         <div class="callout callout-info" style="margin-top:16px;">
           <span class="callout-icon">🌉</span>
-          <div class="callout-text"><strong>Bridge abstraction:</strong> The Protocol Bridge's cross-chain router selects the optimal bridge (LayerZero, Wormhole, or IBC for Cosmos) based on fees, speed, and liquidity. The user sees a single unified flow — not the underlying bridge complexity. Estimated arrival time is shown per route.</div>
+          <div class="callout-text"><strong>Bridge abstraction:</strong> The Cloud OS Transaction Module selects the optimal bridge (LayerZero, Wormhole, or IBC for Cosmos) based on fees, speed, and liquidity. The Bridge App renders a single unified flow — the user never sees the underlying bridge complexity. Signing happens inside the Bridge App TEE; routing and settlement coordination happen in the Cloud OS. Estimated arrival time is shown per route.</div>
         </div>
       </div>
     </div>
@@ -590,9 +596,9 @@
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-tee">TEE decrypts<br>signing key</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
-          <div class="hstep hs-sys">Sign challenge<br>→ DID-JWT</div>
+          <div class="hstep hs-bridge">Bridge App<br>Signs challenge</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
-          <div class="hstep hs-sys">Server verifies<br>DID signature</div>
+          <div class="hstep hs-cloudos">Cloud OS<br>Verifies DID</div>
           <div class="harrow"><div class="harrow-line"></div><div class="harrow-head">▶</div></div>
           <div class="hstep hs-ok">✓ Unlocked<br>Dashboard</div>
         </div>
@@ -603,7 +609,7 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">2</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Challenge requested from /auth/challenge</span></div><div class="step-desc">App sends DID to the auth service and receives a one-time nonce challenge (5-minute TTL). Challenge stored in Redis keyed by DID.</div></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Bridge App requests challenge from Cloud OS Identity Module</span></div><div class="step-desc">Bridge App sends DID to the Cloud OS Identity Module (/auth/challenge). Cloud OS issues a one-time nonce challenge (5-minute TTL) and stores it in Redis keyed by DID. Authentication begins in the Bridge App — the Cloud OS never holds credentials.</div></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--red);">3</div><div class="step-line" style="background:var(--border);"></div></div>
@@ -611,7 +617,7 @@
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--accent);">4</div><div class="step-line" style="background:var(--border);"></div></div>
-            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-system">System</span><span class="step-name">Signature verified against DID Document public key</span></div><div class="step-desc">Server resolves the DID, reads the public key from the DID Document, and verifies the signature against the challenge. On success, issues a JWT (1h) + refresh token (30d).</div></div>
+            <div class="step-card"><div class="step-card-top"><span class="step-actor sa-cloudos">Cloud OS</span><span class="step-name">Identity Module verifies signature against DID Document public key</span></div><div class="step-desc">Cloud OS Identity Module resolves the DID from its registry, reads the public key from the DID Document, and verifies the signed challenge. On success, issues a JWT (1h) + refresh token (30d) back to the Bridge App. No password. No centralised credential store.</div></div>
           </div>
           <div class="step-row">
             <div class="step-connector-col"><div class="step-dot" style="background:var(--green);">5</div></div>
