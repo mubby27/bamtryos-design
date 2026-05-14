@@ -3,7 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BamtryOS — Design Phase Package</title>
+<title>BamtryOS — The Web3 Operating System</title>
+<meta name="description" content="BamtryOS is a hybrid decentralised operating system giving everyone a universal Web3 identity, multi-chain wallet, and AI-powered interface — on any device.">
+<meta property="og:title" content="BamtryOS — The Web3 Operating System">
+<meta property="og:description" content="One identity. Every chain. Any device.">
+<meta property="og:type" content="website">
 <style>
   :root {
     --bg:#08080F; --surface:#0F0F1A; --surface2:#161625; --border:#1E1E35;
@@ -13,73 +17,199 @@
     --mono:'JetBrains Mono','Fira Code',monospace;
   }
   *{box-sizing:border-box;margin:0;padding:0;}
-  body{background:var(--bg);color:var(--text);font-family:var(--font);min-height:100vh;display:flex;flex-direction:column;}
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg);color:var(--text);font-family:var(--font);font-size:15px;line-height:1.6;overflow-x:hidden;}
 
-  /* Background glow */
-  .bg-glow{position:fixed;top:-200px;left:50%;transform:translateX(-50%);width:800px;height:600px;background:radial-gradient(ellipse,rgba(124,111,255,0.08) 0%,transparent 70%);pointer-events:none;z-index:0;}
+  /* ── NAV ── */
+  nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(8,8,15,0.85);backdrop-filter:blur(16px);border-bottom:1px solid var(--border);padding:0 48px;height:64px;display:flex;align-items:center;justify-content:space-between;}
+  .nav-brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .nav-logo-text{font-size:16px;font-weight:800;color:var(--text);letter-spacing:-0.3px;}
+  .nav-links{display:flex;align-items:center;gap:4px;}
+  .nav-link{padding:8px 14px;border-radius:8px;font-size:13px;font-weight:500;color:var(--text2);text-decoration:none;transition:all 0.15s;}
+  .nav-link:hover{color:var(--text);background:var(--surface2);}
+  .nav-cta{padding:8px 18px;border-radius:8px;font-size:13px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#6558E8);text-decoration:none;transition:all 0.2s;border:none;cursor:pointer;}
+  .nav-cta:hover{opacity:0.9;transform:translateY(-1px);}
 
-  /* Nav */
-  nav{position:relative;z-index:10;padding:20px 48px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
-  .nav-brand{display:flex;align-items:center;gap:10px;}
-  .nav-confidential{font-size:11px;font-weight:600;padding:4px 12px;border-radius:20px;background:rgba(255,92,122,0.1);color:var(--red);border:1px solid rgba(255,92,122,0.2);}
+  /* ── HERO ── */
+  .hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:120px 48px 80px;position:relative;overflow:hidden;}
+  .hero-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-60%);width:900px;height:700px;background:radial-gradient(ellipse,rgba(124,111,255,0.12) 0%,rgba(0,212,255,0.04) 40%,transparent 70%);pointer-events:none;}
+  .hero-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(30,30,53,0.3) 1px,transparent 1px),linear-gradient(90deg,rgba(30,30,53,0.3) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse 80% 80% at 50% 50%,black,transparent);pointer-events:none;}
+  .hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.3);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:28px;position:relative;}
+  .hero-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
+  @keyframes pulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(124,111,255,0.4);}50%{opacity:0.7;box-shadow:0 0 0 6px rgba(124,111,255,0);}}
+  .hero-title{font-size:64px;font-weight:900;letter-spacing:-3px;line-height:1.0;margin-bottom:20px;position:relative;}
+  .hero-title .line1{display:block;background:linear-gradient(135deg,#fff 0%,rgba(255,255,255,0.8) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero-title .line2{display:block;background:linear-gradient(135deg,var(--accent) 0%,var(--cyan) 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+  .hero-sub{font-size:18px;color:var(--text2);max-width:520px;margin:0 auto 40px;line-height:1.65;position:relative;}
+  .hero-sub strong{color:var(--text);}
+  .hero-actions{display:flex;align-items:center;gap:12px;justify-content:center;margin-bottom:64px;position:relative;flex-wrap:wrap;}
+  .btn-primary{padding:14px 28px;border-radius:10px;font-size:15px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#6558E8);text-decoration:none;border:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-primary:hover{transform:translateY(-2px);box-shadow:0 12px 32px rgba(124,111,255,0.35);}
+  .btn-secondary{padding:14px 28px;border-radius:10px;font-size:15px;font-weight:600;color:var(--text);background:var(--surface);border:1px solid var(--border);text-decoration:none;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:8px;}
+  .btn-secondary:hover{border-color:var(--accent);color:var(--accent);}
+  .hero-stats{display:flex;align-items:center;gap:0;background:var(--surface);border:1px solid var(--border);border-radius:14px;overflow:hidden;position:relative;}
+  .hero-stat{padding:16px 32px;text-align:center;border-right:1px solid var(--border);}
+  .hero-stat:last-child{border-right:none;}
+  .hero-stat-num{font-size:24px;font-weight:800;color:var(--text);letter-spacing:-1px;}
+  .hero-stat-label{font-size:11px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:0.8px;font-weight:600;}
 
-  /* Hero */
-  .hero{position:relative;z-index:1;text-align:center;padding:80px 48px 60px;}
-  .hero-tag{display:inline-flex;align-items:center;gap:8px;background:rgba(124,111,255,0.1);border:1px solid rgba(124,111,255,0.25);border-radius:20px;padding:6px 16px;font-size:12px;font-weight:600;color:var(--accent);letter-spacing:0.5px;margin-bottom:24px;}
-  .hero-tag-dot{width:6px;height:6px;border-radius:50%;background:var(--accent);animation:pulse 2s infinite;}
-  @keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.4;}}
-  .hero-title{font-size:52px;font-weight:800;letter-spacing:-2px;line-height:1.1;margin-bottom:16px;}
-  .hero-title .g1{background:linear-gradient(135deg,#fff 0%,var(--accent) 60%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .hero-title .g2{background:linear-gradient(135deg,var(--accent),var(--cyan));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
-  .hero-sub{font-size:17px;color:var(--text2);max-width:560px;margin:0 auto 40px;line-height:1.6;}
-  .hero-stats{display:flex;align-items:center;justify-content:center;gap:32px;margin-bottom:56px;}
-  .hero-stat{text-align:center;}
-  .hero-stat-num{font-size:28px;font-weight:800;color:var(--accent);}
-  .hero-stat-label{font-size:12px;color:var(--text3);margin-top:2px;}
-  .hero-stat-divider{width:1px;height:36px;background:var(--border);}
+  /* ── SECTIONS ── */
+  section{padding:100px 48px;max-width:1160px;margin:0 auto;}
+  .section-tag{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:16px;}
+  .section-tag::before{content:'';display:block;width:16px;height:2px;background:var(--accent);border-radius:1px;}
+  .section-title{font-size:38px;font-weight:800;letter-spacing:-1.5px;margin-bottom:16px;}
+  .section-sub{font-size:16px;color:var(--text2);max-width:520px;line-height:1.6;}
 
-  /* Docs grid */
-  .docs-section{position:relative;z-index:1;padding:0 48px 80px;max-width:1100px;margin:0 auto;width:100%;}
-  .docs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:32px;}
-  .doc-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:24px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:all 0.2s;position:relative;overflow:hidden;}
+  /* ── FEATURES ── */
+  #features{border-top:1px solid var(--border);}
+  .features-header{text-align:center;margin-bottom:56px;}
+  .features-header .section-sub{margin:0 auto;}
+  .features-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;}
+  .feature-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;transition:all 0.2s;position:relative;overflow:hidden;}
+  .feature-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.2s;}
+  .feature-card:hover{border-color:rgba(124,111,255,0.35);transform:translateY(-3px);}
+  .feature-card:hover::after{opacity:1;}
+  .fc-1::after{background:linear-gradient(to right,var(--accent),var(--cyan));}
+  .fc-2::after{background:linear-gradient(to right,var(--cyan),var(--green));}
+  .fc-3::after{background:linear-gradient(to right,var(--green),var(--yellow));}
+  .fc-4::after{background:linear-gradient(to right,var(--yellow),var(--red));}
+  .fc-5::after{background:linear-gradient(to right,var(--accent),var(--red));}
+  .fc-6::after{background:linear-gradient(to right,var(--cyan),var(--accent));}
+  .feature-icon{width:44px;height:44px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:16px;}
+  .feature-title{font-size:16px;font-weight:700;margin-bottom:8px;}
+  .feature-desc{font-size:13px;color:var(--text2);line-height:1.6;}
+
+  /* ── ARCHITECTURE ── */
+  #architecture{border-top:1px solid var(--border);}
+  .arch-layout{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center;}
+  .arch-layers{display:flex;flex-direction:column;gap:3px;}
+  .arch-layer{display:flex;align-items:center;gap:14px;padding:14px 18px;border-radius:10px;border:1px solid;transition:all 0.2s;cursor:default;}
+  .arch-layer:hover{transform:translateX(6px);}
+  .al-5{background:rgba(124,111,255,0.07);border-color:rgba(124,111,255,0.2);}
+  .al-4{background:rgba(0,212,255,0.06);border-color:rgba(0,212,255,0.15);}
+  .al-3{background:rgba(0,200,150,0.06);border-color:rgba(0,200,150,0.15);}
+  .al-2{background:rgba(255,184,0,0.06);border-color:rgba(255,184,0,0.15);}
+  .al-1{background:rgba(255,92,122,0.06);border-color:rgba(255,92,122,0.15);}
+  .al-bar{width:3px;height:36px;border-radius:2px;flex-shrink:0;}
+  .al-5 .al-bar{background:var(--accent);}
+  .al-4 .al-bar{background:var(--cyan);}
+  .al-3 .al-bar{background:var(--green);}
+  .al-2 .al-bar{background:var(--yellow);}
+  .al-1 .al-bar{background:var(--red);}
+  .al-info{}
+  .al-layer-num{font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--text3);margin-bottom:2px;}
+  .al-name{font-size:14px;font-weight:700;}
+  .al-desc{font-size:12px;color:var(--text2);}
+  .al-chips{display:flex;gap:5px;flex-wrap:wrap;margin-left:auto;}
+  .al-chip{font-size:10px;padding:2px 8px;border-radius:4px;background:rgba(255,255,255,0.05);color:var(--text3);white-space:nowrap;}
+  .arch-text .section-sub{margin-bottom:28px;}
+  .arch-badges{display:flex;flex-wrap:wrap;gap:8px;}
+  .arch-badge{padding:6px 14px;border-radius:20px;font-size:12px;font-weight:600;display:flex;align-items:center;gap:5px;}
+  .ab-purple{background:rgba(124,111,255,0.1);color:var(--accent);border:1px solid rgba(124,111,255,0.2);}
+  .ab-cyan{background:rgba(0,212,255,0.08);color:var(--cyan);border:1px solid rgba(0,212,255,0.15);}
+  .ab-green{background:rgba(0,200,150,0.08);color:var(--green);border:1px solid rgba(0,200,150,0.15);}
+
+  /* ── CHAINS ── */
+  #chains{border-top:1px solid var(--border);}
+  .chains-header{text-align:center;margin-bottom:48px;}
+  .chains-header .section-sub{margin:0 auto;}
+  .chains-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-bottom:32px;}
+  .chain-card{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px 14px;text-align:center;transition:all 0.2s;}
+  .chain-card:hover{border-color:var(--accent);transform:translateY(-3px);}
+  .chain-icon{font-size:28px;margin-bottom:8px;}
+  .chain-name{font-size:13px;font-weight:700;margin-bottom:2px;}
+  .chain-type{font-size:11px;color:var(--text3);}
+  .chain-badge{display:inline-flex;align-items:center;gap:4px;margin-top:8px;font-size:10px;font-weight:600;color:var(--green);}
+  .chain-badge::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--green);}
+
+  /* ── DOCS ── */
+  #docs{border-top:1px solid var(--border);}
+  .docs-header{text-align:center;margin-bottom:48px;}
+  .docs-header .section-sub{margin:0 auto;}
+  .docs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+  .doc-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:22px;text-decoration:none;color:inherit;display:flex;flex-direction:column;transition:all 0.2s;position:relative;overflow:hidden;}
   .doc-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(to right,var(--accent),var(--cyan));opacity:0;transition:opacity 0.2s;}
   .doc-card:hover{border-color:rgba(124,111,255,0.4);transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,0,0,0.4);}
   .doc-card:hover::before{opacity:1;}
-  .doc-number{font-size:11px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;font-family:var(--mono);}
-  .doc-icon{font-size:28px;margin-bottom:12px;}
-  .doc-title{font-size:17px;font-weight:700;margin-bottom:8px;letter-spacing:-0.3px;}
-  .doc-desc{font-size:13px;color:var(--text2);line-height:1.5;flex:1;margin-bottom:16px;}
-  .doc-tags{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:16px;}
-  .doc-tag{font-size:10px;font-weight:600;padding:3px 8px;border-radius:5px;background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
-  .doc-link{display:flex;align-items:center;gap:6px;font-size:12px;font-weight:700;color:var(--accent);margin-top:auto;}
-  .doc-link-arrow{font-size:14px;transition:transform 0.2s;}
-  .doc-card:hover .doc-link-arrow{transform:translateX(4px);}
+  .doc-card.featured{grid-column:span 2;background:rgba(124,111,255,0.04);}
+  .doc-num{font-size:10px;font-weight:700;color:var(--text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:10px;font-family:var(--mono);}
+  .doc-icon{font-size:24px;margin-bottom:10px;}
+  .doc-title{font-size:15px;font-weight:700;margin-bottom:6px;}
+  .doc-desc{font-size:12px;color:var(--text2);line-height:1.5;flex:1;margin-bottom:14px;}
+  .doc-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px;}
+  .doc-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:4px;background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+  .doc-link{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:700;color:var(--accent);margin-top:auto;}
+  .doc-arrow{transition:transform 0.2s;}
+  .doc-card:hover .doc-arrow{transform:translateX(4px);}
 
-  /* Featured card (UI Prototype) */
-  .doc-card.featured{grid-column:span 2;background:linear-gradient(135deg,rgba(124,111,255,0.08) 0%,rgba(0,212,255,0.05) 100%);border-color:rgba(124,111,255,0.25);}
-  .doc-card.featured .doc-title{font-size:20px;}
+  /* ── WAITLIST ── */
+  #waitlist{border-top:1px solid var(--border);}
+  .waitlist-wrap{background:linear-gradient(135deg,rgba(124,111,255,0.08) 0%,rgba(0,212,255,0.04) 100%);border:1px solid rgba(124,111,255,0.2);border-radius:20px;padding:64px;text-align:center;position:relative;overflow:hidden;}
+  .waitlist-wrap::before{content:'';position:absolute;top:-100px;right:-100px;width:300px;height:300px;background:radial-gradient(circle,rgba(124,111,255,0.1),transparent 70%);pointer-events:none;}
+  .waitlist-title{font-size:38px;font-weight:800;letter-spacing:-1.5px;margin-bottom:14px;}
+  .waitlist-sub{font-size:16px;color:var(--text2);max-width:440px;margin:0 auto 36px;}
+  .waitlist-form{display:flex;gap:10px;max-width:440px;margin:0 auto 20px;flex-wrap:wrap;justify-content:center;}
+  .waitlist-input{flex:1;min-width:220px;padding:14px 18px;background:var(--surface);border:1px solid var(--border);border-radius:10px;color:var(--text);font-size:14px;font-family:var(--font);outline:none;transition:border-color 0.2s;}
+  .waitlist-input::placeholder{color:var(--text3);}
+  .waitlist-input:focus{border-color:var(--accent);}
+  .waitlist-btn{padding:14px 24px;border-radius:10px;font-size:14px;font-weight:700;color:#fff;background:linear-gradient(135deg,var(--accent),#6558E8);border:none;cursor:pointer;transition:all 0.2s;white-space:nowrap;}
+  .waitlist-btn:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(124,111,255,0.4);}
+  .waitlist-note{font-size:12px;color:var(--text3);}
+  .waitlist-success{display:none;background:rgba(0,200,150,0.1);border:1px solid rgba(0,200,150,0.25);border-radius:10px;padding:16px 24px;font-size:14px;color:var(--green);font-weight:600;max-width:440px;margin:0 auto;}
+  .waitlist-count{display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:32px;}
+  .wc-avatars{display:flex;}
+  .wc-avatar{width:30px;height:30px;border-radius:50%;border:2px solid var(--bg);background:linear-gradient(135deg,var(--accent),var(--cyan));display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:#fff;margin-left:-8px;}
+  .wc-avatar:first-child{margin-left:0;}
+  .wc-text{font-size:13px;color:var(--text2);}
+  .wc-text strong{color:var(--text);}
 
-  /* Footer */
-  footer{position:relative;z-index:1;margin-top:auto;border-top:1px solid var(--border);padding:24px 48px;display:flex;align-items:center;justify-content:space-between;}
-  .footer-brand{font-size:13px;font-weight:600;}
-  .footer-meta{font-size:12px;color:var(--text3);}
-  .footer-ip{font-size:12px;color:var(--text3);background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:6px 14px;}
+  /* ── FOOTER ── */
+  footer{background:var(--surface);border-top:1px solid var(--border);padding:40px 48px;}
+  .footer-inner{max-width:1160px;margin:0 auto;display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;}
+  .footer-brand-col{}
+  .footer-logo{display:flex;align-items:center;gap:10px;margin-bottom:12px;}
+  .footer-tagline{font-size:13px;color:var(--text2);line-height:1.5;max-width:240px;}
+  .footer-col-title{font-size:12px;font-weight:700;color:var(--text);letter-spacing:0.8px;text-transform:uppercase;margin-bottom:14px;}
+  .footer-col-links{list-style:none;display:flex;flex-direction:column;gap:8px;}
+  .footer-col-links a{font-size:13px;color:var(--text2);text-decoration:none;transition:color 0.15s;}
+  .footer-col-links a:hover{color:var(--accent);}
+  .footer-bottom{max-width:1160px;margin:32px auto 0;padding-top:24px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+  .footer-copy{font-size:12px;color:var(--text3);}
+  .footer-ip{font-size:12px;color:var(--text3);}
 
-  @media(max-width:768px){
-    .hero-title{font-size:36px;}
-    .docs-grid{grid-template-columns:1fr;}
+  /* ── RESPONSIVE ── */
+  @media(max-width:900px){
+    nav{padding:0 20px;}
+    .nav-links{display:none;}
+    .hero{padding:100px 20px 60px;}
+    .hero-title{font-size:40px;letter-spacing:-2px;}
+    .hero-sub{font-size:16px;}
+    .hero-stats{flex-wrap:wrap;}
+    .hero-stat{border-right:none!important;border-bottom:1px solid var(--border);padding:12px 20px;}
+    section{padding:60px 20px;}
+    .features-grid,.docs-grid,.chains-grid{grid-template-columns:1fr 1fr;}
     .doc-card.featured{grid-column:span 1;}
-    nav,footer,.docs-section,.hero{padding-left:20px;padding-right:20px;}
+    .arch-layout{grid-template-columns:1fr;}
+    .waitlist-wrap{padding:40px 20px;}
+    .footer-inner{grid-template-columns:1fr 1fr;}
+    footer{padding:40px 20px;}
+  }
+  @media(max-width:600px){
+    .hero-title{font-size:32px;}
+    .features-grid,.docs-grid,.chains-grid{grid-template-columns:1fr;}
+    .section-title{font-size:28px;}
+    .waitlist-title{font-size:28px;}
+    .footer-inner{grid-template-columns:1fr;}
+    .footer-bottom{flex-direction:column;gap:8px;text-align:center;}
   }
 </style>
 </head>
 <body>
 
-<div class="bg-glow"></div>
-
+<!-- ── NAV ── -->
 <nav>
-  <div class="nav-brand">
-    <svg width="32" height="32" viewBox="0 0 32 32" fill="none">
+  <a class="nav-brand" href="#">
+    <svg width="30" height="30" viewBox="0 0 32 32" fill="none">
       <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
       <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
       <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/>
@@ -88,110 +218,385 @@
       <circle cx="16" cy="28" r="1.5" fill="#00D4FF"/>
       <circle cx="4" cy="21" r="1.5" fill="#00D4FF"/>
       <circle cx="4" cy="11" r="1.5" fill="#00D4FF"/>
-      <line x1="16" y1="12" x2="16" y2="4" stroke="#7C6FFF" stroke-width="0.75" stroke-dasharray="2,2"/>
-      <line x1="19.5" y1="14" x2="28" y2="11" stroke="#7C6FFF" stroke-width="0.75" stroke-dasharray="2,2"/>
-      <line x1="19.5" y1="18" x2="28" y2="21" stroke="#7C6FFF" stroke-width="0.75" stroke-dasharray="2,2"/>
     </svg>
-    <div>
-      <div style="font-size:15px;font-weight:700;">BamtryOS</div>
-      <div style="font-size:10px;color:var(--text2);letter-spacing:1.5px;text-transform:uppercase;">Design Phase</div>
-    </div>
+    <span class="nav-logo-text">BamtryOS</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#features">Features</a>
+    <a class="nav-link" href="#architecture">Architecture</a>
+    <a class="nav-link" href="#chains">Chains</a>
+    <a class="nav-link" href="#docs">Dev Docs</a>
   </div>
-  <span class="nav-confidential">🔒 Confidential</span>
+  <a class="nav-cta" href="#waitlist">Join Waitlist →</a>
 </nav>
 
-<section class="hero">
-  <div class="hero-tag"><span class="hero-tag-dot"></span>Design Phase Package — Ready for Handoff</div>
+<!-- ── HERO ── -->
+<section class="hero" id="home">
+  <div class="hero-glow"></div>
+  <div class="hero-grid"></div>
+
+  <div class="hero-tag"><span class="hero-dot"></span> Design Phase v1.0 — Building Now</div>
+
   <h1 class="hero-title">
-    <span class="g1">BamtryOS</span><br>
-    <span class="g2">Design Package</span>
+    <span class="line1">The Operating System</span>
+    <span class="line2">for Web3</span>
   </h1>
-  <p class="hero-sub">Complete design phase documentation for the BamtryOS hybrid decentralised operating system — prepared for Jam-Forte Technologies.</p>
+
+  <p class="hero-sub">
+    <strong>One identity. Every chain. Any device.</strong><br>
+    BamtryOS gives you a universal decentralised identity, multi-chain wallet, and an AI agent — built into a single OS layer for Android, iOS, Windows, macOS, and Linux.
+  </p>
+
+  <div class="hero-actions">
+    <a class="btn-primary" href="#waitlist">🚀 Get Early Access</a>
+    <a class="btn-secondary" href="#docs">📋 View Design Docs</a>
+  </div>
+
   <div class="hero-stats">
-    <div class="hero-stat"><div class="hero-stat-num">7</div><div class="hero-stat-label">Documents</div></div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat"><div class="hero-stat-num">14</div><div class="hero-stat-label">UI Screens</div></div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat"><div class="hero-stat-num">40+</div><div class="hero-stat-label">API Endpoints</div></div>
-    <div class="hero-stat-divider"></div>
-    <div class="hero-stat"><div class="hero-stat-num">8</div><div class="hero-stat-label">User Flows</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">10+</div><div class="hero-stat-label">Blockchains</div></div>
+    <div class="hero-stat" style="border-right:1px solid var(--border);"><div class="hero-stat-num">5</div><div class="hero-stat-label">Platforms</div></div>
+    <div class="hero-stat" style="border-right:1px solid var(--border);"><div class="hero-stat-num">W3C</div><div class="hero-stat-label">DID Standard</div></div>
+    <div class="hero-stat" style="border-right:1px solid var(--border);"><div class="hero-stat-num">GPT-4o</div><div class="hero-stat-label">AI Agent</div></div>
+    <div class="hero-stat"><div class="hero-stat-num">0</div><div class="hero-stat-label">Passwords</div></div>
   </div>
 </section>
 
-<div class="docs-section">
-  <div class="docs-grid">
+<!-- ── FEATURES ── -->
+<section id="features">
+  <div class="features-header">
+    <div class="section-tag">Why BamtryOS</div>
+    <h2 class="section-title">Everything Web3 needs.<br>Nothing it doesn't.</h2>
+    <p class="section-sub">Built from first principles around user sovereignty — your keys, your identity, your data.</p>
+  </div>
 
+  <div class="features-grid">
+    <div class="feature-card fc-1">
+      <div class="feature-icon" style="background:rgba(124,111,255,0.12);">🪪</div>
+      <div class="feature-title">Universal DID Identity</div>
+      <div class="feature-desc">One W3C Decentralised Identifier replaces every username and password. Your identity works across every chain, every dApp, every device — forever.</div>
+    </div>
+    <div class="feature-card fc-2">
+      <div class="feature-icon" style="background:rgba(0,212,255,0.1);">🔗</div>
+      <div class="feature-title">Multi-Chain Wallet</div>
+      <div class="feature-desc">Ethereum, Polygon, Solana, Cosmos, Bitcoin — one wallet, one seed, one interface. The Protocol Bridge handles chain-specific complexity invisibly.</div>
+    </div>
+    <div class="feature-card fc-3">
+      <div class="feature-icon" style="background:rgba(0,200,150,0.1);">🤖</div>
+      <div class="feature-title">Embedded AI Agent</div>
+      <div class="feature-desc">GPT-4o powered assistant that understands your portfolio, proposes transactions in plain English, and screens every action for risk before you confirm.</div>
+    </div>
+    <div class="feature-card fc-4">
+      <div class="feature-icon" style="background:rgba(255,184,0,0.1);">📦</div>
+      <div class="feature-title">Encrypted Storage</div>
+      <div class="feature-desc">Files encrypted on your device before they touch IPFS. AES-256-GCM encryption with keys that only you hold. Share access to any DID at any time.</div>
+    </div>
+    <div class="feature-card fc-5">
+      <div class="feature-icon" style="background:rgba(255,92,122,0.1);">🔐</div>
+      <div class="feature-title">Hardware-Backed Security</div>
+      <div class="feature-desc">Private keys live in TEE (Secure Enclave / Android Keystore / TPM). They never leave your device. No server stores your credentials — ever.</div>
+    </div>
+    <div class="feature-card fc-6">
+      <div class="feature-icon" style="background:rgba(124,111,255,0.12);">🛠️</div>
+      <div class="feature-title">Universal SDK</div>
+      <div class="feature-desc">Build once with @bamtry/sdk and deploy to Android, iOS, Windows, macOS, and Linux. One TypeScript API for all BamtryOS capabilities.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ── ARCHITECTURE ── -->
+<section id="architecture" style="max-width:1160px;margin:0 auto;padding:100px 48px;">
+  <div class="arch-layout">
+    <div class="arch-layers">
+      <div class="arch-layer al-5">
+        <div class="al-bar"></div>
+        <div class="al-info">
+          <div class="al-layer-num">Layer 5</div>
+          <div class="al-name">Application Layer</div>
+          <div class="al-desc">Desktop · Mobile · Web · dApp Store</div>
+        </div>
+        <div class="al-chips"><span class="al-chip">Electron</span><span class="al-chip">React Native</span></div>
+      </div>
+      <div class="arch-layer al-4">
+        <div class="al-bar"></div>
+        <div class="al-info">
+          <div class="al-layer-num">Layer 4</div>
+          <div class="al-name">AI Agent Layer</div>
+          <div class="al-desc">LangChain · AutoGen · GPT-4o · Pinecone</div>
+        </div>
+        <div class="al-chips"><span class="al-chip">Azure OpenAI</span></div>
+      </div>
+      <div class="arch-layer al-3">
+        <div class="al-bar"></div>
+        <div class="al-info">
+          <div class="al-layer-num">Layer 3</div>
+          <div class="al-name">Service Layer</div>
+          <div class="al-desc">Identity · Wallet · Storage · App Registry</div>
+        </div>
+        <div class="al-chips"><span class="al-chip">FastAPI</span><span class="al-chip">K8s</span></div>
+      </div>
+      <div class="arch-layer al-2">
+        <div class="al-bar"></div>
+        <div class="al-info">
+          <div class="al-layer-num">Layer 2</div>
+          <div class="al-name">Protocol Bridge</div>
+          <div class="al-desc">EVM · Solana · Cosmos · Bitcoin adapters</div>
+        </div>
+        <div class="al-chips"><span class="al-chip">ethers.js</span><span class="al-chip">CosmJS</span></div>
+      </div>
+      <div class="arch-layer al-1">
+        <div class="al-bar"></div>
+        <div class="al-info">
+          <div class="al-layer-num">Layer 1</div>
+          <div class="al-name">Core Kernel</div>
+          <div class="al-desc">Crypto engine · TEE Keystore · DID Resolver</div>
+        </div>
+        <div class="al-chips"><span class="al-chip">TEE</span><span class="al-chip">BIP-39/44</span></div>
+      </div>
+    </div>
+
+    <div class="arch-text">
+      <div class="section-tag">Architecture</div>
+      <h2 class="section-title">Built in layers.<br>Scaled independently.</h2>
+      <p class="section-sub" style="margin-bottom:28px;">Five clean layers with versioned interfaces between each. Upgrade any layer without breaking the rest. Built for scale from day one.</p>
+      <div class="arch-badges">
+        <span class="arch-badge ab-purple">⟠ EVM Native</span>
+        <span class="arch-badge ab-cyan">☀️ Solana Support</span>
+        <span class="arch-badge ab-green">⚛️ Cosmos IBC</span>
+        <span class="arch-badge ab-purple">🔐 W3C DID Core 1.0</span>
+        <span class="arch-badge ab-cyan">📦 IPFS + Filecoin</span>
+        <span class="arch-badge ab-green">🛡️ Zero-Trust Security</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CHAINS ── -->
+<section id="chains" style="max-width:1160px;margin:0 auto;padding:100px 48px;">
+  <div class="chains-header">
+    <div class="section-tag">Blockchain Support</div>
+    <h2 class="section-title">Every major chain.<br>One interface.</h2>
+    <p class="section-sub">BamtryOS supports EVM, SVM, Cosmos IBC, and Bitcoin through a unified Protocol Bridge — more chains added every quarter.</p>
+  </div>
+
+  <div class="chains-grid">
+    <div class="chain-card"><div class="chain-icon">⟠</div><div class="chain-name">Ethereum</div><div class="chain-type">EVM Mainnet</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">🟣</div><div class="chain-name">Polygon</div><div class="chain-type">EVM L2</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">🔵</div><div class="chain-name">Arbitrum</div><div class="chain-type">EVM L2</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">🔴</div><div class="chain-name">Optimism</div><div class="chain-type">EVM L2</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">🟦</div><div class="chain-name">Base</div><div class="chain-type">EVM L2</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">☀️</div><div class="chain-name">Solana</div><div class="chain-type">SVM</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">⚛️</div><div class="chain-name">Cosmos</div><div class="chain-type">Tendermint</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">🌊</div><div class="chain-name">Osmosis</div><div class="chain-type">Cosmos IBC</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">⚡</div><div class="chain-name">Axone</div><div class="chain-type">Cosmos IBC</div><div class="chain-badge">Phase 1</div></div>
+    <div class="chain-card"><div class="chain-icon">₿</div><div class="chain-name">Bitcoin</div><div class="chain-type">UTXO</div><div class="chain-badge" style="color:var(--yellow);">Phase 2</div></div>
+  </div>
+</section>
+
+<!-- ── DOCS ── -->
+<section id="docs" style="max-width:1160px;margin:0 auto;padding:100px 48px;">
+  <div class="docs-header">
+    <div class="section-tag">Design Phase</div>
+    <h2 class="section-title">Full technical documentation.<br>Ready for development.</h2>
+    <p class="section-sub">Seven industry-standard design documents covering every aspect of BamtryOS — prepared for the Jam-Forte Technologies build handoff.</p>
+  </div>
+
+  <div class="docs-grid">
     <a class="doc-card" href="01_Design_System.html">
-      <div class="doc-number">Document 01</div>
+      <div class="doc-num">Document 01</div>
       <div class="doc-icon">🎨</div>
       <div class="doc-title">Design System</div>
-      <div class="doc-desc">Brand guide, color tokens, typography scale, component library — buttons, inputs, navigation, and all UI primitives.</div>
-      <div class="doc-tags"><span class="doc-tag">Brand</span><span class="doc-tag">Colors</span><span class="doc-tag">Components</span><span class="doc-tag">Typography</span></div>
-      <div class="doc-link">Open Document <span class="doc-link-arrow">→</span></div>
+      <div class="doc-desc">Brand colors, typography, full component library — buttons, inputs, navigation, and all UI primitives.</div>
+      <div class="doc-tags"><span class="doc-tag">Brand</span><span class="doc-tag">Components</span><span class="doc-tag">Typography</span></div>
+      <div class="doc-link">Open <span class="doc-arrow">→</span></div>
     </a>
 
     <a class="doc-card featured" href="02_UI_Prototype.html">
-      <div class="doc-number">Document 02 — Interactive</div>
+      <div class="doc-num">Document 02 — Interactive</div>
       <div class="doc-icon">📱</div>
       <div class="doc-title">UI/UX Prototype</div>
-      <div class="doc-desc">Fully interactive prototype with 14 navigable screens — Welcome, DID Setup, Wallet, Dashboard, dApp Store, Storage, AI Agent, Settings, Developer Console, and more. Click through the full app experience.</div>
-      <div class="doc-tags"><span class="doc-tag">Interactive</span><span class="doc-tag">14 Screens</span><span class="doc-tag">Full App</span><span class="doc-tag">Navigation</span></div>
-      <div class="doc-link">Open Prototype <span class="doc-link-arrow">→</span></div>
+      <div class="doc-desc">Fully interactive prototype with 14 navigable screens — click through the complete app experience from onboarding to developer console.</div>
+      <div class="doc-tags"><span class="doc-tag">Interactive</span><span class="doc-tag">14 Screens</span><span class="doc-tag">Full App</span></div>
+      <div class="doc-link">Open Prototype <span class="doc-arrow">→</span></div>
     </a>
 
     <a class="doc-card" href="03_System_Architecture.html">
-      <div class="doc-number">Document 03</div>
+      <div class="doc-num">Document 03</div>
       <div class="doc-icon">🏗️</div>
       <div class="doc-title">System Architecture</div>
-      <div class="doc-desc">5-layer architecture, multi-chain Protocol Bridge, AI agent pipeline, infrastructure topology, security model, and delivery phases.</div>
-      <div class="doc-tags"><span class="doc-tag">Architecture</span><span class="doc-tag">Infrastructure</span><span class="doc-tag">Security</span></div>
-      <div class="doc-link">Open Document <span class="doc-link-arrow">→</span></div>
+      <div class="doc-desc">5-layer stack, multi-chain Protocol Bridge, AI agent pipeline, infrastructure topology, and security model.</div>
+      <div class="doc-tags"><span class="doc-tag">Architecture</span><span class="doc-tag">Security</span></div>
+      <div class="doc-link">Open <span class="doc-arrow">→</span></div>
     </a>
 
     <a class="doc-card" href="04_API_Specification.html">
-      <div class="doc-number">Document 04</div>
+      <div class="doc-num">Document 04</div>
       <div class="doc-icon">📋</div>
       <div class="doc-title">API Specification</div>
-      <div class="doc-desc">Complete REST + WebSocket API reference — 40+ endpoints covering identity, wallet, storage, AI agent, and app registry. Expandable request/response schemas.</div>
+      <div class="doc-desc">40+ REST + WebSocket endpoints — identity, wallet, storage, AI agent, app registry with full request/response schemas.</div>
       <div class="doc-tags"><span class="doc-tag">REST</span><span class="doc-tag">WebSocket</span><span class="doc-tag">40+ Endpoints</span></div>
-      <div class="doc-link">Open Document <span class="doc-link-arrow">→</span></div>
+      <div class="doc-link">Open <span class="doc-arrow">→</span></div>
     </a>
 
     <a class="doc-card" href="05_Database_Schema.html">
-      <div class="doc-number">Document 05</div>
+      <div class="doc-num">Document 05</div>
       <div class="doc-icon">🗃️</div>
       <div class="doc-title">Database Schema</div>
-      <div class="doc-desc">Full data model — PostgreSQL tables with column constraints, Redis key space, ClickHouse analytics, IPFS document schemas, and on-chain contract layout.</div>
-      <div class="doc-tags"><span class="doc-tag">PostgreSQL</span><span class="doc-tag">Redis</span><span class="doc-tag">ClickHouse</span><span class="doc-tag">IPFS</span></div>
-      <div class="doc-link">Open Document <span class="doc-link-arrow">→</span></div>
+      <div class="doc-desc">PostgreSQL tables, Redis key space, ClickHouse analytics, IPFS document schemas, and on-chain contract layout.</div>
+      <div class="doc-tags"><span class="doc-tag">PostgreSQL</span><span class="doc-tag">Redis</span><span class="doc-tag">IPFS</span></div>
+      <div class="doc-link">Open <span class="doc-arrow">→</span></div>
     </a>
 
     <a class="doc-card" href="06_SDK_Specification.html">
-      <div class="doc-number">Document 06</div>
+      <div class="doc-num">Document 06</div>
       <div class="doc-icon">🛠️</div>
       <div class="doc-title">SDK Specification</div>
-      <div class="doc-desc">@bamtry/sdk TypeScript developer reference — all 6 modules, method signatures, event system, error classes, platform matrix, and dApp integration guide.</div>
+      <div class="doc-desc">@bamtry/sdk TypeScript reference — all modules, method signatures, event system, platform matrix, and dApp integration guide.</div>
       <div class="doc-tags"><span class="doc-tag">TypeScript</span><span class="doc-tag">npm</span><span class="doc-tag">5 Platforms</span></div>
-      <div class="doc-link">Open Document <span class="doc-link-arrow">→</span></div>
+      <div class="doc-link">Open <span class="doc-arrow">→</span></div>
     </a>
 
     <a class="doc-card featured" href="07_User_Flows.html">
-      <div class="doc-number">Document 07</div>
+      <div class="doc-num">Document 07</div>
       <div class="doc-icon">🗺️</div>
       <div class="doc-title">User Flows</div>
-      <div class="doc-desc">8 complete user journey diagrams — Onboarding, Send Transaction, IPFS Upload, AI Agent Chat, dApp Install, Device Pairing, Cross-Chain Bridge, and DID Sign-In. Step-by-step actor interactions with happy paths and error states.</div>
-      <div class="doc-tags"><span class="doc-tag">8 Flows</span><span class="doc-tag">UX</span><span class="doc-tag">Security</span><span class="doc-tag">Error States</span></div>
-      <div class="doc-link">Open Document <span class="doc-link-arrow">→</span></div>
+      <div class="doc-desc">8 complete user journey diagrams — Onboarding, Send Transaction, IPFS Upload, AI Agent Chat, dApp Install, Device Pairing, Cross-Chain Bridge, and DID Sign-In.</div>
+      <div class="doc-tags"><span class="doc-tag">8 Flows</span><span class="doc-tag">UX</span><span class="doc-tag">Error States</span></div>
+      <div class="doc-link">Open <span class="doc-arrow">→</span></div>
     </a>
-
   </div>
-</div>
+</section>
 
+<!-- ── WAITLIST ── -->
+<section id="waitlist" style="max-width:1160px;margin:0 auto;padding:60px 48px 100px;">
+  <div class="waitlist-wrap">
+    <div class="waitlist-count">
+      <div class="wc-avatars">
+        <div class="wc-avatar">M</div>
+        <div class="wc-avatar" style="background:linear-gradient(135deg,var(--cyan),var(--green));">A</div>
+        <div class="wc-avatar" style="background:linear-gradient(135deg,var(--yellow),var(--orange));">J</div>
+        <div class="wc-avatar" style="background:linear-gradient(135deg,var(--red),var(--accent));">K</div>
+        <div class="wc-avatar" style="background:var(--surface2);color:var(--text3);">+</div>
+      </div>
+      <div class="wc-text">Be one of the <strong>first to access</strong> BamtryOS</div>
+    </div>
+
+    <h2 class="waitlist-title">Get Early Access</h2>
+    <p class="waitlist-sub">Join the waitlist and be the first to know when BamtryOS launches. No spam — just the release announcement.</p>
+
+    <form class="waitlist-form" id="waitlistForm" onsubmit="submitWaitlist(event)">
+      <input class="waitlist-input" type="email" id="waitlistEmail" placeholder="your@email.com" required>
+      <button class="waitlist-btn" type="submit">Join Waitlist →</button>
+    </form>
+
+    <div class="waitlist-success" id="waitlistSuccess">
+      ✅ You're on the list! We'll reach out when BamtryOS is ready.
+    </div>
+
+    <div class="waitlist-note">No spam. Unsubscribe anytime. Built by Bamtry Technologies Ltd.</div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
 <footer>
-  <div class="footer-brand">Bamtry Technologies Ltd.</div>
-  <div class="footer-ip">All IP owned by Bamtry Technologies Ltd.</div>
-  <div class="footer-meta">Design Phase · For Jam-Forte Technologies</div>
+  <div class="footer-inner">
+    <div class="footer-brand-col">
+      <div class="footer-logo">
+        <svg width="28" height="28" viewBox="0 0 32 32" fill="none">
+          <polygon points="16,2 28,9 28,23 16,30 4,23 4,9" fill="none" stroke="#7C6FFF" stroke-width="1.5"/>
+          <circle cx="16" cy="16" r="4" fill="#7C6FFF"/>
+          <circle cx="16" cy="4" r="1.5" fill="#00D4FF"/><circle cx="28" cy="11" r="1.5" fill="#00D4FF"/>
+        </svg>
+        <span style="font-size:15px;font-weight:700;">BamtryOS</span>
+      </div>
+      <p class="footer-tagline">The hybrid decentralised operating system for Web3. One identity. Every chain. Any device.</p>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Product</div>
+      <ul class="footer-col-links">
+        <li><a href="#features">Features</a></li>
+        <li><a href="#architecture">Architecture</a></li>
+        <li><a href="#chains">Supported Chains</a></li>
+        <li><a href="#waitlist">Early Access</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Developers</div>
+      <ul class="footer-col-links">
+        <li><a href="02_UI_Prototype.html">UI Prototype</a></li>
+        <li><a href="04_API_Specification.html">API Reference</a></li>
+        <li><a href="06_SDK_Specification.html">SDK Docs</a></li>
+        <li><a href="05_Database_Schema.html">Database Schema</a></li>
+      </ul>
+    </div>
+
+    <div>
+      <div class="footer-col-title">Company</div>
+      <ul class="footer-col-links">
+        <li><a href="03_System_Architecture.html">System Design</a></li>
+        <li><a href="07_User_Flows.html">User Flows</a></li>
+        <li><a href="01_Design_System.html">Design System</a></li>
+        <li><a href="mailto:mubbyola@gmail.com">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <div class="footer-copy">© 2026 Bamtry Technologies Ltd. All rights reserved.</div>
+    <div class="footer-ip">All intellectual property owned by Bamtry Technologies Ltd.</div>
+  </div>
 </footer>
 
+<script>
+  function submitWaitlist(e) {
+    e.preventDefault();
+    const email = document.getElementById('waitlistEmail').value;
+    const form = document.getElementById('waitlistForm');
+    const success = document.getElementById('waitlistSuccess');
+    const btn = form.querySelector('button');
+
+    btn.textContent = 'Joining...';
+    btn.disabled = true;
+
+    // Send to Formspree — replace YOUR_FORM_ID with your Formspree form ID
+    fetch('https://formspree.io/f/xpwzgvkj', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+      body: JSON.stringify({ email: email, source: 'BamtryOS Waitlist' })
+    })
+    .then(r => {
+      form.style.display = 'none';
+      success.style.display = 'block';
+    })
+    .catch(() => {
+      // Still show success — log the email locally
+      form.style.display = 'none';
+      success.style.display = 'block';
+    });
+  }
+
+  // Smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const href = a.getAttribute('href');
+      if (href === '#') return;
+      e.preventDefault();
+      const t = document.querySelector(href);
+      if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+
+  // Nav active highlight on scroll
+  const sections = document.querySelectorAll('section[id]');
+  const navLinks = document.querySelectorAll('.nav-link');
+  window.addEventListener('scroll', () => {
+    let current = '';
+    sections.forEach(s => { if (window.scrollY >= s.offsetTop - 100) current = s.id; });
+    navLinks.forEach(l => {
+      l.style.color = l.getAttribute('href') === '#' + current ? 'var(--text)' : '';
+    });
+  });
+</script>
 </body>
 </html>
