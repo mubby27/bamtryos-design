@@ -438,12 +438,11 @@
   <div class="sidebar-section">
     <div class="sidebar-section-label">Sections</div>
     <a class="sidebar-item" href="#overview"><span class="dot"></span>Overview</a>
-    <a class="sidebar-item" href="#layers"><span class="dot"></span>Layer Architecture</a>
-    <a class="sidebar-item" href="#kernel"><span class="dot"></span>Core Kernel</a>
-    <a class="sidebar-item" href="#protocol"><span class="dot"></span>Protocol Bridge</a>
+    <a class="sidebar-item" href="#twotier"><span class="dot"></span>Two-Tier Architecture</a>
+    <a class="sidebar-item" href="#modules"><span class="dot"></span>9 Core Modules</a>
+    <a class="sidebar-item" href="#bridgeapp"><span class="dot"></span>Bridge App</a>
+    <a class="sidebar-item" href="#w3app"><span class="dot"></span>.w3app Format</a>
     <a class="sidebar-item" href="#ai"><span class="dot"></span>AI Agent Layer</a>
-    <a class="sidebar-item" href="#services"><span class="dot"></span>Service Layer</a>
-    <a class="sidebar-item" href="#app"><span class="dot"></span>App Layer & SDK</a>
     <a class="sidebar-item" href="#chains"><span class="dot"></span>Chain Support</a>
     <a class="sidebar-item" href="#infra"><span class="dot"></span>Infrastructure</a>
     <a class="sidebar-item" href="#security"><span class="dot"></span>Security Model</a>
@@ -481,64 +480,387 @@
       </div>
 
       <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
-        BamtryOS is designed as a <strong style="color:var(--text)">hybrid decentralised operating system</strong> — a platform layer that abstracts blockchain complexity while delivering a unified, consumer-grade interface for Web3 interaction. The architecture is built around five vertical layers, each with clearly defined responsibilities and interfaces, enabling independent scaling and phased delivery.
+        BamtryOS is a <strong style="color:var(--text)">Hybrid Web3 Operating System</strong> built on a two-tier architecture: a local <strong style="color:var(--cyan)">Bridge App</strong> that runs natively on the user's device, and a <strong style="color:var(--accent)">Decentralised Cloud OS</strong> that governs identity, permissions, assets, and all coordination logic. The Bridge App handles local execution, cryptographic signing, and device I/O — while the Cloud OS is the permanent, portable, sovereign layer that the user truly owns. The two communicate over an encrypted Secure Session Link. The identity is never owned by the device — only proven by it.
       </p>
 
       <div class="cards-grid cards-grid-3" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
         <div class="card">
-          <div class="card-icon" style="background:rgba(124,111,255,0.12);">🏗️</div>
-          <div class="card-title">5-Layer Architecture</div>
-          <div class="card-desc">Clean separation of concerns from kernel primitives through to user-facing application layer and SDK.</div>
+          <div class="card-icon" style="background:rgba(0,212,255,0.12);">📱</div>
+          <div class="card-title">Bridge App (Local Runtime)</div>
+          <div class="card-desc">The native app installed on mobile or desktop. Renders UI, hosts native app wrappers, executes cryptographic signing, and provides device access (camera, sensors, biometrics). Replaceable — the identity is not.</div>
         </div>
         <div class="card">
-          <div class="card-icon" style="background:rgba(0,212,255,0.1);">🔗</div>
-          <div class="card-title">Multi-Chain Native</div>
-          <div class="card-desc">First-class support for EVM, Solana, Cosmos, and Bitcoin via a unified Protocol Bridge abstraction.</div>
+          <div class="card-icon" style="background:rgba(124,111,255,0.12);">☁️</div>
+          <div class="card-title">Decentralised Cloud OS</div>
+          <div class="card-desc">The permanent OS runtime in the cloud. Owns the user's DID, wallet, storage, app governance, and global settings. Accessible from any Bridge App on any device — the user's identity travels with them.</div>
         </div>
         <div class="card">
-          <div class="card-icon" style="background:rgba(0,200,150,0.1);">🤖</div>
-          <div class="card-title">AI-Embedded</div>
-          <div class="card-desc">LangChain + AutoGen agents with GPT-4o are a native architectural layer, not a bolt-on feature.</div>
+          <div class="card-icon" style="background:rgba(0,200,150,0.1);">🔐</div>
+          <div class="card-title">Secure Session Link</div>
+          <div class="card-desc">End-to-end encrypted channel between the Bridge App and Cloud OS. The cloud never "logs in" the user traditionally — it verifies cryptographic proof that the user controls their DID.</div>
         </div>
         <div class="card">
           <div class="card-icon" style="background:rgba(255,184,0,0.1);">🪪</div>
           <div class="card-title">DID-First Identity</div>
-          <div class="card-desc">W3C Decentralised Identifiers as the identity primitive — replacing usernames and passwords at the OS level.</div>
+          <div class="card-desc">W3C DID Core 1.0 identity lives in the decentralised runtime, not on any device. The same identity works across all devices. Devices are independently authorised and revocable.</div>
         </div>
         <div class="card">
           <div class="card-icon" style="background:rgba(255,92,122,0.1);">📦</div>
-          <div class="card-title">Universal SDK</div>
-          <div class="card-desc">Write once, deploy to Android, iOS, Windows, macOS, and Linux with a single TypeScript SDK interface.</div>
+          <div class="card-title">.w3app Format</div>
+          <div class="card-desc">One source package generates native binaries for Android, iOS, Windows, macOS, and Linux. Apps declare permissions, monetisation rules, and chain requirements in a single manifest.</div>
         </div>
         <div class="card">
-          <div class="card-icon" style="background:rgba(124,111,255,0.12);">🔐</div>
-          <div class="card-title">Zero-Trust Security</div>
-          <div class="card-desc">No central authentication server. Keys never leave the device. IPFS-encrypted storage. TEE hardware support.</div>
+          <div class="card-icon" style="background:rgba(0,212,255,0.1);">🔗</div>
+          <div class="card-title">Multi-Chain Financial Engine</div>
+          <div class="card-desc">The wallet is not an app — it is an OS-level financial engine. Apps never touch keys or chains directly. All asset operations are mediated by the Cloud OS wallet module.</div>
         </div>
       </div>
 
       <div class="callout callout-info">
         <span class="callout-icon">ℹ️</span>
         <div class="callout-text">
-          <strong>Design Principle:</strong> Every architectural decision prioritises user sovereignty. Users own their identity (DID), their data (IPFS), and their keys (local keystore). BamtryOS is the OS layer that makes this accessible without sacrificing UX quality.
+          <strong>Core Design Principle:</strong> BamtryOS is not "apps in the cloud." It is <em>local software governed by a decentralised operating system</em>. The Bridge App is replaceable. The identity is permanent. Users own their DID, their data (encrypted decentralised storage), and their assets — the OS makes this seamlessly accessible without sacrificing UX quality.
         </div>
       </div>
     </div>
 
     <hr class="divider">
 
-    <!-- 2. Layer Stack -->
-    <div class="section" id="layers">
+    <!-- 2. Two-Tier Architecture -->
+    <div class="section" id="twotier">
       <div class="section-header">
         <div class="section-number">02</div>
         <div>
-          <div class="section-title">Five-Layer Architecture</div>
-          <div class="section-subtitle">Vertical decomposition of the BamtryOS stack</div>
+          <div class="section-title">Two-Tier Architecture</div>
+          <div class="section-subtitle">Bridge App (local) ↔ Decentralised Cloud OS</div>
         </div>
       </div>
 
-      <div class="arch-diagram">
-        <div class="arch-title">BamtryOS Stack — Top to Bottom</div>
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        BamtryOS is not a cloud app with a mobile front-end. It is a <strong style="color:var(--text)">two-tier system</strong> where the local Bridge App acts as the trusted execution boundary on the user's device, while the Decentralised Cloud OS is the permanent OS runtime that the user truly owns. The two communicate over an end-to-end encrypted Secure Session Link. Authentication happens locally — the cloud verifies cryptographic proof, never credentials.
+      </p>
+
+      <!-- Two-Tier Diagram -->
+      <div class="arch-diagram" style="background:var(--surface2);border:1px solid var(--border);border-radius:16px;padding:32px;margin-bottom:24px;">
+        <div class="arch-title" style="text-align:center;font-size:16px;font-weight:700;margin-bottom:28px;color:var(--text);">Hybrid Web3 Operating System — Deployment Topology</div>
+
+        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:center;">
+
+          <!-- Bridge App -->
+          <div style="background:var(--surface);border:2px solid var(--cyan);border-radius:12px;padding:20px;">
+            <div style="color:var(--cyan);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;">Local Runtime</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:16px;">Bridge App</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--cyan);">UI Renderer</div>
+              <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--cyan);">Native App Wrappers</div>
+              <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--cyan);">Device Access (Camera, Sensors)</div>
+              <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--cyan);">Cryptographic Signing (TEE)</div>
+              <div style="background:rgba(0,212,255,0.08);border:1px solid rgba(0,212,255,0.2);border-radius:8px;padding:10px 14px;font-size:12px;font-weight:600;color:var(--cyan);">Biometric Authentication</div>
+            </div>
+            <div style="margin-top:12px;padding:10px;background:rgba(0,212,255,0.05);border-radius:8px;font-size:11px;color:var(--text2);text-align:center;">Runs on: Android · iOS · Windows · macOS · Linux</div>
+          </div>
+
+          <!-- Secure Link -->
+          <div style="display:flex;flex-direction:column;align-items:center;gap:8px;min-width:120px;">
+            <div style="width:2px;height:20px;background:rgba(124,111,255,0.4);"></div>
+            <div style="background:rgba(124,111,255,0.12);border:1px solid rgba(124,111,255,0.3);border-radius:8px;padding:10px 14px;text-align:center;">
+              <div style="font-size:18px;margin-bottom:4px;">🔒</div>
+              <div style="font-size:10px;font-weight:700;color:var(--accent);letter-spacing:0.5px;">SECURE SESSION LINK</div>
+              <div style="font-size:10px;color:var(--text2);margin-top:4px;">Encrypted Connection</div>
+              <div style="font-size:10px;color:var(--text2);">Cryptographic Proof</div>
+            </div>
+            <div style="width:2px;height:20px;background:rgba(124,111,255,0.4);"></div>
+            <div style="display:flex;gap:8px;align-items:center;">
+              <div style="height:2px;width:30px;background:rgba(124,111,255,0.4);"></div>
+              <div style="font-size:16px;color:var(--accent);">⇄</div>
+              <div style="height:2px;width:30px;background:rgba(124,111,255,0.4);"></div>
+            </div>
+          </div>
+
+          <!-- Cloud OS -->
+          <div style="background:var(--surface);border:2px solid var(--accent);border-radius:12px;padding:20px;">
+            <div style="color:var(--accent);font-size:11px;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;margin-bottom:4px;">Decentralised Runtime</div>
+            <div style="font-size:16px;font-weight:700;margin-bottom:16px;">Cloud OS</div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">Identity & Auth</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">Wallet & Assets</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">Transaction Engine</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">App Management</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">Storage & Data</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">App Store</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">Profile & Settings</div>
+              <div style="background:rgba(124,111,255,0.08);border:1px solid rgba(124,111,255,0.2);border-radius:8px;padding:8px 10px;font-size:11px;font-weight:600;color:var(--accent);">Governance</div>
+            </div>
+            <div style="margin-top:12px;padding:10px;background:rgba(124,111,255,0.05);border-radius:8px;font-size:11px;color:var(--text2);text-align:center;">Global Control & Storage — Portable across all devices</div>
+          </div>
+
+        </div>
+
+        <!-- Locally Installed Apps -->
+        <div style="margin-top:24px;background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;">
+          <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:12px;text-align:center;">LOCALLY INSTALLED APPS (registered with Cloud OS via Bridge App)</div>
+          <div style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap;">
+            <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--green);">DeFi App</div>
+            <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--green);">NFT App</div>
+            <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--green);">Games</div>
+            <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--green);">Web3Mail</div>
+            <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--green);">Web3Drive</div>
+            <div style="background:rgba(0,200,150,0.08);border:1px solid rgba(0,200,150,0.2);border-radius:8px;padding:10px 20px;font-size:12px;font-weight:600;color:var(--green);">Third-Party dApps</div>
+          </div>
+          <div style="text-align:center;font-size:11px;color:var(--text3);margin-top:8px;">Native App Wrappers — Installed locally, governed globally by user's DID</div>
+        </div>
+      </div>
+
+      <div class="callout callout-info">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Key distinction:</strong> The Bridge App is a <em>local, replaceable runtime</em>. If a device is lost or stolen, the user authenticates with a new Bridge App and the Cloud OS recognises their DID. Nothing is lost — identity, wallet, apps, and data all live in the Cloud OS, not the device.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 3. Nine Core Modules -->
+    <div class="section" id="modules">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div>
+          <div class="section-title">9 Core Modules</div>
+          <div class="section-subtitle">Feature modules of the Decentralised Cloud OS</div>
+        </div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        The Cloud OS is decomposed into 9 independently deployable modules. Each module owns its data, exposes versioned APIs, and can be upgraded without affecting others. Apps interact with modules through the Bridge App mediation layer — never directly.
+      </p>
+
+      <div class="cards-grid" style="grid-template-columns:repeat(3,1fr);margin-bottom:24px;">
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(124,111,255,0.12);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--accent);">Module A</div>
+          </div>
+          <div class="card-title">Identity & Authentication</div>
+          <div class="card-desc">The entry point to the OS. Authentication begins in the Bridge App using cryptographic proof (wallet signature, biometric, hardware key). The Cloud OS verifies proof — never passwords. The DID lives here, never on the device.</div>
+          <div class="card-tags"><span class="tag">W3C DID Core 1.0</span><span class="tag">did:ethr</span><span class="tag">did:bamtry</span><span class="tag">Verifiable Credentials</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(0,212,255,0.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--cyan);">Module B</div>
+          </div>
+          <div class="card-title">Wallet & Asset Engine</div>
+          <div class="card-desc">Not a wallet app — an OS-level financial engine. Every app on BamtryOS interacts with assets through this module, never directly with blockchains. Manages multi-chain assets, normalises gas, simulates transactions, abstracts chain differences.</div>
+          <div class="card-tags"><span class="tag">EVM</span><span class="tag">Solana</span><span class="tag">Cosmos</span><span class="tag">Bitcoin</span><span class="tag">NFTs</span><span class="tag">RWAs</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(0,200,150,0.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--green);">Module C</div>
+          </div>
+          <div class="card-title">Transaction & Execution</div>
+          <div class="card-desc">Turns user intent into deterministic execution. Validates intent, simulates outcomes, estimates fees, handles batching, scheduling, and cross-chain routing. Cryptographic approval happens in the Bridge App TEE; orchestration logic lives here.</div>
+          <div class="card-tags"><span class="tag">Intent validation</span><span class="tag">Simulation</span><span class="tag">Cross-chain</span><span class="tag">Batching</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(255,184,0,0.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--yellow);">Module D</div>
+          </div>
+          <div class="card-title">Application Runtime</div>
+          <div class="card-desc">Governs how apps exist, run, and behave. Apps register with the Bridge App, declare permissions, and the Cloud OS binds them to the user's DID. Enforces sandboxing, permission boundaries, identity-scoped access. Enables remote revocation.</div>
+          <div class="card-tags"><span class="tag">Sandboxing</span><span class="tag">Permissions</span><span class="tag">DID binding</span><span class="tag">Revocation</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(255,92,122,0.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--red);">Module E</div>
+          </div>
+          <div class="card-title">App Store & Distribution</div>
+          <div class="card-desc">The canonical distribution layer. Developers submit .w3app packages. The store reviews, signs, and distributes platform-native binaries. Manages updates, rollbacks, and revocation. Apps are installed locally but owned globally by the user's DID.</div>
+          <div class="card-tags"><span class="tag">.w3app format</span><span class="tag">Code signing</span><span class="tag">Rollback</span><span class="tag">Revocation</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(124,111,255,0.12);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--accent);">Module F</div>
+          </div>
+          <div class="card-title">Storage & Data</div>
+          <div class="card-desc">Governs where data lives and who controls it. Local storage is encrypted cache only — the source of truth is always decentralised storage encrypted with keys from the user's DID. Apps get scoped access, not ownership. Cross-device sync is automatic.</div>
+          <div class="card-tags"><span class="tag">IPFS</span><span class="tag">Filecoin</span><span class="tag">AES-256-GCM</span><span class="tag">App isolation</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(0,212,255,0.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--cyan);">Module G</div>
+          </div>
+          <div class="card-title">Profile & System Settings</div>
+          <div class="card-desc">Manages the user's presence inside the OS: identity attributes, device authorisation, security preferences, notification behaviour, app permissions. All changes propagate across devices because they are bound to the DID, not the hardware.</div>
+          <div class="card-tags"><span class="tag">Device auth</span><span class="tag">Session mgmt</span><span class="tag">Remote logout</span><span class="tag">Recovery</span></div>
+        </div>
+
+        <div class="card">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(0,200,150,0.1);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--green);">Module H</div>
+          </div>
+          <div class="card-title">Governance & Network</div>
+          <div class="card-desc">Allows the OS itself to evolve without breaking user trust. Manages protocol upgrades, governance proposals, voting, and emergency interventions. Users participate directly or delegate. Replaces opaque platform governance with cryptographically enforced decisions.</div>
+          <div class="card-tags"><span class="tag">DAO</span><span class="tag">Proposals</span><span class="tag">Voting</span><span class="tag">Protocol upgrades</span></div>
+        </div>
+
+        <div class="card" style="border-color:rgba(0,212,255,0.3);background:rgba(0,212,255,0.04);">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+            <div style="background:rgba(0,212,255,0.12);border-radius:6px;padding:4px 10px;font-size:11px;font-weight:700;color:var(--cyan);">Module I (Local)</div>
+          </div>
+          <div class="card-title">Bridge App</div>
+          <div class="card-desc">The local embodiment of the OS. Renders UI, handles device I/O, secures cryptographic operations, hosts native app wrappers, enforces permissions, acts as the user's trusted execution boundary. Does not own identity, data, or assets — it is replaceable.</div>
+          <div class="card-tags"><span class="tag">TEE signing</span><span class="tag">Biometrics</span><span class="tag">Offline support</span><span class="tag">NFC/QR</span></div>
+        </div>
+
+      </div>
+
+      <div class="callout callout-warn">
+        <span class="callout-icon">⚠️</span>
+        <div class="callout-text">
+          <strong>Module boundary rule:</strong> Apps never directly access wallets, identity, storage, or device APIs. Every request is mediated through the Bridge App which logs and enforces the permission boundaries defined by the Cloud OS. This is what enables remote revocation and portable app ownership.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 4. Bridge App Detail -->
+    <div class="section" id="bridgeapp">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div>
+          <div class="section-title">Bridge App — Native Capabilities</div>
+          <div class="section-subtitle">Device features accessible to the local runtime</div>
+        </div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        The Bridge App is the trusted local runtime installed on the user's device. It accesses native OS features on behalf of apps — but only with Cloud OS-granted permissions. It never bypasses the permission model defined by the Cloud OS.
+      </p>
+
+      <table class="comp-table" style="margin-bottom:24px;">
+        <thead>
+          <tr><th>Category</th><th>Capability</th><th>Permission Required</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Security & Identity</td><td>Secure enclave / keystore, Biometric auth, App-scoped cryptographic keys</td><td>Always granted (core)</td></tr>
+          <tr><td>Device Hardware</td><td>Camera, Microphone, NFC, QR scanning, Sensors</td><td>Per-app, user approved</td></tr>
+          <tr><td>File System</td><td>Sandboxed local cache, Encrypted offline storage</td><td>Scoped by Cloud OS</td></tr>
+          <tr><td>System Integration</td><td>Push notifications, Background tasks, App shortcuts, Clipboard (restricted)</td><td>Per-app</td></tr>
+          <tr><td>Blockchain</td><td>Transaction signing, Message signing, Fee approval, Key derivation (BIP-44/84)</td><td>Always in TEE boundary</td></tr>
+          <tr><td>Network</td><td>Secure Session Link to Cloud OS, P2P messaging, Offline-first sync queue</td><td>Core system</td></tr>
+        </tbody>
+      </table>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">Key Derivation in Bridge App TEE</div>
+        <pre class="code-block"><code><span class="c-comment">// BIP-39 → BIP-44 HD wallet derivation — runs inside TEE, private key never exposed</span>
+<span class="c-keyword">const</span> derivationPaths = {
+  ethereum:   <span class="c-string">"m/44'/60'/0'/0/0"</span>,     <span class="c-comment">// ETH, Polygon, Arbitrum, Base</span>
+  solana:     <span class="c-string">"m/44'/501'/0'/0'"</span>,    <span class="c-comment">// Solana</span>
+  cosmos:     <span class="c-string">"m/44'/118'/0'/0/0"</span>,   <span class="c-comment">// Cosmos Hub, Osmosis</span>
+  bitcoin:    <span class="c-string">"m/84'/0'/0'/0/0"</span>,     <span class="c-comment">// Bitcoin native SegWit (BIP-84)</span>
+};
+
+<span class="c-keyword">interface</span> <span class="c-type">KeystoreEntry</span> {
+  chainId:    <span class="c-type">string</span>;
+  publicKey:  <span class="c-type">Uint8Array</span>;
+  path:       <span class="c-type">string</span>;
+  algorithm:  <span class="c-string">'secp256k1'</span> | <span class="c-string">'ed25519'</span>;
+  <span class="c-comment">// privateKey is NEVER stored or transmitted — stays in TEE boundary</span>
+}</code></pre>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- 5. .w3app Package Format -->
+    <div class="section" id="w3app">
+      <div class="section-header">
+        <div class="section-number">05</div>
+        <div>
+          <div class="section-title">.w3app Package Format</div>
+          <div class="section-subtitle">Custom app format — one source, all platforms</div>
+        </div>
+      </div>
+
+      <p style="color:var(--text2);font-size:14px;line-height:1.7;margin-bottom:24px;">
+        BamtryOS does not accept arbitrary APKs or executables as first-class applications. Developers submit a <strong style="color:var(--cyan)">.w3app</strong> package built with the Web3 OS SDK. From one source, the SDK generates native binaries for every supported platform. Apps declare permissions, chain requirements, and monetisation rules in the manifest.
+      </p>
+
+      <div class="cards-grid" style="grid-template-columns:repeat(2,1fr);margin-bottom:24px;">
+        <div class="card">
+          <div class="card-title">.w3app Package Contents</div>
+          <div class="card-desc" style="margin-bottom:12px;">A single deployable package containing everything the OS needs to install and govern the app.</div>
+          <div style="display:flex;flex-direction:column;gap:6px;">
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="color:var(--accent);">▸</span><strong style="color:var(--text);">App manifest</strong> <span style="color:var(--text2);">— permissions, chains, device APIs, monetisation rules</span></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="color:var(--accent);">▸</span><strong style="color:var(--text);">Core logic</strong> <span style="color:var(--text2);">— Web3 OS runtime compatible (WASM / SDK)</span></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="color:var(--accent);">▸</span><strong style="color:var(--text);">UI definitions</strong> <span style="color:var(--text2);">— platform-adaptive layouts</span></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="color:var(--accent);">▸</span><strong style="color:var(--text);">Cloud backend bindings</strong> <span style="color:var(--text2);">— which Cloud OS modules the app uses</span></div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:12px;"><span style="color:var(--accent);">▸</span><strong style="color:var(--text);">Cryptographic signature</strong> <span style="color:var(--text2);">— developer identity and integrity proof</span></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Native Wrapper Generation</div>
+          <div class="card-desc" style="margin-bottom:12px;">From one .w3app, the SDK builds platform-native binaries. Wrappers adapt to the host OS but cannot bypass Web3 OS permissions.</div>
+          <table style="width:100%;border-collapse:collapse;font-size:12px;">
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 8px;color:var(--text2);">Android</td>
+              <td style="padding:6px 8px;font-family:var(--mono);color:var(--cyan);">.aab / .apk</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 8px;color:var(--text2);">iOS</td>
+              <td style="padding:6px 8px;font-family:var(--mono);color:var(--cyan);">.ipa</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 8px;color:var(--text2);">Windows</td>
+              <td style="padding:6px 8px;font-family:var(--mono);color:var(--cyan);">.msix / .exe</td>
+            </tr>
+            <tr style="border-bottom:1px solid var(--border);">
+              <td style="padding:6px 8px;color:var(--text2);">macOS</td>
+              <td style="padding:6px 8px;font-family:var(--mono);color:var(--cyan);">.app</td>
+            </tr>
+            <tr>
+              <td style="padding:6px 8px;color:var(--text2);">Linux</td>
+              <td style="padding:6px 8px;font-family:var(--mono);color:var(--cyan);">.deb / AppImage</td>
+            </tr>
+          </table>
+        </div>
+      </div>
+
+      <div class="diagram-box">
+        <div class="diagram-box-title">App Manifest — w3app.json</div>
+        <pre class="code-block"><code>{
+  <span class="c-string">"name"</span>: <span class="c-string">"MyDeFiApp"</span>,
+  <span class="c-string">"version"</span>: <span class="c-string">"1.0.0"</span>,
+  <span class="c-string">"developer"</span>: <span class="c-string">"did:bamtry:0xDEV..."</span>,
+  <span class="c-string">"permissions"</span>: [<span class="c-string">"wallet.read"</span>, <span class="c-string">"wallet.sign"</span>, <span class="c-string">"storage.app"</span>],
+  <span class="c-string">"chains"</span>: [<span class="c-string">"ethereum"</span>, <span class="c-string">"polygon"</span>, <span class="c-string">"arbitrum"</span>],
+  <span class="c-string">"device_apis"</span>: [<span class="c-string">"camera"</span>, <span class="c-string">"notifications"</span>],
+  <span class="c-string">"monetisation"</span>: { <span class="c-string">"model"</span>: <span class="c-string">"subscription"</span>, <span class="c-string">"price_usd"</span>: <span class="c-number">9.99</span> },
+  <span class="c-string">"signature"</span>: <span class="c-string">"0xSIG..."</span>
+}</code></pre>
+      </div>
+
+      <div class="callout callout-info" style="margin-top:16px;">
+        <span class="callout-icon">ℹ️</span>
+        <div class="callout-text">
+          <strong>Installation flow:</strong> User opens Bridge App → selects app from App Store → reviews declared permissions → appropriate native wrapper downloads → app installs locally → Bridge App registers app → Cloud OS binds app to user's DID. The app is installed locally but governed globally.
+        </div>
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- Chain Adapter detail (hidden, retained in API spec) -->
+    <div style="display:none;">
+      <div style="display:none;">
         <div class="layer-stack">
 
           <div class="layer layer-l5">
@@ -797,10 +1119,10 @@
 
     <hr class="divider">
 
-    <!-- 5. AI Agent Layer -->
+    <!-- 6. AI Agent Layer -->
     <div class="section" id="ai">
       <div class="section-header">
-        <div class="section-number">05</div>
+        <div class="section-number">06</div>
         <div>
           <div class="section-title">AI Agent Layer</div>
           <div class="section-subtitle">Embedded autonomous intelligence using LangChain + AutoGen</div>
